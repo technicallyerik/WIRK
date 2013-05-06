@@ -20,8 +20,6 @@
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
-   <layout class="QGridLayout" name="gridLayout_2">
-    <item row="0" column="0">
      <layout class="QGridLayout" name="gridLayout">
       <property name="sizeConstraint">
        <enum>QLayout::SetMaximumSize</enum>
@@ -60,8 +58,6 @@
        <widget class="QLineEdit" name="sendText"/>
       </item>
      </layout>
-    </item>
-   </layout>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">

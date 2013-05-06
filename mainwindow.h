@@ -18,11 +18,10 @@ public:
     
 private:
     Ui::MainWindow *ui;
-    void handleNumericMessage(IrcNumericMessage* message);
 
 private slots:
-    void processMessage(IrcMessage * message);
-
+    void sendMessage();
+    void displayMessage(QString message);
 };
 
 #endif // MAINWINDOW_H

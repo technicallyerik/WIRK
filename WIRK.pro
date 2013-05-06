@@ -11,7 +11,6 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = WIRK
 TEMPLATE = app
 
-
 SOURCES += main.cpp\
         mainwindow.cpp \
     ext_lib/communi/irctextformat.cpp \
@@ -52,7 +51,9 @@ SOURCES += main.cpp\
     ext_lib/uchardet/LangCyrillicModel.cpp \
     ext_lib/uchardet/LangBulgarianModel.cpp \
     ext_lib/uchardet/JpCntx.cpp \
-    ext_lib/uchardet/CharDistribution.cpp
+    ext_lib/uchardet/CharDistribution.cpp \
+    models/irc_server.cpp \
+    utilities/message_parser.cpp
 
 HEADERS  += mainwindow.h \
     ext_lib/communi/irctextformat.h \
@@ -88,7 +89,9 @@ HEADERS  += mainwindow.h \
     ext_lib/uchardet/nsCharSetProber.h \
     ext_lib/uchardet/nsBig5Prober.h \
     ext_lib/uchardet/JpCntx.h \
-    ext_lib/uchardet/CharDistribution.h
+    ext_lib/uchardet/CharDistribution.h \
+    models/irc_server.h \
+    utilities/message_parser.h
 
 FORMS    += mainwindow.ui
 
@@ -101,6 +104,8 @@ OTHER_FILES += \
 
 INCLUDEPATH += ext_lib/communi \
                 ext_lib/mozilla \
-                ext_lib/uchardet
+                ext_lib/uchardet \
+                models \
+                utilities
 
 QT += network
