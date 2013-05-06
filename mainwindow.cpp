@@ -16,6 +16,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     server->setNickname("testing1234567");
     server->setRealname("Testing 1234567");
     connect(server, SIGNAL(textChanged(QString)), this, SLOT(displayMessage(QString)));
+    server->setSSL(true);
     server->createConnection();
 
     // Hook up the sending text box
