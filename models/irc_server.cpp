@@ -81,9 +81,32 @@ QString irc_server::getText() {
     return m_text;
 }
 
+
+/***
+ * This function parses the message searching for the username which is
+ * propended to all messages by the server. This removes that first occurance
+ * before returning the message_parser
+ ***/
 void irc_server::processMessage(IrcMessage *message)
 {
-    m_text += m_parser->parse(message) + '\n';
+    QString fullMessage = m_parser->parse(message);
+    QRegExp usernameRX("^(\\[.*\\] \\(.*\\)) (" + m_username + ")(.*)");
+    int pos = usernameRX.indexIn(fullMessage);
+    QString newString;
+    if(pos > -1) {
+        newString = usernameRX.cap(1) + " " + usernameRX.cap(3);
+        QRegExp highlightUsernameRX("(.*)(" + m_username + ")((?: *|$).*)");
+        pos = highlightUsernameRX.indexIn(newString);
+        if(pos > -1) {
+            newString = highlightUsernameRX.cap(1) + " <font color=\"Lime\">" + highlightUsernameRX.cap(2) + "</font> " + highlightUsernameRX.cap(3);
+        }
+        newString += "<br />";
+    } else {
+        newString = fullMessage + "<br />";
+    }
+
+
+    m_text += newString;
     emit(textChanged(m_text));
 }
 

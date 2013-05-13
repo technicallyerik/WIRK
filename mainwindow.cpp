@@ -43,7 +43,7 @@ MainWindow::~MainWindow()
 void MainWindow::displayMessage(QString message)
 {
     // TODO:  Only display text from currently selected tree item
-    ui->mainText->setText(message);
+    ui->mainText->setHtml(message);
 }
 
 
