@@ -1,7 +1,7 @@
 WIRK
 ====
 
-This application is created in Qt using C++.
+WIRK is an IRC client created in Qt using C++.  It uses code from the [Communi IRC Framework](https://github.com/communi/communi) to manage the actual connections to IRC.
 
 Getting it to run:
 
