@@ -97,7 +97,8 @@ void irc_server::sendMessage(QString message) {
  ***/
 void irc_server::processMessage(IrcMessage *message)
 {
-    QString fullMessage = m_parser->parse(message);
+    ParsedMessage* parsedMessage = m_parser->parse(message);
+    QString fullMessage = parsedMessage->getMessage();
     QRegExp usernameRX("^(" + m_username + ")(.*)");
     int pos = usernameRX.indexIn(fullMessage);
     QString newString;

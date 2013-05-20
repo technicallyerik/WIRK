@@ -6,55 +6,72 @@ message_parser::message_parser(QObject *parent) : QObject(parent)
 
 }
 
-QString message_parser::parse(IrcMessage *message)
+ParsedMessage* message_parser::parse(IrcMessage *message)
 {
     QString sender = message->sender().name();
 
-    QString formattedMessage = "";
+
+    ParsedMessage* parsedMessage = new ParsedMessage::ParsedMessage();
 
     switch (message->type()) {
         case IrcMessage::Invite: {
             IrcInviteMessage *invite = static_cast<IrcInviteMessage*>(message);
             break;
         }
+
         case IrcMessage::Join: {
             IrcJoinMessage *join = static_cast<IrcJoinMessage*>(message);
+            parsedMessage->setMessage(QString("%1 has joined %2").arg(sender, join->channel()));
+            parsedMessage->setDestination(join->channel());
             break;
         }
+
         case IrcMessage::Kick: {
             IrcKickMessage *kick = static_cast<IrcKickMessage*>(message);
             break;
         }
+
         case IrcMessage::Mode: {
             IrcModeMessage *mode = static_cast<IrcModeMessage*>(message);
+            int i = 0;
             break;
         }
+
         case IrcMessage::Nick: {
             IrcNickMessage *nick = static_cast<IrcNickMessage*>(message);
             break;
         }
+
         case IrcMessage::Notice: {
             IrcNoticeMessage *notice = static_cast<IrcNoticeMessage*>(message);
-            formattedMessage = QString("[%1] %2").arg(sender, notice->message());
+            parsedMessage->setMessage(QString("[%1] %2").arg(sender, notice->message()));
+            parsedMessage->setDestination(notice->target());
             break;
         }
+
         case IrcMessage::Numeric: {
             IrcNumericMessage *numeric = static_cast<IrcNumericMessage*>(message);
-            formattedMessage = this->parsenumeric(numeric);
+            parsedMessage->setMessage(this->parsenumeric(numeric));
             break;
         }
+
         case IrcMessage::Part: {
             IrcPartMessage *part = static_cast<IrcPartMessage*>(message);
             break;
         }
+
         case IrcMessage::Pong: {
             IrcPongMessage *pong = static_cast<IrcPongMessage*>(message);
             break;
         }
+
         case IrcMessage::Private: {
             IrcPrivateMessage *pm = static_cast<IrcPrivateMessage*>(message);
+            parsedMessage->setMessage(pm->message());
+            parsedMessage->setDestination(pm->target());
             break;
         }
+
         case IrcMessage::Quit: {
             IrcQuitMessage *quit = static_cast<IrcQuitMessage*>(message);
             break;
@@ -73,7 +90,7 @@ QString message_parser::parse(IrcMessage *message)
         }
     }
 
-    return formattedMessage;
+    return parsedMessage;
 }
 
 QString message_parser::parsenumeric(IrcNumericMessage *message)
@@ -473,8 +490,13 @@ IrcCommand* message_parser::parseCommand(QString commandStr) {
     if(pos > -1) {
         commandString = commandRX.cap(1);
         if(commandString.compare("join", Qt::CaseInsensitive) == 0) {
-            return IrcCommand::createJoin("#NICKSTESTSERVER", NULL);
+            return IrcCommand::createJoin("#NICKSTESTCHANNEL", NULL);
         }
     }
+    return NULL;
+}
+
+QString message_parser::handlePrivateMessage(IrcPrivateMessage* privateMessage) {
+    QString formattedString;
     return NULL;
 }
