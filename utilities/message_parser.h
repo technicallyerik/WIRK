@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include "ircmessage.h"
+#include "irccommand.h"
 
 class message_parser : public QObject
 {
@@ -11,6 +12,8 @@ public:
     explicit message_parser(QObject *parent = 0);
     
     QString parse(IrcMessage *message);
+
+    IrcCommand* parseCommand(QString commandStr);
 
 private:
     QString parsenumeric(IrcNumericMessage *message);

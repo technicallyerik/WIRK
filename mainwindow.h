@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include "ircmessage.h"
+#include "irc_server.h"
 #include <QMainWindow>
 
 namespace Ui {
@@ -18,6 +19,7 @@ public:
     
 private:
     Ui::MainWindow *ui;
+    irc_server *server;
 
 private slots:
     void sendMessage();

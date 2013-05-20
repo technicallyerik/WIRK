@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include "ircsession.h"
+#include "irccommand.h"
 #include <QSslSocket>
 #include "message_parser.h"
 
@@ -36,6 +37,8 @@ public:
 
     QString getRealname();
     void setRealname(QString realname);
+
+    void sendMessage(QString message);
 
     bool isSSL();
     void setSSL(bool ssl);

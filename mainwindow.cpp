@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "irc_server.h"
 #include <QStandardItemModel>
 #include <QStandardItem>
 
@@ -9,7 +8,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->setupUi(this);
 
     // TODO:  Get this from settings
-    irc_server *server = new irc_server(this);
+    server = new irc_server(this);
     server->setHost("chat.freenode.net");
     server->setPort(7070);
     server->setUsername("testing1234567");
@@ -44,10 +43,19 @@ void MainWindow::displayMessage(QString message)
 {
     // TODO:  Only display text from currently selected tree item
     ui->mainText->setHtml(message);
+
+    // This scrolls the main text to the bottom
+    QTextCursor c = ui->mainText->textCursor();
+    c.movePosition(QTextCursor::End);
+    ui->mainText->setTextCursor(c);
 }
 
 
 void MainWindow::sendMessage()
 {
-    qDebug() << "User wants to send: " + ui->sendText->text();
+//    qDebug() << "User wants to send: " + ui->sendText->text();
+
+    server->sendMessage(ui->sendText->text());
+    ui->sendText->setText("");
+
 }

@@ -456,10 +456,25 @@ QString message_parser::parsenumeric(IrcNumericMessage *message)
         case Irc::ERR_TEXTTOOSHORT: { }
         case Irc::ERR_NUMERIC_ERR: { }
         default: {
-            formattedMessage = QString("[%1] (%2) %3").arg(sender, code, text);
+//            formattedMessage = QString("[%1] (%2) %3").arg(sender, code, text);
+            formattedMessage = text;
             break;
         }
     }
 
     return formattedMessage;
+}
+
+IrcCommand* message_parser::parseCommand(QString commandStr) {
+
+    QRegExp commandRX("^/([a-zA-Z]+) (.*)");
+    int pos = commandRX.indexIn(commandStr);
+    QString commandString;
+    if(pos > -1) {
+        commandString = commandRX.cap(1);
+        if(commandString.compare("join", Qt::CaseInsensitive) == 0) {
+            return IrcCommand::createJoin("#NICKSTESTSERVER", NULL);
+        }
+    }
+    return NULL;
 }
