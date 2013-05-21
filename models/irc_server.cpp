@@ -53,6 +53,14 @@ void irc_server::setSSL(bool ssl) {
     m_ssl = ssl;
 }
 
+QMap<QString, irc_channel*> irc_server::getChannels() {
+    return m_channels;
+}
+
+void irc_server::setChannels(QMap<QString, irc_channel*> channels) {
+    m_channels = channels;
+}
+
 void irc_server::createConnection() {
 
     m_session = new IrcSession(this);
