@@ -56,6 +56,8 @@ public:
 
     QMap<QString, irc_channel*> getChannels();
     void setChannels(QMap<QString, irc_channel*> channels);
+    void addChannel(QString channel);
+    void removeChannel(QString channel);
 
     // TODO:  saveSettings()
     // TODO:  retrieveFromSettings();

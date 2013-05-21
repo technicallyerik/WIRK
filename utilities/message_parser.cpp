@@ -490,6 +490,7 @@ IrcCommand* message_parser::parseCommand(QString commandStr) {
     if(pos > -1) {
         commandString = commandRX.cap(1);
         if(commandString.compare("join", Qt::CaseInsensitive) == 0) {
+            m_server->addChannel("#NICKSTESTCHANNEL");
             return IrcCommand::createJoin("#NICKSTESTCHANNEL", NULL);
         }
     }
