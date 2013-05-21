@@ -2,13 +2,15 @@
 #include "ui_mainwindow.h"
 #include <QStandardItemModel>
 #include <QStandardItem>
+#include <QMapIterator>
+#include "irc_channel.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
     // TODO:  Get this from settings
-    server = new irc_server(this);
+    irc_server *server = new irc_server(this);
     server->setHost("chat.freenode.net");
     server->setPort(7070);
     server->setUsername("testing1234567");
@@ -17,21 +19,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(server, SIGNAL(textChanged(QString)), this, SLOT(displayMessage(QString)));
     server->setSSL(true);
     server->createConnection();
+    m_servers.append(server);
 
     // Hook up the sending text box
     connect(ui->sendText, SIGNAL(returnPressed()), this, SLOT(sendMessage()));
 
     // Setup Tree
-    // TODO: Generate this from list of irc_servers
-    QStandardItemModel *treeModel = new QStandardItemModel();
-    QStandardItem *server_node = new QStandardItem();
-    server_node->setText("Test Server");
-    treeModel->setItem(0, server_node);
-    QStandardItem *channel_node = new QStandardItem();
-    channel_node->setText("#testchannel");
-    server_node->setChild(0, channel_node);
     ui->treeView->setHeaderHidden(true);
-    ui->treeView->setModel(treeModel);
+    ui->treeView->setModel(this->generateTree());
 }
 
 MainWindow::~MainWindow()
@@ -39,9 +34,31 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+QStandardItemModel* MainWindow::generateTree() {
+    QStandardItemModel *treeModel = new QStandardItemModel();
+    for(int i = 0; i < m_servers.count(); i++) {
+        irc_server *server = m_servers[i];
+        QStandardItem *server_node = new QStandardItem();
+        server_node->setText(server->getHost());
+        server_node->setData(server);
+        treeModel->setItem(i, server_node);
+        QMapIterator<QString, irc_channel*> j(server->getChannels());
+        while (j.hasNext()) {
+            j.next();
+            irc_channel *channel = j.value();
+            QStandardItem *channel_node = new QStandardItem();
+            channel_node->setText(channel->getName());
+            channel_node->setData(channel);
+            server_node->setChild(0, channel_node);
+        }
+    }
+    return treeModel;
+}
+
 void MainWindow::displayMessage(QString message)
 {
     // TODO:  Only display text from currently selected tree item
+    //        Highlight the item in the tree if it's not currently selected
     ui->mainText->setHtml(message);
 
     // This scrolls the main text to the bottom
@@ -50,12 +67,8 @@ void MainWindow::displayMessage(QString message)
     ui->mainText->setTextCursor(c);
 }
 
-
 void MainWindow::sendMessage()
 {
-//    qDebug() << "User wants to send: " + ui->sendText->text();
-
-    server->sendMessage(ui->sendText->text());
+    m_servers[0]->sendMessage(ui->sendText->text()); // TODO: Send to selected server in tree
     ui->sendText->setText("");
-
 }

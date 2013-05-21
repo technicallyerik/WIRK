@@ -4,6 +4,8 @@
 #include "ircmessage.h"
 #include "irc_server.h"
 #include <QMainWindow>
+#include <QList>
+#include <QStandardItemModel>
 
 namespace Ui {
 class MainWindow;
@@ -19,7 +21,8 @@ public:
     
 private:
     Ui::MainWindow *ui;
-    irc_server *server;
+    QList<irc_server*> m_servers;
+    QStandardItemModel* generateTree();
 
 private slots:
     void sendMessage();
