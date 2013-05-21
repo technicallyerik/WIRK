@@ -484,14 +484,18 @@ QString message_parser::parsenumeric(IrcNumericMessage *message)
 }
 
 IrcCommand* message_parser::parseCommand(QString commandStr) {
-    QRegExp commandRX("^/([a-zA-Z]+) (.*)");
+    QRegExp commandRX("^/([a-zA-Z]+) (\\S+)");
     int pos = commandRX.indexIn(commandStr);
     QString commandString;
-    if(pos > -1) {
-        commandString = commandRX.cap(1);
+    if(pos > -1) {        
+        commandString = commandRX.cap(1);        
         if(commandString.compare("join", Qt::CaseInsensitive) == 0) {
-            m_server->addChannel("#NICKSTESTCHANNEL");
-            return IrcCommand::createJoin("#NICKSTESTCHANNEL", NULL);
+            QRegExp channelRX("([#&][^\\x07\\x2C\\s]{,200})");
+            QString channelStr = commandRX.cap(2);
+            if (channelRX.indexIn(channelStr) > -1) {
+                m_server->addChannel(channelStr);
+                return IrcCommand::createJoin(channelStr, NULL);
+            }
         }
     }
     return NULL;

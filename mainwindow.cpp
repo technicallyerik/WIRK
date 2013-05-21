@@ -44,13 +44,15 @@ QStandardItemModel* MainWindow::generateTree() {
         //server_node->setData(server, Qt::UserRole); TODO:  Why doesn't this work?
         treeModel->setItem(i, server_node);
         QMapIterator<QString, irc_channel*> j(server->getChannels());
+        int index = 0;
         while (j.hasNext()) {
             j.next();
             irc_channel *channel = j.value();
             QStandardItem *channel_node = new QStandardItem();
             channel_node->setText(channel->getName());
             //channel_node->setData(channel, Qt::UserRole); TODO:  Why doesn't this work?
-            server_node->setChild(0, channel_node);
+            server_node->setChild(index, channel_node);
+            index++;
         }
     }
     return treeModel;
