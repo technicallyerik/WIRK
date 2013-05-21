@@ -19,6 +19,12 @@ QString irc_channel::getText() {
 
 void irc_channel::setText(QString text) {
     m_text = text;
+    emit(textChanged(new parsed_message(m_name, m_text)));
+}
+
+void irc_channel::appendText(QString text) {
+    m_text += text;
+    emit(textChanged(new parsed_message(m_name, m_text)));
 }
 
 QMap<QString, irc_channel_user*> irc_channel::getUsers() {

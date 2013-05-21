@@ -5,11 +5,12 @@
 #include "ircsession.h"
 #include "irccommand.h"
 #include <QSslSocket>
-#include "message_parser.h"
 #include "irc_channel.h"
 #include <QMap>
 
 typedef QMap<QString, irc_channel*> IrcChannelMap;
+
+class message_parser;
 
 class irc_server : public QObject
 {
@@ -21,7 +22,7 @@ class irc_server : public QObject
     Q_PROPERTY(QString nickname READ getNickname WRITE setNickname)
     Q_PROPERTY(QString realname READ getRealname WRITE setRealname)
     Q_PROPERTY(bool ssl READ isSSL WRITE setSSL)
-    Q_PROPERTY(QString text READ getText NOTIFY textChanged)
+    Q_PROPERTY(QString text READ getText WRITE setText NOTIFY textChanged)
     Q_PROPERTY(IrcChannelMap channels READ getChannels WRITE setChannels)
 
 public:
@@ -48,6 +49,8 @@ public:
     void setSSL(bool ssl);
 
     QString getText();
+    void setText(QString text);
+    void appendText(QString text);
 
     void createConnection();
 
@@ -56,10 +59,10 @@ public:
 
     // TODO:  saveSettings()
     // TODO:  retrieveFromSettings();
-    // TODO:  getTreeView();
 
 signals:
-    void textChanged(QString text);
+    void textChanged(parsed_message *message);
+    void channelChanged();
     
 private slots:
     void processMessage(IrcMessage *message);

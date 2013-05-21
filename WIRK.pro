@@ -54,9 +54,9 @@ SOURCES += main.cpp\
     ext_lib/uchardet/CharDistribution.cpp \
     models/irc_server.cpp \
     utilities/message_parser.cpp \
-    models/parsed_message.cpp \
     models/irc_channel.cpp \
-    models/irc_channel_user.cpp
+    models/irc_channel_user.cpp \
+    models/parsed_message.cpp
 
 HEADERS  += mainwindow.h \
     ext_lib/communi/irctextformat.h \
@@ -95,9 +95,9 @@ HEADERS  += mainwindow.h \
     ext_lib/uchardet/CharDistribution.h \
     models/irc_server.h \
     utilities/message_parser.h \
-    models/parsed_message.h \
     models/irc_channel.h \
-    models/irc_channel_user.h
+    models/irc_channel_user.h \
+    models/parsed_message.h
 
 FORMS    += mainwindow.ui
 

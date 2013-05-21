@@ -4,6 +4,7 @@
 #include <QObject>
 #include "irc_channel_user.h"
 #include <QMap>
+#include "parsed_message.h"
 
 typedef QMap<QString, irc_channel_user*> IrcChannelUserMap;
 
@@ -23,12 +24,13 @@ public:
 
     QString getText();
     void setText(QString text);
+    void appendText(QString text);
 
     QMap<QString, irc_channel_user*> getUsers();
     void setUsers(QMap<QString, irc_channel_user*> users);
 
 signals:
-    void textChanged(QString text);
+    void textChanged(parsed_message *text);
     
 public slots:
     

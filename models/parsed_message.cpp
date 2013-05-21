@@ -1,33 +1,32 @@
 #include "parsed_message.h"
 
-ParsedMessage::ParsedMessage()
+parsed_message::parsed_message(QObject *parent) : QObject(parent)
 {
-    this->destination = "";
-    this->message = "";
+
 }
 
-ParsedMessage::ParsedMessage(QString destination, QString message)
+parsed_message::parsed_message(QString destination, QString message, QObject *parent) : QObject(parent)
 {
-    this->destination = destination;
-    this->message = message;
+    this->m_destination = destination;
+    this->m_message = message;
 }
 
-void ParsedMessage::setDestination(QString destination)
+void parsed_message::setDestination(QString destination)
 {
-    this->destination = destination;
+    this->m_destination = destination;
 }
 
-QString ParsedMessage::getDestination()
+QString parsed_message::getDestination()
 {
-    return this->destination;
+    return this->m_destination;
 }
 
-void ParsedMessage::setMessage(QString message)
+void parsed_message::setMessage(QString message)
 {
-    this->message = message;
+    this->m_message = message;
 }
 
-QString ParsedMessage::getMessage()
+QString parsed_message::getMessage()
 {
-    return this->message;
+    return this->m_message;
 }

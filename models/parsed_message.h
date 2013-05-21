@@ -1,24 +1,33 @@
 #ifndef PARSED_MESSAGE_H
 #define PARSED_MESSAGE_H
 
-#include <qstring.h>
+#include <QObject>
 
-class ParsedMessage
+class parsed_message : public QObject
 {
-public:
-    ParsedMessage();
-    ParsedMessage(QString destination, QString message);
+    Q_OBJECT
 
-    void setDestination(QString destination);
+    Q_PROPERTY(QString destination READ getDestination WRITE setDestination)
+    Q_PROPERTY(QString message READ getMessage WRITE setMessage)
+
+public:
+    explicit parsed_message(QObject *parent = 0);
+    explicit parsed_message(QString destination, QString message, QObject *parent = 0);
+
+    void setDestination(QString m_destination);
     QString getDestination();
 
     void setMessage(QString message);
     QString getMessage();
 
-
+signals:
+    
+public slots:
+    
 private:
-    QString destination;
-    QString message;
+    QString m_destination;
+    QString m_message;
+
 };
 
 #endif // PARSED_MESSAGE_H

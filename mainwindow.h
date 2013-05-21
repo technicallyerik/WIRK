@@ -6,6 +6,7 @@
 #include <QMainWindow>
 #include <QList>
 #include <QStandardItemModel>
+#include "parsed_message.h"
 
 namespace Ui {
 class MainWindow;
@@ -25,8 +26,9 @@ private:
     QStandardItemModel* generateTree();
 
 private slots:
+    void channelChanged();
     void sendMessage();
-    void displayMessage(QString message);
+    void displayMessage(parsed_message *message);
 };
 
 #endif // MAINWINDOW_H

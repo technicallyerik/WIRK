@@ -16,7 +16,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     server->setUsername("testing1234567");
     server->setNickname("testing1234567");
     server->setRealname("Testing 1234567");
-    connect(server, SIGNAL(textChanged(QString)), this, SLOT(displayMessage(QString)));
+    connect(server, SIGNAL(textChanged(parsed_message*)), this, SLOT(displayMessage(parsed_message*)));
+    connect(server, SIGNAL(channelChanged()), this, SLOT(channelChanged()));
     server->setSSL(true);
     server->createConnection();
     m_servers.append(server);
@@ -40,7 +41,7 @@ QStandardItemModel* MainWindow::generateTree() {
         irc_server *server = m_servers[i];
         QStandardItem *server_node = new QStandardItem();
         server_node->setText(server->getHost());
-        server_node->setData(server);
+        //server_node->setData(server, Qt::UserRole); TODO:  Why doesn't this work?
         treeModel->setItem(i, server_node);
         QMapIterator<QString, irc_channel*> j(server->getChannels());
         while (j.hasNext()) {
@@ -48,18 +49,25 @@ QStandardItemModel* MainWindow::generateTree() {
             irc_channel *channel = j.value();
             QStandardItem *channel_node = new QStandardItem();
             channel_node->setText(channel->getName());
-            channel_node->setData(channel);
+            //channel_node->setData(channel, Qt::UserRole); TODO:  Why doesn't this work?
             server_node->setChild(0, channel_node);
         }
     }
     return treeModel;
 }
 
-void MainWindow::displayMessage(QString message)
+void MainWindow::channelChanged()
+{
+    // TODO:  Maybe do incremental updates?
+    this->generateTree();
+}
+
+void MainWindow::displayMessage(parsed_message *message)
 {
     // TODO:  Only display text from currently selected tree item
     //        Highlight the item in the tree if it's not currently selected
-    ui->mainText->setHtml(message);
+    //        Maybe this object should have: server, channel, message?
+    ui->mainText->setHtml(message->getMessage());
 
     // This scrolls the main text to the bottom
     QTextCursor c = ui->mainText->textCursor();

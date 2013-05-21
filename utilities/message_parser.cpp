@@ -1,17 +1,21 @@
 #include "message_parser.h"
 #include "irc.h"
+#include "irc_channel.h"
+#include "irc_server.h"
 
 message_parser::message_parser(QObject *parent) : QObject(parent)
 {
 
 }
 
-ParsedMessage* message_parser::parse(IrcMessage *message)
+message_parser::message_parser(irc_server *server, QObject *parent) : QObject(parent)
+{
+    m_server = server;
+}
+
+void message_parser::parse(IrcMessage *message)
 {
     QString sender = message->sender().name();
-
-
-    ParsedMessage* parsedMessage = new ParsedMessage::ParsedMessage();
 
     switch (message->type()) {
         case IrcMessage::Invite: {
@@ -21,8 +25,8 @@ ParsedMessage* message_parser::parse(IrcMessage *message)
 
         case IrcMessage::Join: {
             IrcJoinMessage *join = static_cast<IrcJoinMessage*>(message);
-            parsedMessage->setMessage(QString("%1 has joined %2").arg(sender, join->channel()));
-            parsedMessage->setDestination(join->channel());
+            irc_channel *channel = m_server->getChannels()[join->channel()];
+            channel->appendText(QString("%1 has joined %2").arg(sender, join->channel()));
             break;
         }
 
@@ -44,14 +48,13 @@ ParsedMessage* message_parser::parse(IrcMessage *message)
 
         case IrcMessage::Notice: {
             IrcNoticeMessage *notice = static_cast<IrcNoticeMessage*>(message);
-            parsedMessage->setMessage(QString("[%1] %2").arg(sender, notice->message()));
-            parsedMessage->setDestination(notice->target());
+            m_server->appendText(QString("[%1] %2").arg(sender, notice->message()));
             break;
         }
 
         case IrcMessage::Numeric: {
             IrcNumericMessage *numeric = static_cast<IrcNumericMessage*>(message);
-            parsedMessage->setMessage(this->parsenumeric(numeric));
+            m_server->appendText(this->styleString(this->parsenumeric(numeric)));
             break;
         }
 
@@ -67,8 +70,8 @@ ParsedMessage* message_parser::parse(IrcMessage *message)
 
         case IrcMessage::Private: {
             IrcPrivateMessage *pm = static_cast<IrcPrivateMessage*>(message);
-            parsedMessage->setMessage(pm->message());
-            parsedMessage->setDestination(pm->target());
+            irc_channel *channel = m_server->getChannels()[pm->target()];
+            channel->appendText(pm->message());
             break;
         }
 
@@ -76,6 +79,7 @@ ParsedMessage* message_parser::parse(IrcMessage *message)
             IrcQuitMessage *quit = static_cast<IrcQuitMessage*>(message);
             break;
         }
+
         case IrcMessage::Topic: {
             IrcTopicMessage *topic = static_cast<IrcTopicMessage*>(message);
             break;
@@ -89,8 +93,6 @@ ParsedMessage* message_parser::parse(IrcMessage *message)
             break;
         }
     }
-
-    return parsedMessage;
 }
 
 QString message_parser::parsenumeric(IrcNumericMessage *message)
@@ -473,7 +475,6 @@ QString message_parser::parsenumeric(IrcNumericMessage *message)
         case Irc::ERR_TEXTTOOSHORT: { }
         case Irc::ERR_NUMERIC_ERR: { }
         default: {
-//            formattedMessage = QString("[%1] (%2) %3").arg(sender, code, text);
             formattedMessage = text;
             break;
         }
@@ -483,7 +484,6 @@ QString message_parser::parsenumeric(IrcNumericMessage *message)
 }
 
 IrcCommand* message_parser::parseCommand(QString commandStr) {
-
     QRegExp commandRX("^/([a-zA-Z]+) (.*)");
     int pos = commandRX.indexIn(commandStr);
     QString commandString;
@@ -496,7 +496,21 @@ IrcCommand* message_parser::parseCommand(QString commandStr) {
     return NULL;
 }
 
-QString message_parser::handlePrivateMessage(IrcPrivateMessage* privateMessage) {
-    QString formattedString;
-    return NULL;
+QString message_parser::styleString(QString fullMessage) {
+    QRegExp usernameRX("^(" + m_server->getUsername() + ")(.*)");
+    int pos = usernameRX.indexIn(fullMessage);
+    QString newString;
+    if(pos > -1) {
+        newString = usernameRX.cap(2);
+        QRegExp highlightUsernameRX("(.*)(" + m_server->getUsername() + ")(.*)");
+        pos = highlightUsernameRX.indexIn(newString);
+        if(pos > -1) {
+            newString = highlightUsernameRX.cap(1) + " <font color=\"Lime\">" + highlightUsernameRX.cap(2) + "</font> "
+                    + highlightUsernameRX.cap(3);
+        }
+        newString += "<br />";
+    } else {
+        newString = fullMessage + "<br />";
+    }
+    return newString;
 }
