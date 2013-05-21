@@ -60,16 +60,19 @@ QMap<QString, irc_channel*> irc_server::getChannels() {
 
 void irc_server::setChannels(QMap<QString, irc_channel*> channels) {
     m_channels = channels;
+    emit(channelChanged());
 }
 
 void irc_server::addChannel(QString channel) {
     irc_channel* newChannel = new irc_channel(this);
     newChannel->setName(channel);
     m_channels.insert(channel, newChannel);
+    emit(channelChanged());
 }
 
 void irc_server::removeChannel(QString channel) {
     m_channels.remove(channel);
+    emit(channelChanged());
 }
 
 void irc_server::createConnection() {

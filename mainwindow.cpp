@@ -59,7 +59,7 @@ QStandardItemModel* MainWindow::generateTree() {
 void MainWindow::channelChanged()
 {
     // TODO:  Maybe do incremental updates?
-    this->generateTree();
+    ui->treeView->setModel(this->generateTree());
 }
 
 void MainWindow::displayMessage(parsed_message *message)
