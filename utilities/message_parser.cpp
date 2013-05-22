@@ -71,7 +71,9 @@ void message_parser::parse(IrcMessage *message)
         case IrcMessage::Private: {
             IrcPrivateMessage *pm = static_cast<IrcPrivateMessage*>(message);
             irc_channel *channel = m_server->getChannels()[pm->target()];
-            channel->appendText(pm->message());
+            QString sender = message->sender().name();
+            QString formattedString = QString("%1: %2").arg(sender, pm->message());
+            channel->appendText(formattedString);
             break;
         }
 

@@ -8,16 +8,19 @@
 
 typedef QMap<QString, irc_channel_user*> IrcChannelUserMap;
 
+class irc_server;
+
 class irc_channel : public QObject
 {
     Q_OBJECT
 
     Q_PROPERTY(QString name READ getName WRITE setName)
-    Q_PROPERTY(QString text READ getText WRITE setText NOTIFY textChanged)
+    Q_PROPERTY(QString text READ getText WRITE setText)
     Q_PROPERTY(IrcChannelUserMap users READ getUsers WRITE setUsers)
 
 public:
     explicit irc_channel(QObject *parent = 0);
+    irc_channel(irc_server *server, QObject *parent = 0);
 
     QString getName();
     void setName(QString name);
@@ -30,11 +33,11 @@ public:
     void setUsers(QMap<QString, irc_channel_user*> users);
 
 signals:
-    void textChanged(parsed_message *text);
     
 public slots:
     
 private:
+    irc_server *m_server;
     QString m_name;
     QString m_text;
     QMap<QString, irc_channel_user*> m_users;

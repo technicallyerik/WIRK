@@ -68,7 +68,6 @@ void MainWindow::displayMessage(parsed_message *message)
 {
     // TODO:  Only display text from currently selected tree item
     //        Highlight the item in the tree if it's not currently selected
-    //        Maybe this object should have: server, channel, message?
     ui->mainText->setHtml(message->getMessage());
 
     // This scrolls the main text to the bottom

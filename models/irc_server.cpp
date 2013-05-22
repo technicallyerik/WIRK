@@ -64,7 +64,7 @@ void irc_server::setChannels(QMap<QString, irc_channel*> channels) {
 }
 
 void irc_server::addChannel(QString channel) {
-    irc_channel* newChannel = new irc_channel(this);
+    irc_channel* newChannel = new irc_channel(this, this);
     newChannel->setName(channel);
     m_channels.insert(channel, newChannel);
     emit(channelChanged());
@@ -105,12 +105,16 @@ QString irc_server::getText() {
 
 void irc_server::setText(QString text) {
     m_text = text;
-    emit(textChanged(new parsed_message(m_host, m_text)));
+    emitTextChanged(NULL, m_text);
 }
 
 void irc_server::appendText(QString text) {
     m_text += text;
-    emit(textChanged(new parsed_message(m_host, m_text)));
+    emitTextChanged(NULL, m_text);
+}
+
+void irc_server::emitTextChanged(QString channel, QString text) {
+    emit(textChanged(new parsed_message(m_host, channel, text)));
 }
 
 void irc_server::sendMessage(QString message) {
@@ -130,5 +134,5 @@ void irc_server::processMessage(IrcMessage *message)
 void irc_server::processError(QAbstractSocket::SocketError error) {
     QString errorCode = QString::number(error);
     m_text += "Socket Error " + errorCode + "\n";
-    emit(textChanged(new parsed_message(m_host, m_text)));
+    emitTextChanged(NULL, m_text);
 }

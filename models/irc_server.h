@@ -52,6 +52,8 @@ public:
     void setText(QString text);
     void appendText(QString text);
 
+    void emitTextChanged(QString channel, QString text);
+
     void createConnection();
 
     QMap<QString, irc_channel*> getChannels();
