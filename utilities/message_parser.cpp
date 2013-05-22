@@ -250,8 +250,27 @@ QString message_parser::parsenumeric(IrcNumericMessage *message)
         case Irc::RPL_EXCEPTLIST: { }
         case Irc::RPL_ENDOFEXCEPTLIST: { }
         case Irc::RPL_VERSION: { }
-        case Irc::RPL_WHOREPLY: { }
-        case Irc::RPL_NAMREPLY: { }
+        case Irc::RPL_WHOREPLY: { goto default_behavior; }
+        case Irc::RPL_NAMREPLY: {
+            QRegExp rx("(\\S+)");
+            QString list = "Users: ";
+
+            int pos = 0;
+            int count = 1;
+            while ((pos = rx.indexIn(text, pos)) != -1) {
+                // minimum starting position since it goes:
+                // <username> <channel type> <channel> <users begin here>
+                if (count > 3) {
+                    list += rx.cap(1) + " ";
+                }
+
+                pos += rx.matchedLength();
+                count++;
+            }
+
+            formattedMessage = list;
+            break;
+        }
         case Irc::RPL_WHOSPCRPL: { }
         case Irc::RPL_NAMREPLY_: { }
         case Irc::RPL_KILLDONE: { }
@@ -476,10 +495,12 @@ QString message_parser::parsenumeric(IrcNumericMessage *message)
         case Irc::ERR_NOLANGUAGE: { }
         case Irc::ERR_TEXTTOOSHORT: { }
         case Irc::ERR_NUMERIC_ERR: { }
-        default: {
+        default:
+        // hacky behavior, but required for the falling case statementes
+        // so we can use gotos until we implement all the cases
+        default_behavior:
             formattedMessage = text;
             break;
-        }
     }
 
     return formattedMessage;
