@@ -71,7 +71,7 @@ void irc_server::addChannel(QString channel) {
 }
 
 void irc_server::removeChannel(QString channel) {
-    m_channels.remove(channel);
+    m_channels.remove(channel.toLower());
     emit(channelChanged());
 }
 

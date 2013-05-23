@@ -61,6 +61,18 @@ void message_parser::parse(IrcMessage *message)
 
         case IrcMessage::Part: {
             IrcPartMessage *part = static_cast<IrcPartMessage*>(message);
+            QString targetChannel = part->channel().toLower();
+            QString reason = part->reason();
+            irc_channel *channel = m_server->getChannels()[targetChannel];
+            // Gets triggered if anyone leaves the channel, so if you leave this will be null
+            if (channel) {
+                QString partMessage = QString("%1 has left %2").arg(sender, part->channel());
+                if (reason.trimmed() != "")
+                {
+                    partMessage.append(QString(" (Reason: %3)").arg(reason));
+                }
+                channel->appendText(partMessage);
+            }
             break;
         }
 
@@ -510,16 +522,23 @@ QString message_parser::parsenumeric(IrcNumericMessage *message)
 
 IrcCommand* message_parser::parseCommand(QString commandStr) {
     QRegExp commandRX("^/([a-zA-Z]+) (\\S+)");
+    QRegExp channelRX("([#&][^\\x07\\x2C\\s]{,200})");
     int pos = commandRX.indexIn(commandStr);
     QString commandString;
     if(pos > -1) {        
         commandString = commandRX.cap(1);        
-        if(commandString.compare("join", Qt::CaseInsensitive) == 0) {
-            QRegExp channelRX("([#&][^\\x07\\x2C\\s]{,200})");
+        if(commandString.compare("join", Qt::CaseInsensitive) == 0) {            
             QString channelStr = commandRX.cap(2);
             if (channelRX.indexIn(channelStr) > -1) {
                 m_server->addChannel(channelStr);
                 return IrcCommand::createJoin(channelStr, NULL);
+            }
+        }
+        else if (commandString.compare("part", Qt::CaseInsensitive) == 0) {
+            QString channelStr = commandRX.cap(2);
+            if (channelRX.indexIn(channelStr) > -1) {
+                m_server->removeChannel(channelStr);
+                return IrcCommand::createPart(channelStr, NULL);
             }
         }
     }
