@@ -40,3 +40,12 @@ QMap<QString, irc_channel_user*> irc_channel::getUsers() {
 void irc_channel::setUsers(QMap<QString, irc_channel_user*> users) {
     m_users = users;
 }
+
+void irc_channel::addUsers(QStringList users) {
+    for (int i = 0; i < users.count(); i++) {
+        irc_channel_user *newUser = new irc_channel_user(this);
+        newUser->setName(users[i]);
+        m_users.insert(users[i], newUser);
+    }
+    m_server->emitUsersChanged(users);
+}

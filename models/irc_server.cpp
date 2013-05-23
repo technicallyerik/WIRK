@@ -66,7 +66,7 @@ void irc_server::setChannels(QMap<QString, irc_channel*> channels) {
 void irc_server::addChannel(QString channel) {
     irc_channel* newChannel = new irc_channel(this, this);
     newChannel->setName(channel);
-    m_channels.insert(channel, newChannel);
+    m_channels.insert(channel.toLower(), newChannel);
     emit(channelChanged());
 }
 
@@ -124,6 +124,10 @@ void irc_server::sendMessage(QString message) {
     } else {
         // TODO: Figure out current channel, and assume the text is a post for it
     }
+}
+
+void irc_server::emitUsersChanged(QStringList users) {
+    emit(usersChanged(users));
 }
 
 void irc_server::processMessage(IrcMessage *message)

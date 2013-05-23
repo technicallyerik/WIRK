@@ -25,7 +25,8 @@ void message_parser::parse(IrcMessage *message)
 
         case IrcMessage::Join: {
             IrcJoinMessage *join = static_cast<IrcJoinMessage*>(message);
-            irc_channel *channel = m_server->getChannels()[join->channel()];
+            QString targetChannel = join->channel().toLower();
+            irc_channel *channel = m_server->getChannels()[targetChannel];
             channel->appendText(QString("%1 has joined %2").arg(sender, join->channel()));
             break;
         }
@@ -253,22 +254,26 @@ QString message_parser::parsenumeric(IrcNumericMessage *message)
         case Irc::RPL_WHOREPLY: { goto default_behavior; }
         case Irc::RPL_NAMREPLY: {
             QRegExp rx("(\\S+)");
-            QString list = "Users: ";
+            QStringList list;
+            QString targetChannel = "";
 
             int pos = 0;
             int count = 1;
             while ((pos = rx.indexIn(text, pos)) != -1) {
-                // minimum starting position since it goes:
+                // format goes:
                 // <username> <channel type> <channel> <users begin here>
-                if (count > 3) {
-                    list += rx.cap(1) + " ";
+                if (count == 3) {
+                    targetChannel = rx.cap(1).toLower();
+                }
+                else if (count > 3) {
+                    list << rx.cap(1);
                 }
 
                 pos += rx.matchedLength();
                 count++;
             }
-
-            formattedMessage = list;
+            irc_channel *channel = m_server->getChannels()[targetChannel];
+            channel->addUsers(list);
             break;
         }
         case Irc::RPL_WHOSPCRPL: { }

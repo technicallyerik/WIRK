@@ -18,6 +18,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     server->setRealname("Testing 1234567");
     connect(server, SIGNAL(textChanged(parsed_message*)), this, SLOT(displayMessage(parsed_message*)));
     connect(server, SIGNAL(channelChanged()), this, SLOT(channelChanged()));
+    connect(server, SIGNAL(usersChanged(QStringList)), this, SLOT(usersChanged(QStringList)));
     server->setSSL(true);
     server->createConnection();
     m_servers.append(server);
@@ -58,6 +59,17 @@ QStandardItemModel* MainWindow::generateTree() {
     return treeModel;
 }
 
+QStandardItemModel* MainWindow::generateUsers(QStringList users) {
+    QStandardItemModel *listModel = new QStandardItemModel();
+    for (int i = 0; i < users.count(); i++) {
+        QString userName = users.at(i);
+        QStandardItem *user = new QStandardItem(userName);
+        listModel->appendRow(user);
+    }
+
+    return listModel;
+}
+
 void MainWindow::channelChanged()
 {
     // TODO:  Maybe do incremental updates?
@@ -80,4 +92,9 @@ void MainWindow::sendMessage()
 {
     m_servers[0]->sendMessage(ui->sendText->text()); // TODO: Send to selected server in tree
     ui->sendText->setText("");
+}
+
+void MainWindow::usersChanged(QStringList users)
+{
+    ui->userList->setModel(this->generateUsers(users));
 }

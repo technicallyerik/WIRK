@@ -53,6 +53,7 @@ public:
     void appendText(QString text);
 
     void emitTextChanged(QString channel, QString text);
+    void emitUsersChanged(QStringList users);
 
     void createConnection();
 
@@ -67,6 +68,7 @@ public:
 signals:
     void textChanged(parsed_message *message);
     void channelChanged();
+    void usersChanged(QStringList users);
     
 private slots:
     void processMessage(IrcMessage *message);

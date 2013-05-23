@@ -31,6 +31,7 @@ public:
 
     QMap<QString, irc_channel_user*> getUsers();
     void setUsers(QMap<QString, irc_channel_user*> users);
+    void addUsers(QStringList users);
 
 signals:
     
