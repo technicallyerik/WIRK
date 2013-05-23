@@ -107,6 +107,31 @@ QString message_parser::parsenumeric(IrcNumericMessage *message)
     QString formattedMessage = "";
 
     switch (message->code()) {
+        case Irc::RPL_NAMREPLY_: { }
+        case Irc::RPL_NAMREPLY: {
+            QRegExp rx("(\\S+)");
+            QStringList list;
+            QString targetChannel = "";
+
+            int pos = 0;
+            int count = 1;
+            while ((pos = rx.indexIn(text, pos)) != -1) {
+                // format goes:
+                // <username> <channel type> <channel> <users begin here>
+                if (count == 3) {
+                    targetChannel = rx.cap(1).toLower();
+                }
+                else if (count > 3) {
+                    list << rx.cap(1);
+                }
+
+                pos += rx.matchedLength();
+                count++;
+            }
+            irc_channel *channel = m_server->getChannels()[targetChannel];
+            channel->addUsers(list);
+            break;
+        }
         case Irc::RPL_WELCOME: { }
         case Irc::RPL_YOURHOST: { }
         case Irc::RPL_CREATED: { }
@@ -251,33 +276,8 @@ QString message_parser::parsenumeric(IrcNumericMessage *message)
         case Irc::RPL_EXCEPTLIST: { }
         case Irc::RPL_ENDOFEXCEPTLIST: { }
         case Irc::RPL_VERSION: { }
-        case Irc::RPL_WHOREPLY: { goto default_behavior; }
-        case Irc::RPL_NAMREPLY: {
-            QRegExp rx("(\\S+)");
-            QStringList list;
-            QString targetChannel = "";
-
-            int pos = 0;
-            int count = 1;
-            while ((pos = rx.indexIn(text, pos)) != -1) {
-                // format goes:
-                // <username> <channel type> <channel> <users begin here>
-                if (count == 3) {
-                    targetChannel = rx.cap(1).toLower();
-                }
-                else if (count > 3) {
-                    list << rx.cap(1);
-                }
-
-                pos += rx.matchedLength();
-                count++;
-            }
-            irc_channel *channel = m_server->getChannels()[targetChannel];
-            channel->addUsers(list);
-            break;
-        }
-        case Irc::RPL_WHOSPCRPL: { }
-        case Irc::RPL_NAMREPLY_: { }
+        case Irc::RPL_WHOREPLY: { }
+        case Irc::RPL_WHOSPCRPL: { }        
         case Irc::RPL_KILLDONE: { }
         case Irc::RPL_CLOSING: { }
         case Irc::RPL_CLOSEEND: { }
@@ -501,9 +501,6 @@ QString message_parser::parsenumeric(IrcNumericMessage *message)
         case Irc::ERR_TEXTTOOSHORT: { }
         case Irc::ERR_NUMERIC_ERR: { }
         default:
-        // hacky behavior, but required for the falling case statementes
-        // so we can use gotos until we implement all the cases
-        default_behavior:
             formattedMessage = text;
             break;
     }
