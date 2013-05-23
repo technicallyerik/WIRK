@@ -10,3 +10,20 @@ Getting it to run:
 3. Open the .pro file in QT Creator
 4. When it asks where to place the resulting builds, you can just press "Configure Project" to use the default paths
 5. Press the big green play button in the lower-left
+
+---------
+
+Unless otherwise noted, Copyright (C) 2013 Flashforward Labs, LLC.
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
