@@ -32,7 +32,7 @@ void irc_channel::setText(QString text) {
 }
 
 void irc_channel::appendText(QString text) {
-    m_text += text;
+    m_text += text + "<br />";
     m_server->emitTextChanged(m_name, m_text);
 }
 
