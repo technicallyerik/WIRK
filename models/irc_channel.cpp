@@ -11,6 +11,9 @@ irc_channel::irc_channel(irc_server *server, QObject *parent) : QObject(parent)
     m_server = server;
 }
 
+
+Q_DECLARE_METATYPE(irc_channel*)
+
 QString irc_channel::getName() {
     return m_name;
 }

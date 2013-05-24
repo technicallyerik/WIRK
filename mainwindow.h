@@ -24,13 +24,16 @@ private:
     Ui::MainWindow *ui;
     QList<irc_server*> m_servers;
     QStandardItemModel* generateTree();
-    QStandardItemModel* MainWindow::generateUsers(QStringList users);
+    QStandardItemModel* generateUsers(QStringList users);
+    void changeToChannel(irc_channel* newChannel);
 
 private slots:
     void channelChanged();
     void sendMessage();
     void displayMessage(parsed_message *message);
     void usersChanged(QStringList users);
+    void treeItemClicked(const QModelIndex& index);
+
 };
 
 #endif // MAINWINDOW_H

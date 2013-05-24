@@ -25,7 +25,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     // Hook up the sending text box
     connect(ui->sendText, SIGNAL(returnPressed()), this, SLOT(sendMessage()));
-
+    connect(ui->treeView, SIGNAL(clicked(const QModelIndex&)), this, SLOT(treeItemClicked(const QModelIndex&)));
     // Setup Tree
     ui->treeView->setHeaderHidden(true);
     ui->treeView->setModel(this->generateTree());
@@ -38,11 +38,12 @@ MainWindow::~MainWindow()
 
 QStandardItemModel* MainWindow::generateTree() {
     QStandardItemModel *treeModel = new QStandardItemModel();
+
     for(int i = 0; i < m_servers.count(); i++) {
         irc_server *server = m_servers[i];
         QStandardItem *server_node = new QStandardItem();
         server_node->setText(server->getHost());
-        //server_node->setData(server, Qt::UserRole); TODO:  Why doesn't this work?
+        server_node->setData(QVariant::fromValue<irc_server*>(server), Qt::UserRole); //TODO:  Why doesn't this work?
         treeModel->setItem(i, server_node);
         QMapIterator<QString, irc_channel*> j(server->getChannels());
         int index = 0;
@@ -51,7 +52,7 @@ QStandardItemModel* MainWindow::generateTree() {
             irc_channel *channel = j.value();
             QStandardItem *channel_node = new QStandardItem();
             channel_node->setText(channel->getName());
-            //channel_node->setData(channel, Qt::UserRole); TODO:  Why doesn't this work?
+            channel_node->setData(QVariant::fromValue<irc_channel*>(channel), Qt::UserRole); //TODO:  Why doesn't this work?
             server_node->setChild(index, channel_node);
             index++;
         }
@@ -76,6 +77,7 @@ void MainWindow::channelChanged()
     ui->treeView->setModel(this->generateTree());
 }
 
+
 void MainWindow::displayMessage(parsed_message *message)
 {
     // TODO:  Only display text from currently selected tree item
@@ -97,4 +99,25 @@ void MainWindow::sendMessage()
 void MainWindow::usersChanged(QStringList users)
 {
     ui->userList->setModel(this->generateUsers(users));
+}
+
+
+void MainWindow::changeToChannel(irc_channel* newChannel)
+{
+    ui->mainText->setHtml(newChannel->getText());
+}
+
+void MainWindow::treeItemClicked(const QModelIndex& index)
+{
+    QVariant data = index.data(Qt::UserRole);
+    if(data.canConvert<irc_channel*>()) {
+        irc_channel *channel;
+        channel = data.value<irc_channel*>();
+
+
+        this->changeToChannel(channel);
+
+    } else if(data.canConvert<irc_server*>()) {
+        qDebug() << "this is a server.";
+    }
 }

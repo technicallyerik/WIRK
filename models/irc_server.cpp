@@ -6,6 +6,8 @@ irc_server::irc_server(QObject *parent) : QObject(parent)
     m_parser = new message_parser(this, this);
 }
 
+Q_DECLARE_METATYPE(irc_server*)
+
 QString irc_server::getHost() {
     return m_host;
 }
