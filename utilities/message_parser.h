@@ -5,6 +5,7 @@
 #include "ircmessage.h"
 #include "irccommand.h"
 #include "parsed_message.h"
+#include "irc_channel_user.h"
 
 class irc_server;
 
@@ -24,6 +25,7 @@ private:
     QString parsenumeric(IrcNumericMessage *message);
     QString handlePrivateMessage(IrcPrivateMessage* privateMessage);
     QString styleString(QString fullMessage);
+    QStringList message_parser::convertUsersToStringList(QMap<QString, irc_channel_user*> users);
 
 signals:
     
