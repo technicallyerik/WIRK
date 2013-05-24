@@ -52,3 +52,15 @@ void irc_channel::addUsers(QStringList users) {
     }
     m_server->emitUsersChanged(users);
 }
+
+void irc_channel::addUser(QString user) {
+    irc_channel_user *newUser = new irc_channel_user(this);
+    newUser->setName(user);
+    m_users.insert(user, newUser);
+    m_server->emitUsersChanged(m_users);
+}
+
+void irc_channel::removeUser(QString user) {
+    m_users.remove(user);
+    m_server->emitUsersChanged(m_users);
+}

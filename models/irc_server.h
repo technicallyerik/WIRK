@@ -53,6 +53,7 @@ public:
     void appendText(QString text);
 
     void emitTextChanged(QString channel, QString text);
+    void emitUsersChanged(QMap<QString, irc_channel_user*> users);
     void emitUsersChanged(QStringList users);
 
     void createConnection();
@@ -73,7 +74,7 @@ signals:
 private slots:
     void processMessage(IrcMessage *message);
     void processError(QAbstractSocket::SocketError error);
-    
+    void nickNameChanged(const QString &name);
 private:
     QString m_host;
     int m_port;

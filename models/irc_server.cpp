@@ -97,6 +97,7 @@ void irc_server::createConnection() {
 
     connect(m_session, SIGNAL(messageReceived(IrcMessage*)), this, SLOT(processMessage(IrcMessage*)));
     connect(m_session, SIGNAL(socketError(QAbstractSocket::SocketError)), this, SLOT(processError(QAbstractSocket::SocketError)));
+    connect(m_session, SIGNAL(nickNameChanged(const QString&)), this, SLOT(nickNameChanged(const QString&)));
 
     m_session->open();
 }
@@ -109,6 +110,7 @@ void irc_server::setText(QString text) {
     m_text = text;
     emitTextChanged(NULL, m_text);
 }
+
 
 void irc_server::appendText(QString text) {
     m_text += text;
@@ -128,6 +130,17 @@ void irc_server::sendMessage(QString message) {
     }
 }
 
+void irc_server::emitUsersChanged(QMap<QString, irc_channel_user*> users) {
+    QStringList *usersInChannel = new QStringList();
+    QMapIterator<QString, irc_channel_user*> j(users);
+    while (j.hasNext()) {
+        j.next();
+        irc_channel_user *user = j.value();
+        usersInChannel->append(user->getName());
+    }
+   this->emitUsersChanged(*usersInChannel);
+}
+
 void irc_server::emitUsersChanged(QStringList users) {
     emit(usersChanged(users));
 }
@@ -141,4 +154,9 @@ void irc_server::processError(QAbstractSocket::SocketError error) {
     QString errorCode = QString::number(error);
     m_text += "Socket Error " + errorCode + "\n";
     emitTextChanged(NULL, m_text);
+}
+
+void irc_server::nickNameChanged(const QString &name)
+{
+    this->setNickname(name);
 }
