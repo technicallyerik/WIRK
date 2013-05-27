@@ -108,7 +108,8 @@ OTHER_FILES += \
     ext_lib/uchardet/GB2312Freq.tab \
     ext_lib/uchardet/EUCTWFreq.tab \
     ext_lib/uchardet/EUCKRFreq.tab \
-    ext_lib/uchardet/Big5Freq.tab
+    ext_lib/uchardet/Big5Freq.tab \
+    assets/icon.icns
 
 INCLUDEPATH += ext_lib/communi \
                 ext_lib/mozilla \
@@ -117,3 +118,5 @@ INCLUDEPATH += ext_lib/communi \
                 utilities
 
 QT += network
+
+ICON = assets/icon.icns
