@@ -109,7 +109,9 @@ OTHER_FILES += \
     ext_lib/uchardet/EUCTWFreq.tab \
     ext_lib/uchardet/EUCKRFreq.tab \
     ext_lib/uchardet/Big5Freq.tab \
-    assets/icon.icns
+    assets/icon.icns \
+    assets/icon.ico \
+    assets/icon.rc
 
 INCLUDEPATH += ext_lib/communi \
                 ext_lib/mozilla \
@@ -120,3 +122,8 @@ INCLUDEPATH += ext_lib/communi \
 QT += network
 
 ICON = assets/icon.icns
+
+RESOURCES += \
+    wirk.qrc
+
+RC_FILE = assets/icon.rc
