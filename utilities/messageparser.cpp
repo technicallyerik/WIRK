@@ -1,22 +1,20 @@
-#include "message_parser.h"
+#include "messageparser.h"
+#include "server.h"
+#include "ircmessage.h"
+#include "channel.h"
 #include "irc.h"
-#include "irc_channel.h"
-#include "irc_server.h"
 
-message_parser::message_parser(QObject *parent) : QObject(parent)
+MessageParser::MessageParser(Server *parent) : QObject(parent)
 {
 
 }
 
-message_parser::message_parser(irc_server *server, QObject *parent) : QObject(parent)
-{
-    m_server = server;
-}
-
-void message_parser::parse(IrcMessage *message)
+void MessageParser::parse(IrcMessage *message)
 {
     QString sender = message->sender().name();
-    bool senderIsSelf = (sender.compare(m_server->getNickname(), Qt::CaseInsensitive) == 0);
+    Server *server = this->getServer();
+    QString currentNickname = server->getNickname();
+    bool senderIsSelf = (sender.compare(currentNickname, Qt::CaseInsensitive) == 0);
 
     switch (message->type()) {
         case IrcMessage::Invite: {
@@ -26,17 +24,16 @@ void message_parser::parse(IrcMessage *message)
 
         case IrcMessage::Join: {
             IrcJoinMessage *join = static_cast<IrcJoinMessage*>(message);
-            QString targetChannel = join->channel().toLower();
-            if (senderIsSelf)
-            {
-                m_server->addChannel(targetChannel);
-            }
-            irc_channel *channel = m_server->getChannels()[targetChannel];
-            if (!senderIsSelf)
-            {
+            QString targetChannel = join->channel();
+            if (senderIsSelf) {
+                // Current user joined
+                server->addChannel(targetChannel);
+            } else {
+                // Another user joined
+                Channel *channel = this->getChannel(targetChannel);
                 channel->addUser(sender);
+                channel->appendText(QString("%1 has joined %2").arg(sender, join->channel()));
             }
-            channel->appendText(QString("%1 has joined %2").arg(sender, join->channel()));
             break;
         }
 
@@ -47,7 +44,6 @@ void message_parser::parse(IrcMessage *message)
 
         case IrcMessage::Mode: {
             IrcModeMessage *mode = static_cast<IrcModeMessage*>(message);
-            int i = 0;
             break;
         }
 
@@ -58,34 +54,38 @@ void message_parser::parse(IrcMessage *message)
 
         case IrcMessage::Notice: {
             IrcNoticeMessage *notice = static_cast<IrcNoticeMessage*>(message);
-            m_server->appendText(QString("[%1] %2").arg(sender, notice->message()));
+            Server *server = this->getServer();
+            server->appendText(QString("[%1] %2").arg(sender, notice->message()));
             break;
         }
 
         case IrcMessage::Numeric: {
             IrcNumericMessage *numeric = static_cast<IrcNumericMessage*>(message);
-            m_server->appendText(this->styleString(this->parsenumeric(numeric)));
+            QString parsedNumeric = this->parseNumeric(numeric);
+            QString styledString = this->styleString(parsedNumeric);
+            Server *server = this->getServer();
+            server->appendText(styledString);
             break;
         }
 
         case IrcMessage::Part: {
             IrcPartMessage *part = static_cast<IrcPartMessage*>(message);
-            QString targetChannel = part->channel().toLower();
+            QString targetChannel = part->channel();
             QString reason = part->reason();
-            irc_channel *channel = m_server->getChannels()[targetChannel];
-            QString partMessage = QString("%1 has left %2").arg(sender, part->channel());
-            if (reason.trimmed() != "")
-            {
-                partMessage.append(QString(" (Reason: %3)").arg(reason));
-            }
-            channel->appendText(partMessage);
-            if (senderIsSelf)
-            {
-                m_server->removeChannel(targetChannel);
-                m_server->emitUsersChanged(*new QStringList());
-            }
-            else {
+            if(senderIsSelf) {
+                // Current user left
+                Server *server = this->getServer();
+                server->removeChannel(targetChannel);
+            } else {
+                // Other user left
+                Channel *channel = this->getChannel(targetChannel);
                 channel->removeUser(sender);
+                QString partMessage = QString("%1 has left %2").arg(sender, part->channel());
+                if (reason.trimmed() != "")
+                {
+                    partMessage.append(QString(" (Reason: %3)").arg(reason));
+                }
+                channel->appendText(partMessage);
             }
             break;
         }
@@ -97,10 +97,17 @@ void message_parser::parse(IrcMessage *message)
 
         case IrcMessage::Private: {
             IrcPrivateMessage *pm = static_cast<IrcPrivateMessage*>(message);
-            irc_channel *channel = m_server->getChannels()[pm->target()];
-            QString sender = message->sender().name();
-            QString formattedString = QString("%1: %2").arg(sender, pm->message());
-            channel->appendText(formattedString);
+            QString channelName = pm->target();
+            Channel *channel = this->getChannel(channelName);
+            if(channel != NULL) {
+                // Message from channel
+                QString message = pm->message();
+                QString formattedString = QString("%1: %2").arg(sender, message);
+                channel->appendText(formattedString);
+            } else {
+                // Message from user
+                // TODO:
+            }
             break;
         }
 
@@ -124,20 +131,7 @@ void message_parser::parse(IrcMessage *message)
     }
 }
 
-QStringList message_parser::convertUsersToStringList(QMap<QString, irc_channel_user*> users)
-{
-    QStringList *usersInChannel = new QStringList();
-    QMapIterator<QString, irc_channel_user*> j(users);
-    while (j.hasNext()) {
-        j.next();
-        irc_channel_user *user = j.value();
-        usersInChannel->append(user->getName());
-    }
-
-    return *usersInChannel;
-}
-
-QString message_parser::parsenumeric(IrcNumericMessage *message)
+QString MessageParser::parseNumeric(IrcNumericMessage *message)
 {
     QString sender = message->sender().name();
     QString text = message->parameters().join(" ");
@@ -151,23 +145,21 @@ QString message_parser::parsenumeric(IrcNumericMessage *message)
             QRegExp rx("(\\S+)");
             QStringList list;
             QString targetChannel = "";
-
             int pos = 0;
             int count = 1;
             while ((pos = rx.indexIn(text, pos)) != -1) {
                 // format goes:
                 // <username> <channel type> <channel> <users begin here>
                 if (count == 3) {
-                    targetChannel = rx.cap(1).toLower();
+                    targetChannel = rx.cap(1);
                 }
                 else if (count > 3) {
                     list << rx.cap(1);
                 }
-
                 pos += rx.matchedLength();
                 count++;
             }
-            irc_channel *channel = m_server->getChannels()[targetChannel];
+            Channel *channel = this->getChannel(targetChannel);
             channel->addUsers(list);
             break;
         }
@@ -316,7 +308,7 @@ QString message_parser::parsenumeric(IrcNumericMessage *message)
         case Irc::RPL_ENDOFEXCEPTLIST: { }
         case Irc::RPL_VERSION: { }
         case Irc::RPL_WHOREPLY: { }
-        case Irc::RPL_WHOSPCRPL: { }        
+        case Irc::RPL_WHOSPCRPL: { }
         case Irc::RPL_KILLDONE: { }
         case Irc::RPL_CLOSING: { }
         case Irc::RPL_CLOSEEND: { }
@@ -547,45 +539,30 @@ QString message_parser::parsenumeric(IrcNumericMessage *message)
     return formattedMessage;
 }
 
-IrcCommand* message_parser::parseCommand(QString commandStr) {
-    QRegExp commandRX("^/([a-zA-Z]+) (\\S+)");
-    QRegExp channelRX("([#&][^\\x07\\x2C\\s]{,200})");
-    int pos = commandRX.indexIn(commandStr);
-    QString commandString;
-    if(pos > -1) {        
-        commandString = commandRX.cap(1);        
-        if(commandString.compare("join", Qt::CaseInsensitive) == 0) {            
-            QString channelStr = commandRX.cap(2);
-            if (channelRX.indexIn(channelStr) > -1) {
-                return IrcCommand::createJoin(channelStr, NULL);
-            }
-        }
-        else if (commandString.compare("part", Qt::CaseInsensitive) == 0) {
-            QString channelStr = commandRX.cap(2);
-            if (channelRX.indexIn(channelStr) > -1) {
-                //TODO: Get Reason
-                return IrcCommand::createPart(channelStr, NULL);
-            }
-        }
-    }
-    return NULL;
-}
-
-QString message_parser::styleString(QString fullMessage) {
-    QRegExp usernameRX("^(" + m_server->getUsername() + ")(.*)");
+QString MessageParser::styleString(QString fullMessage) {
+    Server *server = this->getServer();
+    QRegExp usernameRX("^(" + server->getUsername() + ")(.*)");
     int pos = usernameRX.indexIn(fullMessage);
     QString newString;
     if(pos > -1) {
         newString = usernameRX.cap(2);
-        QRegExp highlightUsernameRX("(.*)(" + m_server->getUsername() + ")(.*)");
+        QRegExp highlightUsernameRX("(.*)(" + server->getUsername() + ")(.*)");
         pos = highlightUsernameRX.indexIn(newString);
         if(pos > -1) {
             newString = highlightUsernameRX.cap(1) + " <font color=\"Lime\">" + highlightUsernameRX.cap(2) + "</font> "
                     + highlightUsernameRX.cap(3);
         }
-        newString += "<br />";
     } else {
-        newString = fullMessage + "<br />";
+        newString = fullMessage;
     }
     return newString;
+}
+
+Server* MessageParser::getServer() {
+    return qobject_cast<Server *>(this->parent());
+}
+
+Channel* MessageParser::getChannel(QString name) {
+    Server *server = this->getServer();
+    return server->getChannel(name);
 }

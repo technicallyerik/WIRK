@@ -52,11 +52,12 @@ SOURCES += main.cpp\
     ext_lib/uchardet/LangBulgarianModel.cpp \
     ext_lib/uchardet/JpCntx.cpp \
     ext_lib/uchardet/CharDistribution.cpp \
-    models/irc_server.cpp \
-    utilities/message_parser.cpp \
-    models/irc_channel.cpp \
-    models/irc_channel_user.cpp \
-    models/parsed_message.cpp
+    models/session.cpp \
+    models/server.cpp \
+    models/channel.cpp \
+    models/user.cpp \
+    utilities/messageparser.cpp \
+    utilities/commandparser.cpp
 
 HEADERS  += mainwindow.h \
     ext_lib/communi/irctextformat.h \
@@ -93,11 +94,12 @@ HEADERS  += mainwindow.h \
     ext_lib/uchardet/nsBig5Prober.h \
     ext_lib/uchardet/JpCntx.h \
     ext_lib/uchardet/CharDistribution.h \
-    models/irc_server.h \
-    utilities/message_parser.h \
-    models/irc_channel.h \
-    models/irc_channel_user.h \
-    models/parsed_message.h
+    models/session.h \
+    models/server.h \
+    models/channel.h \
+    models/user.h \
+    utilities/messageparser.h \
+    utilities/commandparser.h
 
 FORMS    += mainwindow.ui
 

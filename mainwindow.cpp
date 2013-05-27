@@ -1,34 +1,40 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include <QStandardItemModel>
-#include <QStandardItem>
-#include <QMapIterator>
-#include "irc_channel.h"
+#include "session.h"
+#include "server.h"
+#include "channel.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
+    // Setup UI
     ui->setupUi(this);
 
-    // TODO:  Get this from settings
-    irc_server *server = new irc_server(this);
-    server->setHost("chat.freenode.net");
-    server->setPort(7070);
-    server->setUsername("testing1234567");
-    server->setNickname("testing1234567");
-    server->setRealname("Testing 1234567");
-    connect(server, SIGNAL(textChanged(parsed_message*)), this, SLOT(displayMessage(parsed_message*)));
-    connect(server, SIGNAL(channelChanged()), this, SLOT(channelChanged()));
-    connect(server, SIGNAL(usersChanged(QStringList)), this, SLOT(usersChanged(QStringList)));
-    server->setSSL(true);
-    server->createConnection();
-    m_servers.append(server);
+    // Setup servers
+    session = new Session(this);
+    // TODO:  Get from settings
+    session->addServer("irc.freenode.net",
+                       7000,
+                       "testing1234567",
+                       "testing1234567",
+                       "Testing",
+                       "password",
+                       true);
 
-    // Hook up the sending text box
+    // Hook up session messages
+    connect(session, SIGNAL(messageRecieved(QString,QString,QString)), this, SLOT(handleMessage(QString,QString,QString)));
+
+    // Hook up user interactions
     connect(ui->sendText, SIGNAL(returnPressed()), this, SLOT(sendMessage()));
     connect(ui->treeView, SIGNAL(clicked(const QModelIndex&)), this, SLOT(treeItemClicked(const QModelIndex&)));
+
     // Setup Tree
     ui->treeView->setHeaderHidden(true);
-    ui->treeView->setModel(this->generateTree());
+    ui->treeView->setModel(session);
+
+    // Set focus on first server
+    QModelIndex modelIndex = session->index(0, 0);
+    ui->treeView->selectionModel()->select(modelIndex, QItemSelectionModel::ClearAndSelect);
+
 }
 
 MainWindow::~MainWindow()
@@ -36,88 +42,101 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-QStandardItemModel* MainWindow::generateTree() {
-    QStandardItemModel *treeModel = new QStandardItemModel();
-
-    for(int i = 0; i < m_servers.count(); i++) {
-        irc_server *server = m_servers[i];
-        QStandardItem *server_node = new QStandardItem();
-        server_node->setText(server->getHost());
-        server_node->setData(QVariant::fromValue<irc_server*>(server), Qt::UserRole); //TODO:  Why doesn't this work?
-        treeModel->setItem(i, server_node);
-        QMapIterator<QString, irc_channel*> j(server->getChannels());
-        int index = 0;
-        while (j.hasNext()) {
-            j.next();
-            irc_channel *channel = j.value();
-            QStandardItem *channel_node = new QStandardItem();
-            channel_node->setText(channel->getName());
-            channel_node->setData(QVariant::fromValue<irc_channel*>(channel), Qt::UserRole); //TODO:  Why doesn't this work?
-            server_node->setChild(index, channel_node);
-            index++;
+void MainWindow::handleMessage(QString inServer, QString inChannel, QString inMessage)
+{
+    QModelIndexList selectedItems = ui->treeView->selectionModel()->selectedIndexes();
+    if(selectedItems.count() == 1) {
+        QModelIndex selectedItem = selectedItems[0];
+        QVariant data = selectedItem.data(Qt::UserRole);
+        if(data.canConvert<Channel*>()) {
+            Channel *channel = data.value<Channel*>();
+            QString channelName = channel->getName();
+            Server *server = channel->getServer();
+            QString serverName = server->getHost();
+            if(serverName.compare(inServer, Qt::CaseInsensitive) == 0 &&
+               channelName.compare(inChannel, Qt::CaseInsensitive) == 0) {
+                // Channel message with channel selected
+                ui->mainText->append(inMessage);
+            } else {
+                if(inChannel.isEmpty()) {
+                    // TODO:  Highlight server
+                } else {
+                    // TODO:  Highlight channel
+                }
+            }
+        } else if(data.canConvert<Server*>()) {
+            Server *server = data.value<Server*>();
+            QString serverName = server->getHost();
+            if(serverName.compare(inServer, Qt::CaseInsensitive) == 0) {
+                // Server message with server selected
+                ui->mainText->append(inMessage);
+            } else {
+                if(inChannel.isEmpty()) {
+                    // TODO:  Highlight server
+                } else {
+                    // TODO:  Highlight channel
+                }
+            }
         }
+        QTextCursor c = ui->mainText->textCursor();
+        c.movePosition(QTextCursor::End);
+        ui->mainText->setTextCursor(c);
     }
-    return treeModel;
-}
-
-QStandardItemModel* MainWindow::generateUsers(QStringList users) {
-    QStandardItemModel *listModel = new QStandardItemModel();
-    for (int i = 0; i < users.count(); i++) {
-        QString userName = users.at(i);
-        QStandardItem *user = new QStandardItem(userName);
-        listModel->appendRow(user);
-    }
-
-    return listModel;
-}
-
-void MainWindow::channelChanged()
-{
-    // TODO:  Maybe do incremental updates?
-    ui->treeView->setModel(this->generateTree());
-}
-
-
-void MainWindow::displayMessage(parsed_message *message)
-{
-    // TODO:  Only display text from currently selected tree item
-    //        Highlight the item in the tree if it's not currently selected
-    ui->mainText->setHtml(message->getMessage());
-
-    // This scrolls the main text to the bottom
-    QTextCursor c = ui->mainText->textCursor();
-    c.movePosition(QTextCursor::End);
-    ui->mainText->setTextCursor(c);
 }
 
 void MainWindow::sendMessage()
 {
-    m_servers[0]->sendMessage(ui->sendText->text()); // TODO: Send to selected server in tree
-    ui->sendText->setText("");
-}
-
-void MainWindow::usersChanged(QStringList users)
-{
-    ui->userList->setModel(this->generateUsers(users));
-}
-
-
-void MainWindow::changeToChannel(irc_channel* newChannel)
-{
-    ui->mainText->setHtml(newChannel->getText());
+    QModelIndexList selectedItems = ui->treeView->selectionModel()->selectedIndexes();
+    QString text = ui->sendText->text();
+    if(selectedItems.count() == 1) {
+        QModelIndex selectedItem = selectedItems[0];
+        QVariant data = selectedItem.data(Qt::UserRole);
+        if(data.canConvert<Channel*>()) {
+            Channel *channel = data.value<Channel*>();
+            Server *server = channel->getServer();
+            if(text.at(0) == '/') {
+                // User entered command
+                server->sendMessage(text);
+            } else {
+                // User entered channel message
+                QString channelName = channel->getName();
+                server->sendChannelMessage(channelName, text);
+            }
+        } else if(data.canConvert<Server*>()) {
+            Server *server = data.value<Server*>();
+            if(text.at(0) == '/') {
+                // User entered command
+                server->sendMessage(text);
+            } else {
+                // User entered channel message without channel selected
+                // Do nothing
+            }
+        }
+        ui->sendText->setText("");
+    }
 }
 
 void MainWindow::treeItemClicked(const QModelIndex& index)
 {
     QVariant data = index.data(Qt::UserRole);
-    if(data.canConvert<irc_channel*>()) {
-        irc_channel *channel;
-        channel = data.value<irc_channel*>();
-
-
+    if(data.canConvert<Channel*>()) {
+        Channel *channel = data.value<Channel*>();
         this->changeToChannel(channel);
-
-    } else if(data.canConvert<irc_server*>()) {
-        qDebug() << "this is a server.";
+    } else if(data.canConvert<Server*>()) {
+        Server *server = data.value<Server*>();
+        this->changeToServer(server);
     }
+}
+
+void MainWindow::changeToServer(Server *newServer)
+{
+    ui->mainText->setHtml(newServer->getText());
+    ui->userList->setModel(NULL);
+}
+
+void MainWindow::changeToChannel(Channel *newChannel)
+{
+    ui->mainText->setHtml(newChannel->getText());
+    QStandardItemModel *users = newChannel->getUsers();
+    ui->userList->setModel(users);
 }

@@ -1,16 +1,15 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "ircmessage.h"
-#include "irc_server.h"
 #include <QMainWindow>
-#include <QList>
-#include <QStandardItemModel>
-#include "parsed_message.h"
 
 namespace Ui {
-class MainWindow;
+    class MainWindow;
 }
+
+class Session;
+class Server;
+class Channel;
 
 class MainWindow : public QMainWindow
 {
@@ -22,17 +21,15 @@ public:
     
 private:
     Ui::MainWindow *ui;
-    QList<irc_server*> m_servers;
-    QStandardItemModel* generateTree();
-    QStandardItemModel* generateUsers(QStringList users);
-    void changeToChannel(irc_channel* newChannel);
+    Session *session;
+
+    void changeToServer(Server *newServer);
+    void changeToChannel(Channel *newChannel);
 
 private slots:
-    void channelChanged();
     void sendMessage();
-    void displayMessage(parsed_message *message);
-    void usersChanged(QStringList users);
     void treeItemClicked(const QModelIndex& index);
+    void handleMessage(QString server, QString channel, QString message);
 
 };
 
