@@ -25,6 +25,7 @@ private:
 
     void changeToServer(Server *newServer);
     void changeToChannel(Channel *newChannel);
+    void scrollToBottom();
 
 private slots:
     void sendMessage();

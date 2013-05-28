@@ -20,6 +20,8 @@ void Session::addServer(QString host, int port, QString username, QString nickna
     server->openConnection();
     newMenuItem->setData(QVariant::fromValue<Server*>(server), Qt::UserRole);
     this->appendRow(newMenuItem);
+    newMenuItem->setFlags(newMenuItem->flags() & ~Qt::ItemIsEditable);
+
 }
 
 Server* Session::getServer(QString inServer) {

@@ -104,6 +104,8 @@ void Server::addChannel(QString inChannel) {
     Channel *newChannel = new Channel(inChannel.toLower(), newMenuItem, this);
     newMenuItem->setData(QVariant::fromValue<Channel*>(newChannel), Qt::UserRole);
     menuItem->appendRow(newMenuItem);
+    newMenuItem->setFlags(newMenuItem->flags() & ~Qt::ItemIsEditable);
+
 }
 
 void Server::removeChannel(QString inChannel) {
@@ -142,6 +144,8 @@ void Server::sendMessage(QString message) {
 
 void Server::sendChannelMessage(QString channel, QString message) {
     IrcCommand *command = IrcCommand::createMessage(channel, message);
+    Channel* sendChannel = this->getChannel(channel);
+    sendChannel->appendText(QString("%1: %2").arg(this->getUsername(), message));
     ircSession->sendCommand(command);
 }
 

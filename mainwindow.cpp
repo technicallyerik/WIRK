@@ -35,6 +35,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     QModelIndex modelIndex = session->index(0, 0);
     ui->treeView->selectionModel()->select(modelIndex, QItemSelectionModel::ClearAndSelect);
 
+
 }
 
 MainWindow::~MainWindow()
@@ -128,10 +129,18 @@ void MainWindow::treeItemClicked(const QModelIndex& index)
     }
 }
 
+void MainWindow::scrollToBottom()
+{
+    QTextCursor c = ui->mainText->textCursor();
+    c.movePosition(QTextCursor::End);
+    ui->mainText->setTextCursor(c);
+}
+
 void MainWindow::changeToServer(Server *newServer)
 {
     ui->mainText->setHtml(newServer->getText());
     ui->userList->setModel(NULL);
+    scrollToBottom();
 }
 
 void MainWindow::changeToChannel(Channel *newChannel)
@@ -139,4 +148,5 @@ void MainWindow::changeToChannel(Channel *newChannel)
     ui->mainText->setHtml(newChannel->getText());
     QStandardItemModel *users = newChannel->getUsers();
     ui->userList->setModel(users);
+    scrollToBottom();
 }
