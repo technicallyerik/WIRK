@@ -5,6 +5,9 @@ compiler:
 script:
   - qmake
   - make
+env:
+  - CONFIG=debug QT=qt5
+  - CONFIG=release QT=qt5
 branches:
   only:
     - master
