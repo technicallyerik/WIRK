@@ -13,12 +13,19 @@ IrcCommand* CommandParser::parse(QString commandStr) {
     int pos = commandRX.indexIn(commandStr);
     if(pos > -1) {
         QString commandString = commandRX.cap(1);
+        // /JOIN
         if(commandString.compare("join", Qt::CaseInsensitive) == 0) {
             QString channelStr = commandRX.cap(2);
             if (channelRX.indexIn(channelStr) > -1) {
                 return IrcCommand::createJoin(channelStr, NULL);
             }
+            // RFC says to leave all channels if 0
+            else if (channelStr == "0") {
+                getServer()->partAllChannels();
+                return NULL;
+            }
         }
+        // /PART
         else if (commandString.compare("part", Qt::CaseInsensitive) == 0) {
             QString channelStr = commandRX.cap(2);
             if (channelRX.indexIn(channelStr) > -1) {

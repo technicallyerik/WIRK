@@ -54,6 +54,7 @@ public:
 
     void addChannel(QString inChannel);
     void removeChannel(QString inChannel);
+    void partAllChannels();
     Channel* getChannel(QString inChannel);
 
     Session* getSession();

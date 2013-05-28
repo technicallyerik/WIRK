@@ -118,6 +118,18 @@ void Server::removeChannel(QString inChannel) {
     }
 }
 
+void Server::partAllChannels() {
+    int totalMenuItems = this->menuItem->rowCount()-1;
+    for(int i = totalMenuItems; i >= 0; i--) {
+        QStandardItem *channelMenuItem = this->menuItem->child(i);
+        QVariant data = channelMenuItem->data(Qt::UserRole);
+        Channel* channel = data.value<Channel*>();
+        QString channelName = channel->getName();
+        IrcCommand *partCommand = IrcCommand::createPart(channelName, NULL);
+        ircSession->sendCommand(partCommand);
+    }
+}
+
 Channel* Server::getChannel(QString inChannel) {
     Session *session = this->getSession();
     QList<QStandardItem*> foundChannels = session->findItems(inChannel.toLower(), Qt::MatchExactly | Qt::MatchRecursive);
