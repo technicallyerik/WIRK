@@ -1,0 +1,11 @@
+language: cpp
+compiler:
+  - gcc
+  - clang
+script:
+  - qmake
+  - make
+branches:
+  only:
+    - master
+    - development
