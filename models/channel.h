@@ -22,6 +22,7 @@ public:
 
     QString getText();
     void appendText(QString text);
+    void appendText(QString sender, QString text);
 
     QStandardItemModel* getUsers();
     void addUsers(QStringList inUsers);

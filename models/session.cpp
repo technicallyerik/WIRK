@@ -34,6 +34,6 @@ Server* Session::getServer(QString inServer) {
     return NULL;
 }
 
-void Session::emitMessageRecieved(QString server, QString channel, QString message) {
-    emit(messageRecieved(server, channel, message));
+void Session::emitMessageReceived(QString server, QString channel, QString message) {
+    emit(messageReceived(server, channel, message));
 }

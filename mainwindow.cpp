@@ -21,7 +21,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
                        true);
 
     // Hook up session messages
-    connect(session, SIGNAL(messageRecieved(QString,QString,QString)), this, SLOT(handleMessage(QString,QString,QString)));
+    connect(session, SIGNAL(messageReceived(QString,QString,QString)), this, SLOT(handleMessage(QString,QString,QString)));
 
     // Hook up user interactions
     connect(ui->sendText, SIGNAL(returnPressed()), this, SLOT(sendMessage()));

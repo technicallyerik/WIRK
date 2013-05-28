@@ -96,7 +96,7 @@ void Server::appendText(QString inText) {
     text += inText + "<br />";
     Session *session = this->getSession();
     QString host = this->getHost();
-    session->emitMessageRecieved(host, NULL, inText);
+    session->emitMessageReceived(host, NULL, inText);
 }
 
 void Server::addChannel(QString inChannel) {

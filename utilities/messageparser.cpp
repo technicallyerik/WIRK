@@ -103,7 +103,7 @@ void MessageParser::parse(IrcMessage *message)
                 // Message from channel
                 QString message = pm->message();
                 QString formattedString = QString("%1: %2").arg(sender, message);
-                channel->appendText(formattedString);
+                channel->appendText(sender, message);
             } else {
                 // Message from user
                 // TODO:

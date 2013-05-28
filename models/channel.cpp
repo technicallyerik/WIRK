@@ -5,6 +5,7 @@
 
 Channel::Channel(QString inName, QStandardItem *inMenuItem, Server *parent) : QObject(parent)
 {
+//    text = "<html><body><table><tr><td>abc</td><td>fdsa</td></tr><tr><td>abcccc</td><td>fdsaaaa</td></tr></table>";
     text = "";
     users = new QStandardItemModel(this);
     menuItem = inMenuItem;
@@ -25,12 +26,23 @@ QString Channel::getText() {
 }
 
 void Channel::appendText(QString inText) {
-    text += inText + "<br />";
+    text += "<table><tr><td style=\"width:100px\"></td><td>" + inText + "</td></tr></table>";
     QString channelName = this->getName();
     Server *server = this->getServer();
     QString serverName = server->getHost();
     Session *session = server->getSession();
-    session->emitMessageRecieved(serverName, channelName, inText);
+    session->emitMessageReceived(serverName, channelName, inText);
+}
+
+
+void Channel::appendText(QString sender, QString inText) {
+    QString tableRow =  "<table width=\"100%\"><tr><td width=\"100\">" + sender + "</td><td>" + inText + "</td></tr></table>";
+    text += tableRow;
+    QString channelName = this->getName();
+    Server *server = this->getServer();
+    QString serverName = server->getHost();
+    Session *session = server->getSession();
+    session->emitMessageReceived(serverName, channelName, tableRow);
 }
 
 QStandardItemModel* Channel::getUsers() {
