@@ -15,4 +15,11 @@ branches:
     - master
     - develop
 notifications:
-  irc: "chat.freenode.net#wirk"
+  irc: 
+    channels:
+      - "chat.freenode.net#wirk"
+    template:
+      - "%{author} committed %{commit} to %{branch}: %{commit_message}."
+      - "%{compare_url}"
+      - "Build #%{build_number} of %{repository}.  Status: %{message}" 
+      - "%{build_url}"
