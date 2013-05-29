@@ -7,9 +7,8 @@ before_install:
   - sudo apt-get update
   - sudo apt-get install qtdeclarative5-dev
 script:
-  - export QMAKE=/usr/lib/x86_64-linux-gnu/qt5/bin/qmake
-  - qmake -v
-  - qmake
+  - /usr/lib/x86_64-linux-gnu/qt5/bin/qmake -v
+  - /usr/lib/x86_64-linux-gnu/qt5/bin/qmake
   - make
 branches:
   only:
