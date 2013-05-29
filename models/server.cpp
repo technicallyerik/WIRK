@@ -16,6 +16,7 @@ Server::Server(QStandardItem *inMenuItem, Session *parent) : QObject(parent)
     connect(ircSession, SIGNAL(messageReceived(IrcMessage*)), this, SLOT(processMessage(IrcMessage*)));
     connect(ircSession, SIGNAL(socketError(QAbstractSocket::SocketError)), this, SLOT(processError(QAbstractSocket::SocketError)));
     connect(ircSession, SIGNAL(nickNameChanged(const QString&)), this, SLOT(nickNameChanged(const QString&)));
+    connect(ircSession, SIGNAL(password(QString*)), this, SLOT(passwordRequested(QString*)));
 }
 
 QString Server::getHost() {
@@ -170,6 +171,10 @@ void Server::processError(QAbstractSocket::SocketError error) {
     QMessageBox msgBox;
     msgBox.setText("Socket Error " + errorCode + "\n");
     msgBox.exec();
+}
+
+void Server::passwordRequested(QString *outPassword) {
+    *outPassword = password;
 }
 
 void Server::nickNameChanged(const QString &name)

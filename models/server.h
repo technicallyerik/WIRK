@@ -67,6 +67,7 @@ private slots:
     void processMessage(IrcMessage *message);
     void processError(QAbstractSocket::SocketError error);
     void nickNameChanged(const QString &name);
+    void passwordRequested(QString *outPassword);
     
 private:
     QString host;
