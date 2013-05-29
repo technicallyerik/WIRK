@@ -3,7 +3,7 @@ compiler:
   - gcc
   - clang
 before_install:
-  - sudo apt-add-repository ppa:canonical-qt5-edgers/qt5-proper
+  - sudo apt-add-repository -y ppa:canonical-qt5-edgers/qt5-proper
   - sudo apt-get update
   - sudo apt-get install qtdeclarative5-dev
 script:
