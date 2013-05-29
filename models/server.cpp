@@ -93,11 +93,13 @@ QString Server::getText() {
     return text;
 }
 
-void Server::appendText(QString inText) {
-    text += inText + "<br />";
+void Server::appendText(QString inText)
+{
+    QString tableRow = "<table><tr><td style=\"width:100px\"></td><td>" + inText + "</td></tr></table>";
+    text += tableRow;
     Session *session = this->getSession();
     QString host = this->getHost();
-    session->emitMessageReceived(host, NULL, inText);
+    session->emitMessageReceived(host, NULL, tableRow);
 }
 
 void Server::addChannel(QString inChannel) {
@@ -106,6 +108,7 @@ void Server::addChannel(QString inChannel) {
     newMenuItem->setData(QVariant::fromValue<Channel*>(newChannel), Qt::UserRole);
     menuItem->appendRow(newMenuItem);
     newMenuItem->setFlags(newMenuItem->flags() & ~Qt::ItemIsEditable);
+
 
 }
 
@@ -158,7 +161,7 @@ void Server::sendMessage(QString message) {
 void Server::sendChannelMessage(QString channel, QString message) {
     IrcCommand *command = IrcCommand::createMessage(channel, message);
     Channel* sendChannel = this->getChannel(channel);
-    sendChannel->appendText(QString("%1: %2").arg(this->getUsername(), message));
+    sendChannel->appendText(this->getNickname(), message);
     ircSession->sendCommand(command);
 }
 
