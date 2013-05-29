@@ -5,6 +5,7 @@
 
 Channel::Channel(QString inName, QStandardItem *inMenuItem, Server *parent) : QObject(parent)
 {
+    text = "";
     users = new QStandardItemModel(this);
     menuItem = inMenuItem;
     this->setName(inName);

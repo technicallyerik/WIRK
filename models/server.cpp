@@ -109,6 +109,7 @@ void Server::addChannel(QString inChannel) {
     menuItem->appendRow(newMenuItem);
     newMenuItem->setFlags(newMenuItem->flags() & ~Qt::ItemIsEditable);
 
+
 }
 
 void Server::removeChannel(QString inChannel) {
