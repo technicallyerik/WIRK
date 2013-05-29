@@ -62,9 +62,11 @@ void MessageParser::parse(IrcMessage *message)
         case IrcMessage::Numeric: {
             IrcNumericMessage *numeric = static_cast<IrcNumericMessage*>(message);
             QString parsedNumeric = this->parseNumeric(numeric);
-            QString styledString = this->styleString(parsedNumeric);
-            Server *server = this->getServer();
-            server->appendText(styledString);
+            if(!parsedNumeric.isEmpty()) {
+                QString styledString = this->styleString(parsedNumeric);
+                Server *server = this->getServer();
+                server->appendText(styledString);
+            }
             break;
         }
 
@@ -168,6 +170,9 @@ QString MessageParser::parseNumeric(IrcNumericMessage *message)
             Channel *channel = this->getChannel(targetChannel);
             channel->addUsers(list);
             break;
+        }
+        case Irc::RPL_ENDOFNAMES: {
+            break; // We don't care to see this
         }
         case Irc::RPL_WELCOME: { }
         case Irc::RPL_YOURHOST: { }
@@ -320,7 +325,6 @@ QString MessageParser::parseNumeric(IrcNumericMessage *message)
         case Irc::RPL_CLOSEEND: { }
         case Irc::RPL_LINKS: { }
         case Irc::RPL_ENDOFLINKS: { }
-        case Irc::RPL_ENDOFNAMES: { }
         case Irc::RPL_BANLIST: { }
         case Irc::RPL_ENDOFBANLIST: { }
         case Irc::RPL_ENDOFWHOWAS: { }
