@@ -103,7 +103,7 @@ void MessageParser::parse(IrcMessage *message)
             Channel *channel = this->getChannel(channelName);
             if(channel != NULL) {
                 // Message from channel
-                QString message = pm->message();
+                QString message = pm->message().toHtmlEscaped();
                 QString formattedString = QString("%1: %2").arg(sender, message);
                 channel->appendText(sender, message);
             } else {
