@@ -10,6 +10,7 @@ namespace Ui {
 class Session;
 class Server;
 class Channel;
+class QModelIndex;
 
 class MainWindow : public QMainWindow
 {
