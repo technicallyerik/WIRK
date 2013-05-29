@@ -14,7 +14,7 @@ void MessageParser::parse(IrcMessage *message)
     QString sender = message->sender().name();
     Server *server = this->getServer();
     QString currentNickname = server->getNickname();
-    bool senderIsSelf = (sender.compare(currentNickname, Qt::CaseInsensitive) == 0);
+    bool senderIsSelf = (message->flags() & IrcMessage::Own);
 
     switch (message->type()) {
         case IrcMessage::Invite: {
