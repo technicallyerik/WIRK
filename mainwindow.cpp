@@ -12,13 +12,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     // Setup servers
     session = new Session(this);
     // TODO:  Get from settings
-    session->addServer("irc.freenode.net",
-                       7000,
-                       "testing1234567",
-                       "testing1234567",
-                       "Testing",
-                       "password",
-                       true);
+    session->addServer("irc.freenode.net",  // host
+                       7000,                // port
+                       "wirktest123",       // username
+                       "wirktest123",       // nickname
+                       "WIRK Test",         // real name
+                       "",                  // password
+                       true);               // is ssl
 
     // Hook up session messages
     connect(session, SIGNAL(messageReceived(QString,QString,QString)), this, SLOT(handleMessage(QString,QString,QString)));

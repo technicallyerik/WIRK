@@ -55,7 +55,7 @@ void MessageParser::parse(IrcMessage *message)
         case IrcMessage::Notice: {
             IrcNoticeMessage *notice = static_cast<IrcNoticeMessage*>(message);
             Server *server = this->getServer();
-            server->appendText(QString("[%1] %2").arg(sender, notice->message()));
+            server->appendText(QString("Notice: %1").arg(notice->message()));
             break;
         }
 
@@ -124,8 +124,14 @@ void MessageParser::parse(IrcMessage *message)
 
             break;
         }
+        case IrcMessage::Error: {
+            IrcErrorMessage *error = static_cast<IrcErrorMessage*>(message);
+            Server *server = this->getServer();
+            server->appendText(QString("**ERROR: %1").arg(error->error()));
+            break;
+        }
         default: {
-            // Ping, Error, Capability?
+            // Ping, Capability?
             break;
         }
     }
