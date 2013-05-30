@@ -25,8 +25,14 @@ QString Channel::getText() {
 }
 
 void Channel::appendText(QString inText) {
+    QDateTime currentTime = QDateTime::currentDateTime();
+    QString currentTimeStr = currentTime.toString("h:mmap, MMM d, yyyy");
 
-    QString tableRow = "<table width=\"100%\"><tr><td width=\"100\"></td><td>" + inText + "</td></tr></table>";
+    QString tableRow = "<table class=\"msg-info\" width=\"100%\"><tr>";
+            tableRow += "<td class=\"col-name\" width=\"140\"></td>";
+            tableRow += "<td class=\"col-message\"><p class=\"message\">" + inText + "</p></td>";
+            tableRow += "<td class=\"col-meta\" width=\"125\"><h6 class=\"metainfo\">" + currentTimeStr + "</h6></td>";
+            tableRow += "</tr></table>";
     text += tableRow;
     QString channelName = this->getName();
     Server *server = this->getServer();
@@ -36,9 +42,29 @@ void Channel::appendText(QString inText) {
 }
 
 
-void Channel::appendText(QString sender, QString inText) {
-    QString tableRow = "<table width=\"100%\"><tr><td width=\"100\"><span style=\"font-weight:bold\">" +
-            sender + "</span></td><td>" + inText + "</td></tr></table>";
+void Channel::appendText(QString sender, QString inText, bool isEmote) {
+    QString currentUser = this->getServer()->getNickname();
+    bool textContainsUser = inText.contains(currentUser, Qt::CaseInsensitive);
+    QDateTime currentTime = QDateTime::currentDateTime();
+    QString currentTimeStr = currentTime.toString("h:mmap, MMM d, yyyy");
+
+    QString tableRow = "";
+    if (isEmote)
+    {
+        tableRow = "<table class=\"msg-emote\" width=\"100%\"><tr>";
+    }
+    else if (textContainsUser)
+    {
+        tableRow = "<table class=\"msg-mentioned\" width=\"100%\"><tr>";
+    }
+    else
+    {
+        tableRow = "<table width=\"100%\"><tr>";
+    }
+        tableRow += "<th class=\"col-name\" width=\"140\" align=\"right\"><span class=\"user\">" + sender + "</span></th>";
+        tableRow += "<td class=\"col-message\"><p class=\"message\">" + inText + "</p></td>";
+        tableRow += "<td class=\"col-meta\" width=\"125\"><h6 class=\"metainfo\">" + currentTimeStr +"</h6></td>";
+        tableRow += "</tr></table>";
     text += tableRow;
     QString channelName = this->getName();
     Server *server = this->getServer();

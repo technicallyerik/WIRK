@@ -115,7 +115,8 @@ void MessageParser::parse(IrcMessage *message)
             QString styledMessage = this->styleString(pm->message());
             if(channel != NULL) {
                 // Message from channel
-                channel->appendText(sender, styledMessage);
+                bool isEmote = pm->isAction();
+                channel->appendText(sender, styledMessage, isEmote);
             } else {
                 // Message from user
                 // TODO:

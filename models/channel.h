@@ -22,7 +22,7 @@ public:
 
     QString getText();
     void appendText(QString text);
-    void appendText(QString sender, QString text);
+    void appendText(QString sender, QString text, bool isEmote = false);
 
     QStandardItemModel* getUsers();
     void addUsers(QStringList inUsers);
