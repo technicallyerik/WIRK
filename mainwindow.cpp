@@ -101,7 +101,8 @@ void MainWindow::handleMessage(QString inServer, QString inChannel, QString inMe
         } else if(data.canConvert<Server*>()) {
             Server *server = data.value<Server*>();
             QString serverName = server->getHost();
-            if(serverName.compare(inServer, Qt::CaseInsensitive) == 0) {
+            if(serverName.compare(inServer, Qt::CaseInsensitive) == 0 &&
+               inChannel.isEmpty()) {
                 // Server message with server selected
                 ui->mainText->append(inMessage);
             } else {
@@ -193,10 +194,11 @@ void MainWindow::imageDownloaded(QNetworkReply* networkReply)
         AnimationViewModel *avm = new AnimationViewModel(bytes, url, this);
         connect(avm, SIGNAL(movieAnimated(QPixmap, QUrl)), this, SLOT(movieAnimated(QPixmap, QUrl)));
         animations.append(avm);
-    } else {
-        document->addResource(QTextDocument::ImageResource, url, bytes);
-        ui->mainText->setLineWrapColumnOrWidth(ui->mainText->lineWrapColumnOrWidth()); // Hack to get the image to redraw
     }
+
+    document->addResource(QTextDocument::ImageResource, url, bytes);
+    ui->mainText->setLineWrapColumnOrWidth(ui->mainText->lineWrapColumnOrWidth()); // Hack to get the image to redraw
+    scrollToBottom();
 }
 
 void MainWindow::movieAnimated(QPixmap pixels, QUrl url)
