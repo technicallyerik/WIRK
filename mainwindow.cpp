@@ -96,7 +96,8 @@ void MainWindow::handleMessage(QString inServer, QString inChannel, QString inMe
         } else if(data.canConvert<Server*>()) {
             Server *server = data.value<Server*>();
             QString serverName = server->getHost();
-            if(serverName.compare(inServer, Qt::CaseInsensitive) == 0) {
+            if(serverName.compare(inServer, Qt::CaseInsensitive) == 0 &&
+               inChannel.isEmpty()) {
                 // Server message with server selected
                 ui->mainText->append(inMessage);
             } else {
