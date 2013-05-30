@@ -36,15 +36,15 @@ void Channel::appendText(QString sender, QString inText, MessageType type) {
     QString currentTimeStr = currentTime.toString("h:mmap, MMM d, yyyy");
 
     QString tableRow = "";
-    if (type == MessageType::Emote)
+    if (type == Channel::Emote)
     {
         tableRow = "<table class=\"msg-emote\" width=\"100%\"><tr>";
     }
-    else if (type == MessageType::Topic)
+    else if (type == Channel::Topic)
     {
         tableRow = "<table class=\"msg-topic\" width=\"100%\"><tr>";
     }
-    else if (type == MessageType::Info)
+    else if (type == Channel::Info)
     {
         tableRow = "<table class=\"msg-info\" width=\"100%\"><tr>";
     }
