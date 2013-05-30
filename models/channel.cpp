@@ -25,20 +25,7 @@ QString Channel::getText() {
 }
 
 void Channel::appendText(QString inText) {
-    QDateTime currentTime = QDateTime::currentDateTime();
-    QString currentTimeStr = currentTime.toString("h:mmap, MMM d, yyyy");
-
-    QString tableRow = "<table class=\"msg-info\" width=\"100%\"><tr>";
-            tableRow += "<td class=\"col-name\" width=\"140\"></td>";
-            tableRow += "<td class=\"col-message\"><p class=\"message\">" + inText + "</p></td>";
-            tableRow += "<td class=\"col-meta\" width=\"125\"><h6 class=\"metainfo\">" + currentTimeStr + "</h6></td>";
-            tableRow += "</tr></table>";
-    text += tableRow;
-    QString channelName = this->getName();
-    Server *server = this->getServer();
-    QString serverName = server->getHost();
-    Session *session = server->getSession();
-    session->emitMessageReceived(serverName, channelName, tableRow);
+    this->appendText("", inText, Channel::Info);
 }
 
 
@@ -56,6 +43,10 @@ void Channel::appendText(QString sender, QString inText, MessageType type) {
     else if (type == MessageType::Topic)
     {
         tableRow = "<table class=\"msg-topic\" width=\"100%\"><tr>";
+    }
+    else if (type == MessageType::Info)
+    {
+        tableRow = "<table class=\"msg-info\" width=\"100%\"><tr>";
     }
     else if (textContainsUser)
     {

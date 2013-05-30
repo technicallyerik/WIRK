@@ -21,7 +21,8 @@ public:
     {
         Default,
         Topic,
-        Emote
+        Emote,
+        Info
     };
     
     QString getName();
