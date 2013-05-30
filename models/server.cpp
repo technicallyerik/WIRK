@@ -160,7 +160,9 @@ void Server::sendMessage(QString message) {
 void Server::sendChannelMessage(QString channel, QString message) {
     IrcCommand *command = IrcCommand::createMessage(channel, message);
     Channel* sendChannel = this->getChannel(channel);
-    sendChannel->appendText(this->getNickname(), message);
+
+
+    sendChannel->appendText(this->getNickname(), messageParser->styleString(message));
     ircSession->sendCommand(command);
 }
 
