@@ -57,7 +57,8 @@ SOURCES += main.cpp\
     models/channel.cpp \
     models/user.cpp \
     utilities/messageparser.cpp \
-    utilities/commandparser.cpp
+    utilities/commandparser.cpp \
+    viewmodels/animationviewmodel.cpp
 
 HEADERS  += mainwindow.h \
     ext_lib/communi/irctextformat.h \
@@ -99,7 +100,8 @@ HEADERS  += mainwindow.h \
     models/channel.h \
     models/user.h \
     utilities/messageparser.h \
-    utilities/commandparser.h
+    utilities/commandparser.h \
+    viewmodels/animationviewmodel.h
 
 FORMS    += mainwindow.ui
 
@@ -117,7 +119,8 @@ INCLUDEPATH += ext_lib/communi \
                 ext_lib/mozilla \
                 ext_lib/uchardet \
                 models \
-                utilities
+                utilities \
+                viewmodels
 
 QT += network
 

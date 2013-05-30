@@ -3,6 +3,7 @@
 #include "session.h"
 #include "server.h"
 #include "channel.h"
+#include "animationviewmodel.h"
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
 #include <QNetworkReply>
@@ -180,24 +181,22 @@ void MainWindow::changeToChannel(Channel *newChannel)
 
 void MainWindow::imageDownloaded(QNetworkReply* networkReply)
 {
+    QByteArray bytes = networkReply->readAll();
+    QUrl url = networkReply->url();
+
     if(networkReply->url().toString().endsWith(".gif")) {
-        QByteArray bytes = networkReply->readAll();
-        currentBuffer.open(QBuffer::ReadWrite);
-        currentBuffer.write(bytes);
-        currentBuffer.seek(0);
-        currentMovie = new QMovie(&currentBuffer);
-        currentMovieUrl = networkReply->url();
-        connect(currentMovie, SIGNAL(frameChanged(int)), this, SLOT(gifAnimated(int)));
-        currentMovie->start();
+        AnimationViewModel *avm = new AnimationViewModel(bytes, url, this);
+        connect(avm, SIGNAL(movieAnimated(QPixmap, QUrl)), this, SLOT(movieAnimated(QPixmap, QUrl)));
+        animations.append(avm);
     } else {
-        document->addResource(QTextDocument::ImageResource, networkReply->url(), networkReply->readAll());
+        document->addResource(QTextDocument::ImageResource, url, bytes);
         ui->mainText->setLineWrapColumnOrWidth(ui->mainText->lineWrapColumnOrWidth()); // Hack to get the image to redraw
     }
 }
 
-void MainWindow::gifAnimated(int frame)
+void MainWindow::movieAnimated(QPixmap pixels, QUrl url)
 {
-    document->addResource(QTextDocument::ImageResource, currentMovieUrl, currentMovie->currentPixmap());
+    document->addResource(QTextDocument::ImageResource, url, pixels);
     ui->mainText->setLineWrapColumnOrWidth(ui->mainText->lineWrapColumnOrWidth()); // Hack to get the image to redraw
 }
 

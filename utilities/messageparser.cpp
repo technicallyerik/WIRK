@@ -578,10 +578,14 @@ QString MessageParser::styleString(QString fullMessage) {
 
     // Postpend post with images in image tags
     QString postpendedImageTags = "";
-    QRegExp imageRegex(".*(href=\"(([^>]+)\.(jpg|png|gif))\").*");
+    QRegExp imageRegex(".*(href=\"(([^>]+)\.(jpg|png|gif))\").*"); // this warning is a lie
     int pos = 0;
     while ((pos = imageRegex.indexIn(fullMessage, pos)) != -1) {
-        postpendedImageTags += QString("<br /><img src=\"%1\" />").arg(imageRegex.cap(2));
+        QString imageUrl = imageRegex.cap(2);
+        if(!imageUrl.startsWith("http://", Qt::CaseInsensitive)) {
+            imageUrl = "http://" + imageUrl;
+        }
+        postpendedImageTags += QString("<br /><img src=\"%1\" />").arg(imageUrl);
         pos += imageRegex.matchedLength();
     }
     fullMessage += postpendedImageTags;
