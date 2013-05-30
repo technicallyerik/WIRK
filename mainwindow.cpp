@@ -188,10 +188,11 @@ void MainWindow::imageDownloaded(QNetworkReply* networkReply)
         AnimationViewModel *avm = new AnimationViewModel(bytes, url, this);
         connect(avm, SIGNAL(movieAnimated(QPixmap, QUrl)), this, SLOT(movieAnimated(QPixmap, QUrl)));
         animations.append(avm);
-    } else {
-        document->addResource(QTextDocument::ImageResource, url, bytes);
-        ui->mainText->setLineWrapColumnOrWidth(ui->mainText->lineWrapColumnOrWidth()); // Hack to get the image to redraw
     }
+
+    document->addResource(QTextDocument::ImageResource, url, bytes);
+    ui->mainText->setLineWrapColumnOrWidth(ui->mainText->lineWrapColumnOrWidth()); // Hack to get the image to redraw
+    scrollToBottom();
 }
 
 void MainWindow::movieAnimated(QPixmap pixels, QUrl url)
