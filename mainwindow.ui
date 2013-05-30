@@ -24,6 +24,9 @@
     <property name="sizeConstraint">
      <enum>QLayout::SetMaximumSize</enum>
     </property>
+    <item row="2" column="0">
+     <widget class="QLineEdit" name="sendText"/>
+    </item>
     <item row="0" column="0">
      <widget class="QSplitter" name="splitter">
       <property name="sizePolicy">
@@ -43,23 +46,9 @@
         </sizepolicy>
        </property>
       </widget>
-      <widget class="QTextEdit" name="mainText">
-       <property name="styleSheet">
-        <string notr="true">#username { text-color: rgb(255, 0, 0) }</string>
-       </property>
-      </widget>
-      <widget class="QListView" name="userList">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-      </widget>
+      <widget class="QTextBrowser" name="mainText"/>
+      <widget class="QListView" name="userList"/>
      </widget>
-    </item>
-    <item row="1" column="0">
-     <widget class="QLineEdit" name="sendText"/>
     </item>
    </layout>
   </widget>

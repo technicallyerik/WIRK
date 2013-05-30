@@ -44,6 +44,7 @@ private slots:
     void handleMessage(QString server, QString channel, QString message);
     void imageDownloaded(QNetworkReply* networkReply);
     void gifAnimated(int frame);
+    void anchorClicked(QUrl url);
 };
 
 #endif // MAINWINDOW_H

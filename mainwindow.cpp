@@ -9,6 +9,7 @@
 #include <QUrl>
 #include <QMovie>
 #include <QBuffer>
+#include <QDesktopServices>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -41,9 +42,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     QModelIndex modelIndex = session->index(0, 0);
     ui->treeView->selectionModel()->select(modelIndex, QItemSelectionModel::ClearAndSelect);
 
-    // Setup the text document
+    // Setup the main text area
     document = new QTextDocument(ui->mainText);
     ui->mainText->setDocument(document);
+    ui->mainText->setOpenLinks(false);
+    connect(ui->mainText, SIGNAL(anchorClicked(QUrl)), this, SLOT(anchorClicked(QUrl)));
 
     // Setup network manager
     networkAccessManager = new QNetworkAccessManager(this);
@@ -189,4 +192,12 @@ void MainWindow::gifAnimated(int frame)
 {
     document->addResource(QTextDocument::ImageResource, currentMovieUrl, currentMovie->currentPixmap());
     ui->mainText->setLineWrapColumnOrWidth(ui->mainText->lineWrapColumnOrWidth()); // Hack to get the image to redraw
+}
+
+void MainWindow::anchorClicked(QUrl url)
+{
+    if(!url.toString().startsWith("http://", Qt::CaseInsensitive)) {
+        url.setUrl("http://" + url.toString());
+    }
+    QDesktopServices::openUrl(url);
 }

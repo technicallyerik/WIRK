@@ -32,7 +32,7 @@ void MessageParser::parse(IrcMessage *message)
                 // Another user joined
                 Channel *channel = this->getChannel(targetChannel);
                 channel->addUser(sender);
-                channel->appendText(QString("%1 has joined %2").arg(sender, join->channel()));
+                channel->appendText(QString("%1 has joined %2").arg(sender, targetChannel));
             }
             break;
         }
@@ -55,7 +55,8 @@ void MessageParser::parse(IrcMessage *message)
         case IrcMessage::Notice: {
             IrcNoticeMessage *notice = static_cast<IrcNoticeMessage*>(message);
             Server *server = this->getServer();
-            server->appendText(QString("Notice: %1").arg(notice->message()));
+            QString styledMessage = this->styleString(notice->message());
+            server->appendText(QString("Notice: %1").arg(styledMessage));
             break;
         }
 
@@ -63,9 +64,8 @@ void MessageParser::parse(IrcMessage *message)
             IrcNumericMessage *numeric = static_cast<IrcNumericMessage*>(message);
             QString parsedNumeric = this->parseNumeric(numeric);
             if(!parsedNumeric.isEmpty()) {
-                QString styledString = this->styleString(parsedNumeric);
                 Server *server = this->getServer();
-                server->appendText(styledString);
+                server->appendText(parsedNumeric);
             }
             break;
         }
@@ -82,8 +82,8 @@ void MessageParser::parse(IrcMessage *message)
                 // Other user left
                 Channel *channel = this->getChannel(targetChannel);
                 channel->removeUser(sender);
-                QString partMessage = QString("%1 has left %2").arg(sender, part->channel());
-                if (reason.trimmed() != "")
+                QString partMessage = QString("%1 has left %2").arg(sender, targetChannel);
+                if (!reason.trimmed().isEmpty())
                 {
                     partMessage.append(QString(" (Reason: %3)").arg(reason));
                 }
@@ -101,15 +101,15 @@ void MessageParser::parse(IrcMessage *message)
             IrcPrivateMessage *pm = static_cast<IrcPrivateMessage*>(message);
             QString channelName = pm->target();
             Channel *channel = this->getChannel(channelName);
+            QString styledMessage = this->styleString(pm->message());
             if(channel != NULL) {
                 // Message from channel
-                QString message = pm->message().toHtmlEscaped();
-                QString formattedString = QString("%1: %2").arg(sender, message);
-                channel->appendText(sender, message);
+                channel->appendText(sender, styledMessage);
             } else {
                 // Message from user
                 // TODO:
             }
+
             break;
         }
 
@@ -129,7 +129,8 @@ void MessageParser::parse(IrcMessage *message)
         case IrcMessage::Error: {
             IrcErrorMessage *error = static_cast<IrcErrorMessage*>(message);
             Server *server = this->getServer();
-            server->appendText(QString("**ERROR: %1").arg(error->error()));
+            QString styledError = this->styleString(error->error());
+            server->appendText(QString("**ERROR: %1").arg(styledError));
             break;
         }
         default: {
@@ -543,6 +544,18 @@ QString MessageParser::parseNumeric(IrcNumericMessage *message)
         case Irc::ERR_NUMERIC_ERR: { }
         default:
             formattedMessage = text;
+
+            // Remove your name if it's at the beginning of the string
+            Server *server = this->getServer();
+            QString username = server->getUsername();
+            QRegExp usernameRX("^(" + username + ")(.*)");
+            int pos = usernameRX.indexIn(formattedMessage);
+            if(pos > -1) {
+                formattedMessage = usernameRX.cap(2);
+            }
+
+            // Strip html, make links, etc
+            formattedMessage = this->styleString(formattedMessage);
             break;
     }
 
@@ -550,22 +563,20 @@ QString MessageParser::parseNumeric(IrcNumericMessage *message)
 }
 
 QString MessageParser::styleString(QString fullMessage) {
+    // Sanitize input
+    fullMessage = fullMessage.toHtmlEscaped();
+
+    // Surround links with anchor tags
+    QRegExp urlRegex("((?:[a-z][\\w-]+:(?:/{1,3}|[a-z0-9%])|www\\d{0,3}[.]|[a-z0-9.\\-]+[.][a-z]{2,4}/)(?:[^\\s()<>]+|\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\))+(?:\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\)|[^\\s`!()\\[\\]{};:'\".,<>?«»“”‘’]))");
+    fullMessage.replace(urlRegex, "<a href=\"\\1\">\\1</a>");
+
+    // Bold instances of your name
     Server *server = this->getServer();
-    QRegExp usernameRX("^(" + server->getUsername() + ")(.*)");
-    int pos = usernameRX.indexIn(fullMessage);
-    QString newString;
-    if(pos > -1) {
-        newString = usernameRX.cap(2);
-        QRegExp highlightUsernameRX("(.*)(" + server->getUsername() + ")(.*)");
-        pos = highlightUsernameRX.indexIn(newString);
-        if(pos > -1) {
-            newString = highlightUsernameRX.cap(1) + " <font color=\"Lime\">" + highlightUsernameRX.cap(2) + "</font> "
-                    + highlightUsernameRX.cap(3);
-        }
-    } else {
-        newString = fullMessage;
-    }
-    return newString;
+    QString username = server->getUsername();
+    QRegExp usernameRX("(" + username + ")");
+    fullMessage.replace(usernameRX, "<b>\\1</b>");
+
+    return fullMessage;
 }
 
 Server* MessageParser::getServer() {
