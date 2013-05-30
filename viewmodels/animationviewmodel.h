@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include <QBuffer>
-#include <Qurl>
+#include <QUrl>
 #include <QPixmap>
 
 class QMovie;
