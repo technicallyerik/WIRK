@@ -63,6 +63,7 @@ void Channel::addUser(QString inUser) {
     User *newUser = new User(inUser.toLower(), newMenuItem, this);
     newMenuItem->setData(QVariant::fromValue<User*>(newUser), Qt::UserRole);
     users->appendRow(newMenuItem);
+    users->sort(0);
 }
 
 void Channel::removeUser(QString inUser) {

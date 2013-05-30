@@ -108,8 +108,7 @@ void Server::addChannel(QString inChannel) {
     newMenuItem->setData(QVariant::fromValue<Channel*>(newChannel), Qt::UserRole);
     menuItem->appendRow(newMenuItem);
     newMenuItem->setFlags(newMenuItem->flags() & ~Qt::ItemIsEditable);
-
-
+    menuItem->sortChildren(0);
 }
 
 void Server::removeChannel(QString inChannel) {
