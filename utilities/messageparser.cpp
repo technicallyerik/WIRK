@@ -172,25 +172,10 @@ QString MessageParser::parseNumeric(IrcNumericMessage *message)
     switch (message->code()) {
         case Irc::RPL_NAMREPLY_: { }
         case Irc::RPL_NAMREPLY: {
-            QRegExp rx("(\\S+)");
-            QStringList list;
-            QString targetChannel = "";
-            int pos = 0;
-            int count = 1;
-            while ((pos = rx.indexIn(text, pos)) != -1) {
-                // format goes:
-                // <username> <channel type> <channel> <users begin here>
-                if (count == 3) {
-                    targetChannel = rx.cap(1);
-                }
-                else if (count > 3) {
-                    list << rx.cap(1);
-                }
-                pos += rx.matchedLength();
-                count++;
-            }
+            QString targetChannel = message->parameters().value(2);
+            QStringList users = message->parameters().value(3).split(" ");
             Channel *channel = this->getChannel(targetChannel);
-            channel->addUsers(list);
+            channel->addUsers(users);
             break;
         }
         case Irc::RPL_ENDOFNAMES: {
