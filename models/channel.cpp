@@ -42,16 +42,20 @@ void Channel::appendText(QString inText) {
 }
 
 
-void Channel::appendText(QString sender, QString inText, bool isEmote) {
+void Channel::appendText(QString sender, QString inText, MessageType type) {
     QString currentUser = this->getServer()->getNickname();
     bool textContainsUser = inText.contains(currentUser, Qt::CaseInsensitive);
     QDateTime currentTime = QDateTime::currentDateTime();
     QString currentTimeStr = currentTime.toString("h:mmap, MMM d, yyyy");
 
     QString tableRow = "";
-    if (isEmote)
+    if (type == MessageType::Emote)
     {
         tableRow = "<table class=\"msg-emote\" width=\"100%\"><tr>";
+    }
+    else if (type == MessageType::Topic)
+    {
+        tableRow = "<table class=\"msg-topic\" width=\"100%\"><tr>";
     }
     else if (textContainsUser)
     {

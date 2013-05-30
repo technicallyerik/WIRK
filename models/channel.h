@@ -16,13 +16,20 @@ class Channel : public QObject
 
 public:
     explicit Channel(QString inName, QStandardItem *inMenuItem, Server *parent = 0);
+
+    enum MessageType
+    {
+        Default,
+        Topic,
+        Emote
+    };
     
     QString getName();
     void setName(QString name);
 
     QString getText();
     void appendText(QString text);
-    void appendText(QString sender, QString text, bool isEmote = false);
+    void appendText(QString sender, QString text, MessageType type = Channel::Default);
 
     QStandardItemModel* getUsers();
     void addUsers(QStringList inUsers);
@@ -30,7 +37,7 @@ public:
     void removeUser(QString inUser);
     User* getUser(QString inUser);
 
-    Server* getServer();
+    Server* getServer();    
 
 private:
     QString name;

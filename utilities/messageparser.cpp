@@ -115,8 +115,8 @@ void MessageParser::parse(IrcMessage *message)
             QString styledMessage = this->styleString(pm->message());
             if(channel != NULL) {
                 // Message from channel
-                bool isEmote = pm->isAction();
-                channel->appendText(sender, styledMessage, isEmote);
+                Channel::MessageType messageType = pm->isAction() ? Channel::Emote : Channel::Default;
+                channel->appendText(sender, styledMessage, messageType);
             } else {
                 // Message from user
                 // TODO:
@@ -139,6 +139,8 @@ void MessageParser::parse(IrcMessage *message)
 
         case IrcMessage::Topic: {
             IrcTopicMessage *topic = static_cast<IrcTopicMessage*>(message);
+            Channel *channel = this->getChannel(topic->channel());
+            channel->appendText("Channel Topic", topic->topic(), Channel::Topic);
             break;
         }
         case IrcMessage::Unknown: {
@@ -162,7 +164,7 @@ void MessageParser::parse(IrcMessage *message)
 QString MessageParser::parseNumeric(IrcNumericMessage *message)
 {
     QString sender = message->sender().name();
-    QString text = message->parameters().join(" ");
+    QString text = message->parameters().join(" ");    
     QString code = QString::number(message->code());
 
     QString formattedMessage = "";
@@ -193,6 +195,12 @@ QString MessageParser::parseNumeric(IrcNumericMessage *message)
         }
         case Irc::RPL_ENDOFNAMES: {
             break; // We don't care to see this
+        }
+        case Irc::RPL_TOPIC: {
+            QString channel = message->parameters().value(1);
+            QString topic = message->parameters().value(2);
+            this->getChannel(channel)->appendText("Channel Topic", topic, Channel::Topic);
+            break;
         }
         case Irc::RPL_WELCOME: { }
         case Irc::RPL_YOURHOST: { }
@@ -324,8 +332,7 @@ QString MessageParser::parseNumeric(IrcNumericMessage *message)
         case Irc::RPL_CHANNEL_URL: { }
         case Irc::RPL_CREATIONTIME: { }
         case Irc::RPL_WHOWAS_TIME: { }
-        case Irc::RPL_NOTOPIC: { }
-        case Irc::RPL_TOPIC: { }
+        case Irc::RPL_NOTOPIC: { }        
         case Irc::RPL_TOPICWHOTIME: { }
         case Irc::RPL_LISTUSAGE: { }
         case Irc::RPL_CHANPASSOK: { }
