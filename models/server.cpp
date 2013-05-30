@@ -172,7 +172,7 @@ void Server::removeUserFromAllChannels(QString username)
         QVariant data = channelMenuItem->data(Qt::UserRole);
         Channel* channel = data.value<Channel*>();
         channel->removeUser(username);
-        channel->appendText("", QString("%1 has left %2").arg(username, channel->getName()));
+        channel->appendText(QString("%1 has left %2").arg(username, channel->getName()));
     }
 }
 
@@ -192,8 +192,6 @@ void Server::sendMessage(QString message) {
 void Server::sendChannelMessage(QString channel, QString message) {
     IrcCommand *command = IrcCommand::createMessage(channel, message);
     Channel* sendChannel = this->getChannel(channel);
-
-
     sendChannel->appendText(this->getNickname(), messageParser->styleString(message));
     ircSession->sendCommand(command);
 }
