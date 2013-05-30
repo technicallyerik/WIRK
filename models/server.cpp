@@ -19,65 +19,79 @@ Server::Server(QStandardItem *inMenuItem, Session *parent) : QObject(parent)
     connect(ircSession, SIGNAL(password(QString*)), this, SLOT(passwordRequested(QString*)));
 }
 
-QString Server::getHost() {
+QString Server::getHost()
+{
     return host;
 }
 
-void Server::setHost(QString inHost) {
+void Server::setHost(QString inHost)
+{
     host = inHost;
     menuItem->setText(inHost);
     ircSession->setHost(host);
 }
 
-int Server::getPort() {
+int Server::getPort()
+{
     return port;
 }
 
-void Server::setPort(int inPort) {
+void Server::setPort(int inPort)
+{
     port = inPort;
     ircSession->setPort(port);
 }
 
-QString Server::getUsername() {
+QString Server::getUsername()
+{
     return username;
 }
 
-void Server::setUsername(QString inUsername) {
+void Server::setUsername(QString inUsername)
+{
     username = inUsername;
     ircSession->setUserName(username);
 }
 
-QString Server::getNickname() {
+QString Server::getNickname()
+{
     return nickname;
 }
 
-void Server::setNickname(QString inNickname) {
+void Server::setNickname(QString inNickname)
+{
     nickname = inNickname;
     ircSession->setNickName(nickname);
 }
 
-QString Server::getRealname() {
+QString Server::getRealname()
+{
     return realname;
 }
 
-void Server::setRealname(QString inRealname) {
+void Server::setRealname(QString inRealname)
+{
     realname = inRealname;
     ircSession->setRealName(realname);
 }
 
-QString Server::getPassword() {
+QString Server::getPassword()
+{
     return password;
 }
 
-void Server::setPassword(QString inPassword) {
+void Server::setPassword(QString inPassword)
+{
     password = inPassword;
 }
 
-bool Server::isSSL() {
+bool Server::isSSL()
+{
     return ssl;
 }
 
-void Server::setSSL(bool inSsl) {
+void Server::setSSL(bool inSsl)
+{
     ssl = inSsl;
     if(ssl) {
         QSslSocket* sslSocket = new QSslSocket(this);
@@ -89,7 +103,8 @@ void Server::setSSL(bool inSsl) {
     }
 }
 
-QString Server::getText() {
+QString Server::getText()
+{
     return text;
 }
 
@@ -102,7 +117,8 @@ void Server::appendText(QString inText)
     session->emitMessageReceived(host, NULL, tableRow);
 }
 
-void Server::addChannel(QString inChannel) {
+void Server::addChannel(QString inChannel)
+{
     QStandardItem *newMenuItem = new QStandardItem();
     Channel *newChannel = new Channel(inChannel.toLower(), newMenuItem, this);
     newMenuItem->setData(QVariant::fromValue<Channel*>(newChannel), Qt::UserRole);
@@ -111,7 +127,8 @@ void Server::addChannel(QString inChannel) {
     menuItem->sortChildren(0);
 }
 
-void Server::removeChannel(QString inChannel) {
+void Server::removeChannel(QString inChannel)
+{
     Session *session = this->getSession();
     QList<QStandardItem*> foundChannels = session->findItems(inChannel.toLower(), Qt::MatchExactly | Qt::MatchRecursive);
     if(foundChannels.count() == 1) {
@@ -121,7 +138,8 @@ void Server::removeChannel(QString inChannel) {
     }
 }
 
-void Server::partAllChannels() {
+void Server::partAllChannels()
+{
     int totalMenuItems = this->menuItem->rowCount()-1;
     for(int i = totalMenuItems; i >= 0; i--) {
         QStandardItem *channelMenuItem = this->menuItem->child(i);
@@ -133,7 +151,8 @@ void Server::partAllChannels() {
     }
 }
 
-Channel* Server::getChannel(QString inChannel) {
+Channel* Server::getChannel(QString inChannel)
+{
     Session *session = this->getSession();
     QList<QStandardItem*> foundChannels = session->findItems(inChannel.toLower(), Qt::MatchExactly | Qt::MatchRecursive);
     if(foundChannels.count() == 1) {
@@ -142,6 +161,18 @@ Channel* Server::getChannel(QString inChannel) {
         return data.value<Channel*>();
     }
     return NULL;
+}
+
+void Server::removeUserFromAllChannels(QString username)
+{
+    int totalMenuItems = this->menuItem->rowCount()-1;
+    for(int i = totalMenuItems; i >= 0; i--) {
+        QStandardItem *channelMenuItem = this->menuItem->child(i);
+        QVariant data = channelMenuItem->data(Qt::UserRole);
+        Channel* channel = data.value<Channel*>();
+        channel->removeUser(username);
+        channel->appendText("", QString("%1 has left %2").arg(username, channel->getName()));
+    }
 }
 
 Session* Server::getSession() {
