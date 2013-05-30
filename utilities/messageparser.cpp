@@ -126,6 +126,13 @@ void MessageParser::parse(IrcMessage *message)
 
         case IrcMessage::Quit: {
             IrcQuitMessage *quit = static_cast<IrcQuitMessage*>(message);
+            if (senderIsSelf)
+            {
+                // TODO: Remove server from node
+            }
+            else {
+                server->removeUserFromAllChannels(sender);
+            }
             break;
         }
 

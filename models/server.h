@@ -57,6 +57,8 @@ public:
     void partAllChannels();
     Channel* getChannel(QString inChannel);
 
+    void removeUserFromAllChannels(QString username);
+
     Session* getSession();
 
     void openConnection();
