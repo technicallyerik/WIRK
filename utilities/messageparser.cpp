@@ -576,6 +576,16 @@ QString MessageParser::styleString(QString fullMessage) {
     QRegExp usernameRX("(" + username + ")");
     fullMessage.replace(usernameRX, "<b>\\1</b>");
 
+    // Postpend post with images in image tags
+    QString postpendedImageTags = "";
+    QRegExp imageRegex(".*(href=\"(([^>]+)\.(jpg|png|gif))\").*");
+    int pos = 0;
+    while ((pos = imageRegex.indexIn(fullMessage, pos)) != -1) {
+        postpendedImageTags += QString("<br /><img src=\"%1\" />").arg(imageRegex.cap(2));
+        pos += imageRegex.matchedLength();
+    }
+    fullMessage += postpendedImageTags;
+
     return fullMessage;
 }
 

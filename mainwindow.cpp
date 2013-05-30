@@ -60,6 +60,18 @@ MainWindow::~MainWindow()
 
 void MainWindow::handleMessage(QString inServer, QString inChannel, QString inMessage)
 {
+    // Download any image assets included in the message
+    QRegExp imageRegex(".*(src=\"(([^>]+)\\.(jpg|png|gif))\").*");
+    int pos = 0;
+    while ((pos = imageRegex.indexIn(inMessage, pos)) != -1) {
+        QUrl url = QUrl(imageRegex.cap(2));
+        QNetworkRequest request = QNetworkRequest(url);
+        networkAccessManager->get(request);
+        pos += imageRegex.matchedLength();
+    }
+
+    // Determine if the text should be added to the text area or if
+    // a tree view item should be highlighted
     QModelIndexList selectedItems = ui->treeView->selectionModel()->selectedIndexes();
     if(selectedItems.count() == 1) {
         QModelIndex selectedItem = selectedItems[0];
@@ -73,12 +85,6 @@ void MainWindow::handleMessage(QString inServer, QString inChannel, QString inMe
                channelName.compare(inChannel, Qt::CaseInsensitive) == 0) {
                 // Channel message with channel selected
                 ui->mainText->append(inMessage);
-
-                // Image testing stuff
-                QUrl url = QUrl("http://i.imgur.com/Ag7DTzC.gif");
-                QNetworkRequest request = QNetworkRequest(url);
-                networkAccessManager->get(request);
-                ui->mainText->append("<img src=\"http://i.imgur.com/Ag7DTzC.gif\">");
             } else {
                 if(inChannel.isEmpty()) {
                     // TODO:  Highlight server
@@ -174,18 +180,19 @@ void MainWindow::changeToChannel(Channel *newChannel)
 
 void MainWindow::imageDownloaded(QNetworkReply* networkReply)
 {
-    QByteArray bytes = networkReply->readAll();
-    currentBuffer.open(QBuffer::ReadWrite);
-    currentBuffer.write(bytes);
-    currentBuffer.seek(0);
-    currentMovie = new QMovie(&currentBuffer);
-    currentMovieUrl = networkReply->url();
-    connect(currentMovie, SIGNAL(frameChanged(int)), this, SLOT(gifAnimated(int)));
-    currentMovie->start();
-
-    // For static images, we just:
-    //document->addResource(QTextDocument::ImageResource, networkReply->url(), networkReply->readAll());
-    //ui->mainText->setLineWrapColumnOrWidth(ui->mainText->lineWrapColumnOrWidth()); // Hack to get the image to redraw
+    if(networkReply->url().toString().endsWith(".gif")) {
+        QByteArray bytes = networkReply->readAll();
+        currentBuffer.open(QBuffer::ReadWrite);
+        currentBuffer.write(bytes);
+        currentBuffer.seek(0);
+        currentMovie = new QMovie(&currentBuffer);
+        currentMovieUrl = networkReply->url();
+        connect(currentMovie, SIGNAL(frameChanged(int)), this, SLOT(gifAnimated(int)));
+        currentMovie->start();
+    } else {
+        document->addResource(QTextDocument::ImageResource, networkReply->url(), networkReply->readAll());
+        ui->mainText->setLineWrapColumnOrWidth(ui->mainText->lineWrapColumnOrWidth()); // Hack to get the image to redraw
+    }
 }
 
 void MainWindow::gifAnimated(int frame)
