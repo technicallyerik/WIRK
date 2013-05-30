@@ -56,7 +56,18 @@ void MessageParser::parse(IrcMessage *message)
             IrcNoticeMessage *notice = static_cast<IrcNoticeMessage*>(message);
             Server *server = this->getServer();
             QString styledMessage = this->styleString(notice->message());
-            server->appendText(QString("Notice: %1").arg(styledMessage));
+            QString target = notice->target();
+            Channel *channel = this->getChannel(target);
+            if(channel != NULL) {
+                // Notice about channel
+                channel->appendText(QString("Notice: %1").arg(styledMessage));
+            } else if(target.compare(currentNickname) == 0) {
+                // Notice to self
+                server->appendText(QString("Notice: %1").arg(styledMessage));
+            } else {
+                // Some other notice
+                server->appendText(QString("%1 Notice: %2").arg(target, styledMessage));
+            }
             break;
         }
 
@@ -556,6 +567,10 @@ QString MessageParser::parseNumeric(IrcNumericMessage *message)
 
             // Strip html, make links, etc
             formattedMessage = this->styleString(formattedMessage);
+
+            // Prepend message code for debugging
+            formattedMessage = QString("[%1] %2").arg(code, formattedMessage);
+
             break;
     }
 
