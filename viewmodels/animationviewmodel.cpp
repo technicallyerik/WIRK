@@ -9,6 +9,9 @@ AnimationViewModel::AnimationViewModel(QByteArray bytes, QUrl url, QObject *pare
     buffer.write(bytes);
     buffer.seek(0);
     movie = new QMovie(&buffer);
+    QPixmap map;
+    map.loadFromData(bytes);
+    movie->setScaledSize(QSize((150 * map.size().width()) / map.size().height(), 150));
     movieUrl = url;
     connect(movie, SIGNAL(frameChanged(int)), this, SLOT(movieAnimated(int)));
     movie->start();

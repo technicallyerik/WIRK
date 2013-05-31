@@ -189,6 +189,9 @@ void MainWindow::imageDownloaded(QNetworkReply* networkReply)
 {
     QByteArray bytes = networkReply->readAll();
     QUrl url = networkReply->url();
+    QImage image = QImage();
+    image.loadFromData(bytes);
+    image = image.scaledToHeight(150);
 
     if(networkReply->url().toString().endsWith(".gif")) {
         AnimationViewModel *avm = new AnimationViewModel(bytes, url, this);
@@ -196,7 +199,7 @@ void MainWindow::imageDownloaded(QNetworkReply* networkReply)
         animations.append(avm);
     }
 
-    document->addResource(QTextDocument::ImageResource, url, bytes);
+    document->addResource(QTextDocument::ImageResource, url, image);
     ui->mainText->setLineWrapColumnOrWidth(ui->mainText->lineWrapColumnOrWidth()); // Hack to get the image to redraw
     scrollToBottom();
 }
