@@ -191,7 +191,7 @@ void MainWindow::imageDownloaded(QNetworkReply* networkReply)
     QUrl url = networkReply->url();
     QImage image = QImage();
     image.loadFromData(bytes);
-    image = image.scaledToHeight(150);
+    image = image.scaledToHeight(150, Qt::SmoothTransformation);
 
     if(networkReply->url().toString().endsWith(".gif")) {
         AnimationViewModel *avm = new AnimationViewModel(bytes, url, this);
