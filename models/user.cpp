@@ -19,3 +19,8 @@ void User::setName(QString inName) {
 Channel* User::getChannel() {
     return qobject_cast<Channel*>(this->parent());
 }
+
+QStandardItem* User::getMenuItem()
+{
+    return menuItem;
+}

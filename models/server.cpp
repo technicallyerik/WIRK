@@ -122,7 +122,7 @@ void Server::appendText(QString inText)
     text += tableRow;
     Session *session = this->getSession();
     QString host = this->getHost();
-    session->emitMessageReceived(host, NULL, tableRow);
+    session->emitMessageReceived(this, NULL, tableRow);
 }
 
 void Server::addChannel(QString inChannel)
@@ -159,7 +159,7 @@ void Server::partAllChannels()
     }
 }
 
-QStandardItem* Server::getChannelStandardItem(QString inChannel)
+QStandardItem* Server::getChannelMenuItem(QString inChannel)
 {
     Session *session = this->getSession();
     QList<QStandardItem*> foundChannels = session->findItems(inChannel.toLower(), Qt::MatchExactly | Qt::MatchRecursive);
@@ -172,7 +172,7 @@ QStandardItem* Server::getChannelStandardItem(QString inChannel)
 
 Channel* Server::getChannel(QString inChannel)
 {
-    QStandardItem *channel = getChannelStandardItem(inChannel);
+    QStandardItem *channel = getChannelMenuItem(inChannel);
     if(channel != NULL) {
         QVariant data = channel->data(Qt::UserRole);
         return data.value<Channel*>();
@@ -194,6 +194,11 @@ void Server::removeUserFromAllChannels(QString username)
 
 Session* Server::getSession() {
     return qobject_cast<Session *>(this->parent());
+}
+
+QStandardItem* Server::getMenuItem()
+{
+    return menuItem;
 }
 
 void Server::openConnection() {

@@ -1,5 +1,6 @@
 #include "session.h"
 #include "server.h"
+#include "channel.h"
 
 Session::Session(QObject *parent) : QStandardItemModel(parent)
 {
@@ -24,7 +25,7 @@ void Session::addServer(QString host, int port, QString username, QString nickna
     this->sort(0);
 }
 
-QStandardItem* Session::getServerStandardItem(QString inServer)
+QStandardItem* Session::getServerMenuItem(QString inServer)
 {
     QList<QStandardItem*> foundServers = this->findItems(inServer.toLower(), Qt::MatchExactly);
     if(foundServers.count() == 1) {
@@ -36,13 +37,14 @@ QStandardItem* Session::getServerStandardItem(QString inServer)
 
 Server* Session::getServer(QString inServer)
 {
-    QStandardItem *server = getServerStandardItem(inServer);
+    QStandardItem *server = getServerMenuItem(inServer);
     if(server != NULL) {
         QVariant data = server->data(Qt::UserRole);
         return data.value<Server*>();
     }
+    return NULL;
 }
 
-void Session::emitMessageReceived(QString server, QString channel, QString message) {
+void Session::emitMessageReceived(Server *server, Channel *channel, QString message) {
     emit(messageReceived(server, channel, message));
 }

@@ -11,6 +11,7 @@
 #include <QMovie>
 #include <QBuffer>
 #include <QDesktopServices>
+#include <QStandardItem>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -29,7 +30,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
                        true);               // is ssl
 
     // Hook up session messages
-    connect(session, SIGNAL(messageReceived(QString,QString,QString)), this, SLOT(handleMessage(QString,QString,QString)));
+    connect(session, SIGNAL(messageReceived(Server*,Channel*,QString)), this, SLOT(handleMessage(Server*,Channel*,QString)));
 
     // Hook up user interactions
     connect(ui->sendText, SIGNAL(returnPressed()), this, SLOT(sendMessage()));
@@ -71,7 +72,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::handleMessage(QString inServer, QString inChannel, QString inMessage)
+void MainWindow::handleMessage(Server *inServer, Channel *inChannel, QString inMessage)
 {
     // Download any image assets included in the message
     QRegExp imageRegex(".*(src=\"(([^>]+)\\.(jpg|png|gif))\").*");
@@ -81,6 +82,14 @@ void MainWindow::handleMessage(QString inServer, QString inChannel, QString inMe
         QNetworkRequest request = QNetworkRequest(url);
         networkAccessManager->get(request);
         pos += imageRegex.matchedLength();
+    }
+
+    // Determine highlight type if this server/channel isn't enabled
+    ChannelHighlightType ht;
+    if(inMessage.contains(inServer->getUsername(), Qt::CaseInsensitive)) {
+        ht = ChannelHighlightTypeMention;
+    } else {
+        ht = ChannelHighlightTypeNew;
     }
 
     // Determine if the text should be added to the text area or if
@@ -94,35 +103,62 @@ void MainWindow::handleMessage(QString inServer, QString inChannel, QString inMe
             QString channelName = channel->getName();
             Server *server = channel->getServer();
             QString serverName = server->getHost();
-            if(serverName.compare(inServer, Qt::CaseInsensitive) == 0 &&
-               channelName.compare(inChannel, Qt::CaseInsensitive) == 0) {
+            if(serverName.compare(inServer->getHost(), Qt::CaseInsensitive) == 0 &&
+               channelName.compare(inChannel->getName(), Qt::CaseInsensitive) == 0) {
                 // Channel message with channel selected
                 ui->mainText->append(inMessage);
             } else {
-                if(inChannel.isEmpty()) {
-                    // TODO:  Highlight server
+                if(inChannel == NULL) {
+                    highlightServer(inServer, ht);
                 } else {
-                    // TODO:  Highlight channel
+                    highlightChannel(inChannel, ht);
                 }
             }
         } else if(data.canConvert<Server*>()) {
             Server *server = data.value<Server*>();
             QString serverName = server->getHost();
-            if(serverName.compare(inServer, Qt::CaseInsensitive) == 0 &&
-               inChannel.isEmpty()) {
+            if(serverName.compare(inServer->getHost(), Qt::CaseInsensitive) == 0 &&
+               inChannel == NULL) {
                 // Server message with server selected
                 ui->mainText->append(inMessage);
             } else {
-                if(inChannel.isEmpty()) {
-                    // TODO:  Highlight server
+                if(inChannel == NULL) {
+                    highlightServer(inServer, ht);
                 } else {
-                    // TODO:  Highlight channel
+                    highlightChannel(inChannel, ht);
                 }
             }
         }
         QTextCursor c = ui->mainText->textCursor();
         c.movePosition(QTextCursor::End);
         ui->mainText->setTextCursor(c);
+    }
+}
+
+void MainWindow::highlightServer(Server *server, ChannelHighlightType highlight)
+{
+    QBrush color = getColorForHighlightType(highlight);
+    QStandardItem* menuItem = server->getMenuItem();
+    menuItem->setBackground(color);
+}
+
+void MainWindow::highlightChannel(Channel *channel, ChannelHighlightType highlight)
+{
+    QBrush color = getColorForHighlightType(highlight);
+    QStandardItem* menuItem = channel->getMenuItem();
+    menuItem->setBackground(color);
+}
+
+QBrush MainWindow::getColorForHighlightType(ChannelHighlightType ht)
+{
+    switch(ht) {
+        case ChannelHighlightTypeMention:
+            return QBrush((QColor(8,47,80)));
+        case ChannelHighlightTypeNew:
+            return QBrush((QColor(60,20,20)));
+        case ChannelHighlightTypeNone:
+        default:
+            return QBrush((QColor(0,0,0)), Qt::NoBrush);
     }
 }
 
@@ -181,6 +217,7 @@ void MainWindow::changeToServer(Server *newServer)
 {
     ui->mainText->setHtml(newServer->getText());
     ui->userList->setModel(NULL);
+    highlightServer(newServer, ChannelHighlightTypeNone);
     scrollToBottom();
 }
 
@@ -189,6 +226,7 @@ void MainWindow::changeToChannel(Channel *newChannel)
     ui->mainText->setHtml(newChannel->getText());
     QStandardItemModel *users = newChannel->getUsers();
     ui->userList->setModel(users);
+    highlightChannel(newChannel, ChannelHighlightTypeNone);
     scrollToBottom();
 }
 

@@ -65,7 +65,7 @@ void Channel::appendText(QString sender, QString inText, MessageType type) {
     Server *server = this->getServer();
     QString serverName = server->getHost();
     Session *session = server->getSession();
-    session->emitMessageReceived(serverName, channelName, tableRow);
+    session->emitMessageReceived(this->getServer(), this, tableRow);
 }
 
 QStandardItemModel* Channel::getUsers() {
@@ -96,7 +96,7 @@ void Channel::removeUser(QString inUser) {
     }
 }
 
-QStandardItem* Channel::getUserStandardItem(QString inUser)
+QStandardItem* Channel::getUserMenuItem(QString inUser)
 {
     QList<QStandardItem*> foundUsers = users->findItems(inUser.toLower());
     if(foundUsers.count() == 1) {
@@ -108,7 +108,7 @@ QStandardItem* Channel::getUserStandardItem(QString inUser)
 
 User* Channel::getUser(QString inUser)
 {
-    QStandardItem *user = getUserStandardItem(inUser);
+    QStandardItem *user = getUserMenuItem(inUser);
     if(user != NULL) {
         QVariant data = user->data(Qt::UserRole);
         return data.value<User*>();
@@ -118,4 +118,9 @@ User* Channel::getUser(QString inUser)
 
 Server* Channel::getServer() {
     return qobject_cast<Server *>(this->parent());
+}
+
+QStandardItem* Channel::getMenuItem()
+{
+    return menuItem;
 }

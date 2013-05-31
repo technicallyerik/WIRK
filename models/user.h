@@ -18,6 +18,7 @@ public:
     void setName(QString name);
 
     Channel* getChannel();
+    QStandardItem* getMenuItem();
     
 private:
     QString name;

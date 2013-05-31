@@ -24,6 +24,13 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+
+    enum ChannelHighlightType
+    {
+        ChannelHighlightTypeNone,
+        ChannelHighlightTypeNew,
+        ChannelHighlightTypeMention
+    };
     
 private:
     Ui::MainWindow *ui;
@@ -36,11 +43,15 @@ private:
     void changeToChannel(Channel *newChannel);
     void scrollToBottom();
 
+    void highlightServer(Server *server, ChannelHighlightType highlight);
+    void highlightChannel(Channel *channel, ChannelHighlightType highlight);
+    QBrush getColorForHighlightType(ChannelHighlightType ht);
+
 private slots:
     void sendMessage();
     void treeItemClicked(const QModelIndex& index);
-    void handleMessage(QString server, QString channel, QString message);
-    void imageDownloaded(QNetworkReply* networkReply);
+    void handleMessage(Server *server, Channel *channel, QString message);
+    void imageDownloaded(QNetworkReply *networkReply);
     void anchorClicked(QUrl url);
     void movieAnimated(QPixmap pixels, QUrl url);
 

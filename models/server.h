@@ -55,12 +55,13 @@ public:
     void addChannel(QString inChannel);
     void removeChannel(QString inChannel);
     void partAllChannels();
-    QStandardItem* getChannelStandardItem(QString inChannel);
+    QStandardItem* getChannelMenuItem(QString inChannel);
     Channel* getChannel(QString inChannel);
 
     void removeUserFromAllChannels(QString username);
 
     Session* getSession();
+    QStandardItem* getMenuItem();
 
     void openConnection();
     void sendMessage(QString command);

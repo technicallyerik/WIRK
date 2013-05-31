@@ -36,10 +36,11 @@ public:
     void addUsers(QStringList inUsers);
     void addUser(QString inUser);
     void removeUser(QString inUser);
-    QStandardItem* getUserStandardItem(QString inUser);
+    QStandardItem* getUserMenuItem(QString inUser);
     User* getUser(QString inUser);
 
-    Server* getServer();    
+    Server* getServer();
+    QStandardItem* getMenuItem();
 
 private:
     QString name;
