@@ -111,7 +111,14 @@ QString Server::getText()
 
 void Server::appendText(QString inText)
 {
-    QString tableRow = "<table><tr><td style=\"width:100px\"></td><td>" + inText + "</td></tr></table>";
+    QDateTime currentTime = QDateTime::currentDateTime();
+    QString currentTimeStr = currentTime.toString("h:mmap");
+    QString tableRow;
+    tableRow = "<table width=\"100%\"><tr>";
+    tableRow += "<th class=\"col-name\" width=\"25\"></th>";
+    tableRow += "<td class=\"col-message\"><p class=\"message\">" + inText + "</p></td>";
+    tableRow += "<td class=\"col-meta\" width=\"50\"><h6 class=\"metainfo\">" + currentTimeStr +"</h6></td>";
+    tableRow += "</tr></table>";
     text += tableRow;
     Session *session = this->getSession();
     QString host = this->getHost();

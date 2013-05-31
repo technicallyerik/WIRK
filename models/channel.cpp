@@ -33,7 +33,7 @@ void Channel::appendText(QString sender, QString inText, MessageType type) {
     QString currentUser = this->getServer()->getNickname();
     bool textContainsUser = inText.contains(currentUser, Qt::CaseInsensitive);
     QDateTime currentTime = QDateTime::currentDateTime();
-    QString currentTimeStr = currentTime.toString("h:mmap, MMM d, yyyy");
+    QString currentTimeStr = currentTime.toString("h:mmap");
 
     QString tableRow = "";
     if (type == Channel::Emote)
@@ -58,7 +58,7 @@ void Channel::appendText(QString sender, QString inText, MessageType type) {
     }
         tableRow += "<th class=\"col-name\" width=\"140\" align=\"right\"><span class=\"user\">" + sender + "</span></th>";
         tableRow += "<td class=\"col-message\"><p class=\"message\">" + inText + "</p></td>";
-        tableRow += "<td class=\"col-meta\" width=\"125\"><h6 class=\"metainfo\">" + currentTimeStr +"</h6></td>";
+        tableRow += "<td class=\"col-meta\" width=\"50\"><h6 class=\"metainfo\">" + currentTimeStr +"</h6></td>";
         tableRow += "</tr></table>";
     text += tableRow;
     QString channelName = this->getName();
