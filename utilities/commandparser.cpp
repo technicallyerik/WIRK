@@ -7,14 +7,16 @@ CommandParser::CommandParser(Server *parent) : QObject(parent)
 
 }
 
-IrcCommand *CommandParser::parse(QString commandStr) {
+IrcCommand *CommandParser::parse(QString commandStr)
+{
     QRegExp commandRX("^/([a-zA-Z]+) (\\S+)( .+)?");
     QRegExp channelRX("([#&][^\\x07\\x2C\\s]{,200})");
     int pos = commandRX.indexIn(commandStr);
     if(pos > -1) {
         QString commandString = commandRX.cap(1);
         // /JOIN
-        if(commandString.compare("join", Qt::CaseInsensitive) == 0) {
+        if(commandString.compare("join", Qt::CaseInsensitive) == 0)
+        {
             QString channelStr = commandRX.cap(2);
             QStringList passwords = commandRX.cap(3).trimmed().split(',');
             QStringList channels;
@@ -34,12 +36,28 @@ IrcCommand *CommandParser::parse(QString commandStr) {
             }
         }
         // /PART
-        else if (commandString.compare("part", Qt::CaseInsensitive) == 0) {
+        else if (commandString.compare("part", Qt::CaseInsensitive) == 0)
+        {
             QString channelStr = commandRX.cap(2);
             if (channelRX.indexIn(channelStr) > -1) {
                 //TODO: Get Reason
                return IrcCommand::createPart(channelStr, NULL);
             }
+        }
+        // /INVITE
+        else if (commandString.compare("invite", Qt::CaseInsensitive) == 0)
+        {
+            QString nickname = commandRX.cap(2);
+            QString channel = commandRX.cap(3);
+            return IrcCommand::createInvite(nickname, channel);
+        }
+        // /MSG
+        else if (commandString.compare("msg", Qt::CaseInsensitive) == 0)
+        {
+            QString nickname = commandRX.cap(2);
+            QString msg = commandRX.cap(3).trimmed();
+            return IrcCommand::createMessage(nickname, msg);
+            //TODO: display sent messages
         }
     }
     return NULL;

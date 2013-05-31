@@ -3,6 +3,9 @@
 #include "ircmessage.h"
 #include "channel.h"
 #include "irc.h"
+#include "irccommand.h"
+
+#include <QMessageBox>
 
 MessageParser::MessageParser(Server *parent) : QObject(parent)
 {
@@ -19,6 +22,29 @@ void MessageParser::parse(IrcMessage *message)
     switch (message->type()) {
         case IrcMessage::Invite: {
             IrcInviteMessage *invite = static_cast<IrcInviteMessage*>(message);
+            QString user = invite->user();
+            QString channel = invite->channel();
+
+            QMessageBox msgBox;
+            msgBox.setText(QString("%1 invited you to %2").arg(sender, channel));
+            msgBox.setInformativeText("Do you want to join the channel?");
+            msgBox.setStandardButtons(QMessageBox::No | QMessageBox::Yes);
+            msgBox.setDefaultButton(QMessageBox::Yes);
+            msgBox.setButtonText(QMessageBox::Yes, "Join");
+            msgBox.setFixedSize(360,180);
+            int choice = msgBox.exec();
+
+            switch (choice)
+            {
+                case QMessageBox::Yes:
+                    // Join Channel
+                     server->sendCommand(IrcCommand::createJoin(channel, NULL));
+                    break;
+                case QMessageBox::No:
+                default:
+                    // Do Nothing
+                    break;
+            }
             break;
         }
 
@@ -111,6 +137,8 @@ void MessageParser::parse(IrcMessage *message)
         case IrcMessage::Private: {
             IrcPrivateMessage *pm = static_cast<IrcPrivateMessage*>(message);
             QString channelName = pm->target();
+            qDebug() << "Is Action: " << pm->isAction();
+            qDebug() << "Is Request: " << pm->isRequest();
             Channel *channel = this->getChannel(channelName);
             QString styledMessage = this->styleString(pm->message());
             if(channel != NULL) {
@@ -119,7 +147,7 @@ void MessageParser::parse(IrcMessage *message)
                 channel->appendText(sender, styledMessage, messageType);
             } else {
                 // Message from user
-                // TODO:
+                // TODO: Create User Chat Window to display there
             }
 
             break;

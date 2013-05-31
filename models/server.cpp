@@ -215,6 +215,11 @@ void Server::sendChannelMessage(QString channel, QString message) {
     ircSession->sendCommand(command);
 }
 
+void Server::sendCommand(IrcCommand *command)
+{
+    ircSession->sendCommand(command);
+}
+
 void Server::processMessage(IrcMessage *message) {
     messageParser->parse(message);
 }

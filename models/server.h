@@ -3,6 +3,7 @@
 
 #include <QStandardItem>
 #include <QSslSocket>
+#include <irccommand.h>
 
 class Session;
 class IrcSession;
@@ -66,6 +67,7 @@ public:
     void openConnection();
     void sendMessage(QString command);
     void sendChannelMessage(QString channel, QString message);
+    void sendCommand(IrcCommand *command);
 
 private slots:
     void processMessage(IrcMessage *message);

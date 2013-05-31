@@ -60,7 +60,7 @@
        <bool>true</bool>
       </property>
       <property name="handleWidth">
-       <number>0</number>
+       <number>1</number>
       </property>
       <property name="childrenCollapsible">
        <bool>true</bool>
@@ -126,7 +126,7 @@
      <x>0</x>
      <y>0</y>
      <width>640</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>
