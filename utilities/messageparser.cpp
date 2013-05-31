@@ -187,6 +187,9 @@ QString MessageParser::parseNumeric(IrcNumericMessage *message)
             this->getChannel(channel)->appendText("Channel Topic", topic, Channel::Topic);
             break;
         }
+        case Irc::RPL_TOPICWHOTIME: {
+            break; // We don't care to see this
+        }
         case Irc::RPL_WELCOME: { }
         case Irc::RPL_YOURHOST: { }
         case Irc::RPL_CREATED: { }
@@ -318,7 +321,6 @@ QString MessageParser::parseNumeric(IrcNumericMessage *message)
         case Irc::RPL_CREATIONTIME: { }
         case Irc::RPL_WHOWAS_TIME: { }
         case Irc::RPL_NOTOPIC: { }        
-        case Irc::RPL_TOPICWHOTIME: { }
         case Irc::RPL_LISTUSAGE: { }
         case Irc::RPL_CHANPASSOK: { }
         case Irc::RPL_BADCHANPASS: { }
