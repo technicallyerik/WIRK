@@ -30,7 +30,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
                        true);               // is ssl
 
     // Hook up session messages
-    connect(session, SIGNAL(messageReceived(Server*,Channel*,QString)), this, SLOT(handleMessage(Server*,Channel*,QString)));
+    connect(session, SIGNAL(messageReceived(Server*,Channel*,QString,Channel::MessageType)), this, SLOT(handleMessage(Server*,Channel*,QString,Channel::MessageType)));
 
     // Hook up user interactions
     connect(ui->sendText, SIGNAL(returnPressed()), this, SLOT(sendMessage()));
@@ -72,7 +72,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::handleMessage(Server *inServer, Channel *inChannel, QString inMessage)
+void MainWindow::handleMessage(Server *inServer, Channel *inChannel, QString inMessage, Channel::MessageType type)
 {
     // Download any image assets included in the message
     QRegExp imageRegex(".*(src=\"(([^>]+)\\.(jpg|png|gif))\").*");
@@ -112,7 +112,7 @@ void MainWindow::handleMessage(Server *inServer, Channel *inChannel, QString inM
                 if(inChannel == NULL) {
                     highlightServer(inServer, ht);
                 } else {
-                    highlightChannel(inChannel, ht);
+                    highlightChannel(inChannel, ht, type);
                 }
             }
         } else if(data.canConvert<Server*>()) {
@@ -126,7 +126,7 @@ void MainWindow::handleMessage(Server *inServer, Channel *inChannel, QString inM
                 if(inChannel == NULL) {
                     highlightServer(inServer, ht);
                 } else {
-                    highlightChannel(inChannel, ht);
+                    highlightChannel(inChannel, ht, type);
                 }
             }
         }
@@ -143,20 +143,22 @@ void MainWindow::highlightServer(Server *server, ChannelHighlightType highlight)
     menuItem->setBackground(color);
 }
 
-void MainWindow::highlightChannel(Channel *channel, ChannelHighlightType highlight)
+void MainWindow::highlightChannel(Channel *channel, ChannelHighlightType highlight, Channel::MessageType type)
 {
-    QBrush color = getColorForHighlightType(highlight);
-    QStandardItem* menuItem = channel->getMenuItem();
-    menuItem->setBackground(color);
+    if(type != Channel::Info) {
+        QBrush color = getColorForHighlightType(highlight);
+        QStandardItem* menuItem = channel->getMenuItem();
+        menuItem->setBackground(color);
+    }
 }
 
 QBrush MainWindow::getColorForHighlightType(ChannelHighlightType ht)
 {
     switch(ht) {
         case ChannelHighlightTypeMention:
-            return QBrush((QColor(8,47,80)));
+            return QBrush((QColor(19,90,176)));
         case ChannelHighlightTypeNew:
-            return QBrush((QColor(60,20,20)));
+            return QBrush((QColor(177,44,51)));
         case ChannelHighlightTypeNone:
         default:
             return QBrush((QColor(0,0,0)), Qt::NoBrush);
@@ -227,7 +229,7 @@ void MainWindow::changeToChannel(Channel *newChannel)
     ui->mainText->setHtml(newChannel->getText());
     QStandardItemModel *users = newChannel->getUsers();
     ui->userList->setModel(users);
-    highlightChannel(newChannel, ChannelHighlightTypeNone);
+    highlightChannel(newChannel, ChannelHighlightTypeNone, Channel::Default);
     scrollToBottom();
 }
 
