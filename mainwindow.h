@@ -53,7 +53,7 @@ private slots:
     void handleMessage(Server *server, Channel *channel, QString message);
     void imageDownloaded(QNetworkReply *networkReply);
     void anchorClicked(QUrl url);
-    void movieAnimated(QPixmap pixels, QUrl url);
+    void movieAnimated();
 
 };
 

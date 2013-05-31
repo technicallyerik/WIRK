@@ -240,8 +240,8 @@ void MainWindow::imageDownloaded(QNetworkReply* networkReply)
     image = image.scaledToHeight(150, Qt::SmoothTransformation);
 
     if(networkReply->url().toString().endsWith(".gif")) {
-        AnimationViewModel *avm = new AnimationViewModel(bytes, url, this);
-        connect(avm, SIGNAL(movieAnimated(QPixmap, QUrl)), this, SLOT(movieAnimated(QPixmap, QUrl)), Qt::QueuedConnection);
+        AnimationViewModel *avm = new AnimationViewModel(bytes, url, document, this);
+        connect(avm, SIGNAL(movieAnimated()), this, SLOT(movieAnimated()), Qt::QueuedConnection);
         animations.append(avm);
     }
 
@@ -250,9 +250,8 @@ void MainWindow::imageDownloaded(QNetworkReply* networkReply)
     scrollToBottom();
 }
 
-void MainWindow::movieAnimated(QPixmap pixels, QUrl url)
+void MainWindow::movieAnimated()
 {
-    document->addResource(QTextDocument::ImageResource, url, pixels);
     ui->mainText->setLineWrapColumnOrWidth(ui->mainText->lineWrapColumnOrWidth()); // Hack to get the image to redraw
 }
 
