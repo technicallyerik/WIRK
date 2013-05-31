@@ -192,7 +192,7 @@ void MainWindow::imageDownloaded(QNetworkReply* networkReply)
 
     if(networkReply->url().toString().endsWith(".gif")) {
         AnimationViewModel *avm = new AnimationViewModel(bytes, url, this);
-        connect(avm, SIGNAL(movieAnimated(QPixmap, QUrl)), this, SLOT(movieAnimated(QPixmap, QUrl)));
+        connect(avm, SIGNAL(movieAnimated(QPixmap, QUrl)), this, SLOT(movieAnimated(QPixmap, QUrl)), Qt::QueuedConnection);
         animations.append(avm);
     }
 

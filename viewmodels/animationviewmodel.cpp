@@ -3,7 +3,7 @@
 #include <QBuffer>
 #include <QMovie>
 
-AnimationViewModel::AnimationViewModel(QByteArray bytes, QUrl url, QObject *parent) : QObject(parent)
+AnimationViewModel::AnimationViewModel(QByteArray bytes, QUrl url, QObject *parent) : QThread(parent)
 {
     buffer.open(QBuffer::ReadWrite);
     buffer.write(bytes);

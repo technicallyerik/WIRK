@@ -5,10 +5,11 @@
 #include <QBuffer>
 #include <QUrl>
 #include <QPixmap>
+#include <QThread>
 
 class QMovie;
 
-class AnimationViewModel : public QObject
+class AnimationViewModel : public QThread
 {
     Q_OBJECT
 
