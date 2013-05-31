@@ -11,7 +11,9 @@ AnimationViewModel::AnimationViewModel(QByteArray bytes, QUrl url, QObject *pare
     movie = new QMovie(&buffer);
     QPixmap map;
     map.loadFromData(bytes);
-    movie->setScaledSize(QSize((150 * map.size().width()) / map.size().height(), 150));
+    if(!map.isNull()) {
+        movie->setScaledSize(QSize((150 * map.size().width()) / map.size().height(), 150));
+    }
     movieUrl = url;
     connect(movie, SIGNAL(frameChanged(int)), this, SLOT(movieAnimated(int)));
     movie->start();
