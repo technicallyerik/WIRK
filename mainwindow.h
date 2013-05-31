@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QUrl>
 #include <QPixmap>
+#include "channel.h"
 
 namespace Ui {
     class MainWindow;
@@ -44,16 +45,16 @@ private:
     void scrollToBottom();
 
     void highlightServer(Server *server, ChannelHighlightType highlight);
-    void highlightChannel(Channel *channel, ChannelHighlightType highlight);
+    void highlightChannel(Channel *channel, ChannelHighlightType highlight, Channel::MessageType type);
     QBrush getColorForHighlightType(ChannelHighlightType ht);
 
 private slots:
     void sendMessage();
     void treeItemClicked(const QModelIndex& index);
-    void handleMessage(Server *server, Channel *channel, QString message);
+    void handleMessage(Server *server, Channel *channel, QString message, Channel::MessageType type);
     void imageDownloaded(QNetworkReply *networkReply);
     void anchorClicked(QUrl url);
-    void movieAnimated(QPixmap pixels, QUrl url);
+    void movieAnimated();
 
 };
 

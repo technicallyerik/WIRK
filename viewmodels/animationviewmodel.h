@@ -6,6 +6,7 @@
 #include <QUrl>
 #include <QPixmap>
 #include <QThread>
+#include <QTextDocument>
 
 class QMovie;
 
@@ -14,10 +15,10 @@ class AnimationViewModel : public QThread
     Q_OBJECT
 
 public:
-    explicit AnimationViewModel(QByteArray bytes, QUrl url, QObject *parent = 0);
+    explicit AnimationViewModel(QByteArray bytes, QUrl url, QTextDocument *document, QObject *parent = 0);
 
 signals:
-    void movieAnimated(QPixmap pixels, QUrl url);
+    void movieAnimated();
 
 private slots:
     void movieAnimated(int frame);
@@ -26,7 +27,7 @@ private:
     QBuffer buffer;
     QMovie *movie;
     QUrl movieUrl;
-
+    QTextDocument *textDocument;
 };
 
 #endif // ANIMATIONVIEWMODEL_H

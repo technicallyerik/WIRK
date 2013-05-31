@@ -2,8 +2,9 @@
 #include <QPixmap>
 #include <QBuffer>
 #include <QMovie>
+#include <QTextDocument>
 
-AnimationViewModel::AnimationViewModel(QByteArray bytes, QUrl url, QObject *parent) : QThread(parent)
+AnimationViewModel::AnimationViewModel(QByteArray bytes, QUrl url, QTextDocument *document, QObject *parent) : QThread(parent)
 {
     buffer.open(QBuffer::ReadWrite);
     buffer.write(bytes);
@@ -15,6 +16,7 @@ AnimationViewModel::AnimationViewModel(QByteArray bytes, QUrl url, QObject *pare
         movie->setScaledSize(QSize((150 * map.size().width()) / map.size().height(), 150));
     }
     movieUrl = url;
+    textDocument = document;
     connect(movie, SIGNAL(frameChanged(int)), this, SLOT(movieAnimated(int)));
     movie->start();
 }
@@ -22,5 +24,6 @@ AnimationViewModel::AnimationViewModel(QByteArray bytes, QUrl url, QObject *pare
 void AnimationViewModel::movieAnimated(int frame)
 {
     QPixmap map = movie->currentPixmap();
-    emit(movieAnimated(map, movieUrl));
+    textDocument->addResource(QTextDocument::ImageResource, movieUrl, map);
+    emit(movieAnimated());
 }

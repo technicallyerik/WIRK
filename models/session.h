@@ -2,6 +2,7 @@
 #define SESSION_H
 
 #include <QStandardItemModel>
+#include "channel.h"
 
 class Server;
 class Channel;
@@ -16,10 +17,10 @@ public:
     QStandardItem* getServerMenuItem(QString inServer);
     Server* getServer(QString inServer);
 
-    void emitMessageReceived(Server *server, Channel *channel, QString message);
+    void emitMessageReceived(Server *server, Channel *channel, QString message, Channel::MessageType type = Channel::Default);
 
 signals:
-    void messageReceived(Server *server, Channel *channel, QString message);
+    void messageReceived(Server *server, Channel *channel, QString message, Channel::MessageType type);
 
 };
 

@@ -63,7 +63,7 @@ void Channel::appendText(QString sender, QString inText, MessageType type) {
     text += tableRow;
     Server *server = this->getServer();
     Session *session = server->getSession();
-    session->emitMessageReceived(this->getServer(), this, tableRow);
+    session->emitMessageReceived(this->getServer(), this, tableRow, type);
 }
 
 QStandardItemModel* Channel::getUsers() {

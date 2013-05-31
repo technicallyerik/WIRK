@@ -185,8 +185,10 @@ void Server::removeUserFromAllChannels(QString username)
         QStandardItem *channelMenuItem = this->menuItem->child(i);
         QVariant data = channelMenuItem->data(Qt::UserRole);
         Channel* channel = data.value<Channel*>();
-        channel->removeUser(username);
-        channel->appendText(QString("%1 has left %2").arg(username, channel->getName()));
+        if(channel->getUser(username)) {
+            channel->removeUser(username);
+            channel->appendText(QString("%1 has left %2").arg(username, channel->getName()));
+        }
     }
 }
 
