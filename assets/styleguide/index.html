@@ -1,0 +1,223 @@
+<html>
+<head>
+    <style type="text/css">
+
+
+    body {
+        background: #333333;
+        color: #ffffff;
+        margin: 0;
+    }
+
+    table {
+        font-family: "Lucida Console", Monaco, monospace;
+        font-size: 11px;
+        line-height: 1.25;
+        margin: 0;
+    }
+
+    th,
+    td {
+        padding: 2px 10px;
+        vertical-align: top;
+        /*background: rgba(255, 255, 255, .1);*/
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        margin: 0;
+    }
+
+    h1 {
+        font-size: 11px;
+        font-weight: bold;
+    }
+
+    h6 {
+        font-size: 8px;
+    }
+
+    p {
+        margin: 0;
+    }
+
+    a {
+        color: #dddddd;
+        text-decoration: underline;
+    }
+
+    .user {
+        color: #aaaaaa;
+        font-weight: normal;
+    }
+
+    .metainfo {
+        color: #999999;
+    }
+
+    .col-name {
+        text-align: right;
+    }
+
+    .col-message {
+
+    }
+
+    .col-meta {
+        padding-top: 4px;
+    }
+
+
+    /* mentioned in message */
+    .msg-mentioned {
+        background: #736500;
+    }
+
+    .msg-mentioned .user {
+        color: #dddddd;
+        font-weight: bold;
+    }
+
+    .msg-mentioned .message {
+        color: #FFE100;
+    }
+
+    .msg-mentioned a {
+        color: #D6BD00;
+    }
+
+
+    /* server-type info */
+    .msg-info .message {
+        font-style: italic;
+        color: #999999;
+    }
+
+    .msg-info .message {
+        font-style: italic;
+        color: #999999;
+    }
+
+
+    /* server topic */
+    .msg-topic {
+        background: #555555;
+    }
+
+    .msg-topic .user {
+        color: #ffffff;
+    }
+
+    .msg-topic .message {
+        font-style: italic;
+    }
+
+    /* server topic */
+    .msg-emote {
+        background: #73005E;
+    }
+
+    </style>
+</head>
+<body>
+    <!-- CHANNEL TOPIC -->
+    <table class="msg-topic" width="100%">
+        <tr>
+            <th class="col-name" width="140">
+                <h1 class="user">Channel Topic</h1>
+            </th>
+            <td class="col-message">
+                <p class="message">
+                    It seems like only yesterday you were bursting forth from your mother's fertile womb.
+                    <br/><br/>
+                    Well, Michael, I did not find their buffoonery amusing. It's so watery. And yet there's a smack of ham to it. You might wanna lean away from that fire since you're soaked in alcohol. <a href="google.com">Well, if you want to play Eve</a>, you got to get in line behind what. I didn't mean who... I meant... her?
+                </p>
+            </td>
+            <td class="col-meta" width="125">
+                <h6 class="metainfo">10:30am, JUN 13, 2013</h6>
+            </td>
+        </tr>
+    </table>
+
+    <!-- STANDARD MESSAGE -->
+    <table width="100%">
+        <tr>
+            <th class="col-name" width="140">
+                <h1 class="user">thanexor</h1>
+            </th>
+            <td class="col-message">
+                <p class="message">
+                    heres my message talking about how awesome i am
+                </p>
+            </td>
+            <td class="col-meta" width="125">
+                <h6 class="metainfo">10:30am, JUN 13, 2013</h6>
+            </td>
+        </tr>
+    </table>
+
+    <!-- MENTIONED IN MESSAGE -->
+    <table class="msg-mentioned" width="100%">
+        <tr>
+            <th class="col-name" width="140">
+                <h1 class="user">gobbluth</h1>
+            </th>
+            <td class="col-message">
+                <p class="message">
+                    No! These are just strippers! Look how hot they are! I am having a love affair with this ice cream sandwich. I think I might have someone who's going to circumvrent the law. <a href="google.com">The Army had half a day</a>. And don't make the water too hot. The scabs come right off. You don't want a hungry dove down your pants.
+                </p>
+            </td>
+            <td class="col-meta" width="125">
+                <h6 class="metainfo">10:30am, JUN 13, 2013</h6>
+            </td>
+        </tr>
+    </table>
+
+    <!-- SERVER INFO MESSAGES -->
+    <table class="msg-info" width="100%">
+        <tr>
+            <th class="col-name" width="140">
+            </th>
+            <td class="col-message">
+                <p class="message">
+                    someuser left the room (quit: SSL Connection closed).
+                </p>
+            </td>
+            <td class="col-meta" width="125">
+                <h6 class="metainfo">10:30am, JUN 13, 2013</h6>
+            </td>
+        </tr>
+    </table>
+    <table class="msg-info" width="100%">
+        <tr>
+            <th class="col-name" width="140">
+            </th>
+            <td class="col-message">
+                <p class="message">
+                    mode (+v someuser) by ChanServ
+                </p>
+            </td>
+            <td class="col-meta" width="125">
+                <h6 class="metainfo">10:30am, JUN 13, 2013</h6>
+            </td>
+        </tr>
+    </table>
+
+    <!-- EMOTE -->
+    <table class="msg-emote" width="100%">
+        <tr>
+            <th class="col-name" width="140">
+                <h1 class="user">eweiss</h1>
+            </th>
+            <td class="col-message">
+                <p class="message">
+                    slapped someone directly in the face
+                </p>
+            </td>
+            <td class="col-meta" width="125">
+                <h6 class="metainfo">10:30am, JUN 13, 2013</h6>
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>
