@@ -99,10 +99,10 @@ void MainWindow::handleMessage(Server *inServer, Channel *inChannel, QString inM
         QModelIndex selectedItem = selectedItems[0];
         QVariant data = selectedItem.data(Qt::UserRole);
         if(data.canConvert<Channel*>()) {
-            Channel *channel = data.value<Channel*>();
-            QString channelName = channel->getName();
-            Server *server = channel->getServer();
-            QString serverName = server->getHost();
+            Channel *selectedChannel = data.value<Channel*>();
+            QString channelName = selectedChannel->getName();
+            Server *selectedServer = selectedChannel->getServer();
+            QString serverName = selectedServer->getHost();
             if(serverName.compare(inServer->getHost(), Qt::CaseInsensitive) == 0 &&
                channelName.compare(inChannel->getName(), Qt::CaseInsensitive) == 0) {
                 // Channel message with channel selected
@@ -115,8 +115,8 @@ void MainWindow::handleMessage(Server *inServer, Channel *inChannel, QString inM
                 }
             }
         } else if(data.canConvert<Server*>()) {
-            Server *server = data.value<Server*>();
-            QString serverName = server->getHost();
+            Server *selectedServer = data.value<Server*>();
+            QString serverName = selectedServer->getHost();
             if(serverName.compare(inServer->getHost(), Qt::CaseInsensitive) == 0 &&
                inChannel == NULL) {
                 // Server message with server selected

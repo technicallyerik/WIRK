@@ -129,9 +129,11 @@ void MessageParser::parse(IrcMessage *message)
             IrcQuitMessage *quit = static_cast<IrcQuitMessage*>(message);
             if (senderIsSelf)
             {
+                // Current user quit
                 // TODO: Remove server from node
             }
             else {
+                // Other user quit
                 server->removeUserFromAllChannels(sender);
             }
             break;
@@ -152,6 +154,7 @@ void MessageParser::parse(IrcMessage *message)
             Server *server = this->getServer();
             QString styledError = this->styleString(error->error());
             server->appendText(QString("**ERROR: %1").arg(styledError));
+            // TODO: Show alert?  Reconnect?
             break;
         }
         default: {

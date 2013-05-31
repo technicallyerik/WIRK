@@ -61,9 +61,7 @@ void Channel::appendText(QString sender, QString inText, MessageType type) {
         tableRow += "<td class=\"col-meta\" width=\"50\"><h6 class=\"metainfo\">" + currentTimeStr +"</h6></td>";
         tableRow += "</tr></table>";
     text += tableRow;
-    QString channelName = this->getName();
     Server *server = this->getServer();
-    QString serverName = server->getHost();
     Session *session = server->getSession();
     session->emitMessageReceived(this->getServer(), this, tableRow);
 }
@@ -88,10 +86,9 @@ void Channel::addUser(QString inUser) {
 }
 
 void Channel::removeUser(QString inUser) {
-    QList<QStandardItem*> foundUsers = users->findItems(inUser.toLower());
-    if(foundUsers.count() == 1) {
-        QStandardItem *user = foundUsers[0];
-        int row = user->row();
+    QStandardItem *menuItem = getUserMenuItem(inUser);
+    if(menuItem != NULL) {
+        int row = menuItem->row();
         users->removeRow(row);
     }
 }

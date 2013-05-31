@@ -137,10 +137,8 @@ void Server::addChannel(QString inChannel)
 
 void Server::removeChannel(QString inChannel)
 {
-    Session *session = this->getSession();
-    QList<QStandardItem*> foundChannels = session->findItems(inChannel.toLower(), Qt::MatchExactly | Qt::MatchRecursive);
-    if(foundChannels.count() == 1) {
-        QStandardItem *channel = foundChannels[0];
+    QStandardItem *channel = getChannelMenuItem(inChannel);
+    if(channel != NULL) {
         int row = channel->row();
         menuItem->removeRow(row);
     }
