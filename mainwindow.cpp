@@ -36,7 +36,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(ui->treeView, SIGNAL(clicked(const QModelIndex&)), this, SLOT(treeItemClicked(const QModelIndex&)));
 
     // Setup Tree
-    ui->treeView->setHeaderHidden(true);
     ui->treeView->setModel(session);
 
     // Setup the main text area
@@ -44,7 +43,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     // TODO: create a function to return this as a string from the actual CSS file instead of putting in a minified string
     document->setDefaultStyleSheet("body{background:#333;margin:0}table{font-family:\"Lucida Console\",Monaco,monospace;font-size:11px;line-height:1.25;margin:0}th,td{padding:2px 10px;vertical-align:top;color:#fff}h1,h2,h3,h4,h5,h6{margin:0}p{margin:0}a{color:#ddd;text-decoration:underline}.user{color:#aaa;font-size:11px;font-weight:bold}.metainfo{color:#999;font-size:8px}.col-name{text-align:right}.col-meta{padding-top:4px}.msg-mentioned{background:#736500}.msg-mentioned .user{color:#ddd}.msg-mentioned .message{color:#ffe100}.msg-mentioned a{color:#d6bd00}.msg-info .message{font-style:italic;color:#999}.msg-topic{background:#555}.msg-topic .user{color:#fff}.msg-topic .message{font-style:italic}.msg-emote{background:#73005e}.msg-emote .message{font-style:italic;color:#ff00d1}.msg-emote a{color:#cc00a7}");
     ui->mainText->setDocument(document);
-    ui->mainText->setOpenLinks(false);
     connect(ui->mainText, SIGNAL(anchorClicked(QUrl)), this, SLOT(anchorClicked(QUrl)));
 
     // Set focus on first server
@@ -57,6 +55,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     // Setup network manager
     networkAccessManager = new QNetworkAccessManager(this);
     connect(networkAccessManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(imageDownloaded(QNetworkReply*)));
+
+    // Let's get some styles up in here
+    QString controlStyles = "background:#333;font-family:\"Lucida Console\",Monaco,monospace;font-size:11px;color:#fff;";
+    ui->userList->setStyleSheet(controlStyles);
+    ui->treeView->setStyleSheet(controlStyles);
+    ui->sendText->setStyleSheet(controlStyles + "padding:5px;");
+    ui->userList->setAttribute(Qt::WA_MacShowFocusRect, 0);
+    ui->treeView->setAttribute(Qt::WA_MacShowFocusRect, 0);
+    ui->sendText->setAttribute(Qt::WA_MacShowFocusRect, 0);
 }
 
 MainWindow::~MainWindow()
