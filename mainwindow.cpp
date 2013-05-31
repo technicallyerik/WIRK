@@ -104,6 +104,7 @@ void MainWindow::handleMessage(Server *inServer, Channel *inChannel, QString inM
             Server *selectedServer = selectedChannel->getServer();
             QString serverName = selectedServer->getHost();
             if(serverName.compare(inServer->getHost(), Qt::CaseInsensitive) == 0 &&
+               inChannel != NULL &&
                channelName.compare(inChannel->getName(), Qt::CaseInsensitive) == 0) {
                 // Channel message with channel selected
                 ui->mainText->append(inMessage);
