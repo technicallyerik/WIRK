@@ -12,6 +12,7 @@ public:
     explicit Session(QObject *parent = 0);
     
     void addServer(QString host, int port, QString username, QString nickname, QString realname, QString password, bool isSSL);
+    QStandardItem* getServerStandardItem(QString inServer);
     Server* getServer(QString inServer);
 
     void emitMessageReceived(QString server, QString channel, QString message);

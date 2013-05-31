@@ -96,10 +96,20 @@ void Channel::removeUser(QString inUser) {
     }
 }
 
-User* Channel::getUser(QString inUser) {
+QStandardItem* Channel::getUserStandardItem(QString inUser)
+{
     QList<QStandardItem*> foundUsers = users->findItems(inUser.toLower());
     if(foundUsers.count() == 1) {
         QStandardItem *user = foundUsers[0];
+        return user;
+    }
+    return NULL;
+}
+
+User* Channel::getUser(QString inUser)
+{
+    QStandardItem *user = getUserStandardItem(inUser);
+    if(user != NULL) {
         QVariant data = user->data(Qt::UserRole);
         return data.value<User*>();
     }

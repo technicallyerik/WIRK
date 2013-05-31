@@ -24,14 +24,23 @@ void Session::addServer(QString host, int port, QString username, QString nickna
     this->sort(0);
 }
 
-Server* Session::getServer(QString inServer) {
+QStandardItem* Session::getServerStandardItem(QString inServer)
+{
     QList<QStandardItem*> foundServers = this->findItems(inServer.toLower(), Qt::MatchExactly);
     if(foundServers.count() == 1) {
         QStandardItem *server = foundServers[0];
+        return server;
+    }
+    return NULL;
+}
+
+Server* Session::getServer(QString inServer)
+{
+    QStandardItem *server = getServerStandardItem(inServer);
+    if(server != NULL) {
         QVariant data = server->data(Qt::UserRole);
         return data.value<Server*>();
     }
-    return NULL;
 }
 
 void Session::emitMessageReceived(QString server, QString channel, QString message) {

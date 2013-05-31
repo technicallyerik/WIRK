@@ -55,6 +55,7 @@ public:
     void addChannel(QString inChannel);
     void removeChannel(QString inChannel);
     void partAllChannels();
+    QStandardItem* getChannelStandardItem(QString inChannel);
     Channel* getChannel(QString inChannel);
 
     void removeUserFromAllChannels(QString username);

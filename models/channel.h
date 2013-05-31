@@ -36,6 +36,7 @@ public:
     void addUsers(QStringList inUsers);
     void addUser(QString inUser);
     void removeUser(QString inUser);
+    QStandardItem* getUserStandardItem(QString inUser);
     User* getUser(QString inUser);
 
     Server* getServer();    

@@ -159,12 +159,21 @@ void Server::partAllChannels()
     }
 }
 
-Channel* Server::getChannel(QString inChannel)
+QStandardItem* Server::getChannelStandardItem(QString inChannel)
 {
     Session *session = this->getSession();
     QList<QStandardItem*> foundChannels = session->findItems(inChannel.toLower(), Qt::MatchExactly | Qt::MatchRecursive);
     if(foundChannels.count() == 1) {
         QStandardItem *channel = foundChannels[0];
+        return channel;
+    }
+    return NULL;
+}
+
+Channel* Server::getChannel(QString inChannel)
+{
+    QStandardItem *channel = getChannelStandardItem(inChannel);
+    if(channel != NULL) {
         QVariant data = channel->data(Qt::UserRole);
         return data.value<Channel*>();
     }
