@@ -137,17 +137,25 @@ void MessageParser::parse(IrcMessage *message)
         case IrcMessage::Private: {
             IrcPrivateMessage *pm = static_cast<IrcPrivateMessage*>(message);
             QString channelName = pm->target();
-            qDebug() << "Is Action: " << pm->isAction();
-            qDebug() << "Is Request: " << pm->isRequest();
             Channel *channel = this->getChannel(channelName);
             QString styledMessage = this->styleString(pm->message());
             if(channel != NULL) {
                 // Message from channel
                 Channel::MessageType messageType = pm->isAction() ? Channel::Emote : Channel::Default;
                 channel->appendText(sender, styledMessage, messageType);
-            } else {
+            }
+            else
+            {
                 // Message from user
                 // TODO: Create User Chat Window to display there
+                channel = this->getChannel(sender);
+                if (channel == NULL)
+                {
+                    server->addChannel(sender);
+                    channel = this->getChannel(sender);
+                }
+
+                channel->appendText(sender, styledMessage, Channel::Default);
             }
 
             break;

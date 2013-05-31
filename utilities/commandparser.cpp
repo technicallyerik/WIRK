@@ -1,6 +1,7 @@
 #include "commandparser.h"
 #include "server.h"
 #include "irccommand.h"
+#include "channel.h"
 
 CommandParser::CommandParser(Server *parent) : QObject(parent)
 {
@@ -56,8 +57,13 @@ IrcCommand *CommandParser::parse(QString commandStr)
         {
             QString nickname = commandRX.cap(2);
             QString msg = commandRX.cap(3).trimmed();
+            if (this->getServer()->getChannel(nickname) == NULL)
+            {
+                this->getServer()->addChannel(nickname);
+            }
+            Channel *channel = this->getServer()->getChannel(nickname);
+            channel->appendText(this->getServer()->getNickname(), msg);
             return IrcCommand::createMessage(nickname, msg);
-            //TODO: display sent messages
         }
     }
     return NULL;
