@@ -223,7 +223,8 @@ QString MessageParser::parseNumeric(IrcNumericMessage *message)
         case Irc::RPL_TOPIC: {
             QString channel = message->parameters().value(1);
             QString topic = message->parameters().value(2);
-            this->getChannel(channel)->appendText("Channel Topic", topic, Channel::Topic);
+            QString styledString = styleString(topic);
+            this->getChannel(channel)->appendText("Channel Topic", styledString, Channel::Topic);
             break;
         }
         case Irc::RPL_TOPICWHOTIME: {

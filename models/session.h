@@ -12,8 +12,10 @@ class Session : public QStandardItemModel
     Q_OBJECT
 public:
     explicit Session(QObject *parent = 0);
+    virtual ~Session();
     
-    void addServer(QString host, int port, QString username, QString nickname, QString realname, QString password, bool isSSL);
+    Server* addServer(QString host, int port, QString username, QString nickname, QString realname, QString password, bool isSSL);
+    void removeServer(QString inServer);
     QStandardItem* getServerMenuItem(QString inServer);
     Server* getServer(QString inServer);
 

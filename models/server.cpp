@@ -11,13 +11,18 @@ Server::Server(QStandardItem *inMenuItem, Session *parent) : QObject(parent)
 {
     messageParser = new MessageParser(this);
     commandParser = new CommandParser(this);
-    ircSession = new IrcSession();
+    ircSession = new IrcSession(this);
     menuItem = inMenuItem;
     text = "<body>";
     connect(ircSession, SIGNAL(messageReceived(IrcMessage*)), this, SLOT(processMessage(IrcMessage*)));
     connect(ircSession, SIGNAL(socketError(QAbstractSocket::SocketError)), this, SLOT(processError(QAbstractSocket::SocketError)));
     connect(ircSession, SIGNAL(nickNameChanged(const QString&)), this, SLOT(nickNameChanged(const QString&)));
     connect(ircSession, SIGNAL(password(QString*)), this, SLOT(passwordRequested(QString*)));
+}
+
+Server::~Server()
+{
+
 }
 
 QString Server::getHost()
@@ -121,11 +126,10 @@ void Server::appendText(QString inText)
     tableRow += "</tr></table>";
     text += tableRow;
     Session *session = this->getSession();
-    QString host = this->getHost();
     session->emitMessageReceived(this, NULL, tableRow);
 }
 
-void Server::addChannel(QString inChannel)
+Channel* Server::addChannel(QString inChannel)
 {
     QStandardItem *newMenuItem = new QStandardItem();
     Channel *newChannel = new Channel(inChannel.toLower(), newMenuItem, this);
@@ -133,20 +137,23 @@ void Server::addChannel(QString inChannel)
     menuItem->appendRow(newMenuItem);
     newMenuItem->setFlags(newMenuItem->flags() & ~Qt::ItemIsEditable);
     menuItem->sortChildren(0);
+    return newChannel;
 }
 
 void Server::removeChannel(QString inChannel)
 {
-    QStandardItem *channel = getChannelMenuItem(inChannel);
+    Channel *channel = getChannel(inChannel);
     if(channel != NULL) {
-        int row = channel->row();
+        QStandardItem *chanMenuItem = channel->getMenuItem();
+        int row = chanMenuItem->row();
         menuItem->removeRow(row);
+        delete channel;
     }
 }
 
 void Server::partAllChannels()
 {
-    int totalMenuItems = this->menuItem->rowCount()-1;
+    int totalMenuItems = menuItem->rowCount()-1;
     for(int i = totalMenuItems; i >= 0; i--) {
         QStandardItem *channelMenuItem = this->menuItem->child(i);
         QVariant data = channelMenuItem->data(Qt::UserRole);
@@ -180,14 +187,16 @@ Channel* Server::getChannel(QString inChannel)
 
 void Server::removeUserFromAllChannels(QString username)
 {
-    int totalMenuItems = this->menuItem->rowCount()-1;
+    int totalMenuItems = menuItem->rowCount()-1;
     for(int i = totalMenuItems; i >= 0; i--) {
         QStandardItem *channelMenuItem = this->menuItem->child(i);
         QVariant data = channelMenuItem->data(Qt::UserRole);
         Channel* channel = data.value<Channel*>();
-        if(channel->getUser(username)) {
+        User *user = channel->getUser(username);
+        if(user) {
             channel->removeUser(username);
-            channel->appendText(QString("%1 has left %2").arg(username, channel->getName()));
+            QString channelName = channel->getName();
+            channel->appendText(QString("%1 has left %2").arg(username, channelName));
         }
     }
 }
@@ -213,7 +222,9 @@ void Server::sendMessage(QString message) {
 void Server::sendChannelMessage(QString channel, QString message) {
     IrcCommand *command = IrcCommand::createMessage(channel, message);
     Channel* sendChannel = this->getChannel(channel);
-    sendChannel->appendText(this->getNickname(), messageParser->styleString(message));
+    QString nickname = this->getNickname();
+    QString styledString = messageParser->styleString(message);
+    sendChannel->appendText(nickname, styledString);
     ircSession->sendCommand(command);
 }
 

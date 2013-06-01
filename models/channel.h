@@ -16,6 +16,7 @@ class Channel : public QObject
 
 public:
     explicit Channel(QString inName, QStandardItem *inMenuItem, Server *parent = 0);
+    virtual ~Channel();
 
     enum MessageType
     {
@@ -34,7 +35,7 @@ public:
 
     QStandardItemModel* getUsers();
     void addUsers(QStringList inUsers);
-    void addUser(QString inUser);
+    User* addUser(QString inUser);
     void removeUser(QString inUser);
     QStandardItem* getUserMenuItem(QString inUser);
     User* getUser(QString inUser);

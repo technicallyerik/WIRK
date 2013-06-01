@@ -28,7 +28,8 @@ class Server : public QObject
 
 public:
     explicit Server(QStandardItem *inMenuItem, Session *parent = 0);
-    
+    virtual ~Server();
+
     QString getHost();
     void setHost(QString host);
 
@@ -53,7 +54,7 @@ public:
     QString getText();
     void appendText(QString text);
 
-    void addChannel(QString inChannel);
+    Channel* addChannel(QString inChannel);
     void removeChannel(QString inChannel);
     void partAllChannels();
     QStandardItem* getChannelMenuItem(QString inChannel);

@@ -7,8 +7,7 @@
 #include <QPixmap>
 #include <QThread>
 #include <QTextDocument>
-
-class QMovie;
+#include <QMovie>
 
 class AnimationViewModel : public QThread
 {
@@ -25,7 +24,7 @@ private slots:
 
 private:
     QBuffer buffer;
-    QMovie *movie;
+    QMovie* movie;
     QUrl movieUrl;
     QTextDocument *textDocument;
 };

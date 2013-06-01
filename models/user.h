@@ -13,7 +13,8 @@ class User : public QObject
 
 public:
     explicit User(QString inName, QStandardItem *inMenuItem, Channel *parent = 0);
-    
+    virtual ~User();
+
     QString getName();
     void setName(QString name);
 

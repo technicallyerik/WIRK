@@ -7,6 +7,11 @@ User::User(QString inName, QStandardItem *inMenuItem, Channel *parent) : QObject
     this->setName(inName);
 }
 
+User::~User()
+{
+
+}
+
 QString User::getName() {
     return name;
 }

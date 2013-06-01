@@ -7,7 +7,12 @@ Session::Session(QObject *parent) : QStandardItemModel(parent)
 
 }
 
-void Session::addServer(QString host, int port, QString username, QString nickname, QString realname, QString password, bool isSSL)
+Session::~Session()
+{
+
+}
+
+Server* Session::addServer(QString host, int port, QString username, QString nickname, QString realname, QString password, bool isSSL)
 {
     QStandardItem *newMenuItem = new QStandardItem();
     Server *server = new Server(newMenuItem, this);
@@ -23,6 +28,18 @@ void Session::addServer(QString host, int port, QString username, QString nickna
     this->appendRow(newMenuItem);
     newMenuItem->setFlags(newMenuItem->flags() & ~Qt::ItemIsEditable);
     this->sort(0);
+    return server;
+}
+
+void Session::removeServer(QString inServer)
+{
+    Server *server = getServer(inServer);
+    if(server != NULL) {
+        QStandardItem *servMeuItem = server->getMenuItem();
+        int row = servMeuItem->row();
+        this->removeRow(row);
+        delete server;
+    }
 }
 
 QStandardItem* Session::getServerMenuItem(QString inServer)
