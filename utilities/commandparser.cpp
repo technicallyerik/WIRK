@@ -15,8 +15,29 @@ IrcCommand *CommandParser::parse(QString commandStr)
     int pos = commandRX.indexIn(commandStr);
     if(pos > -1) {
         QString commandString = commandRX.cap(1);
+        // /ADMIN
+
+        // /AWAY
+
+        // /CAP
+
+        // CtcpAction
+
+        // CtcpReply
+
+        // CtcpRequest
+
+        // /INFO
+
+        // /INVITE
+        if (commandString.compare("invite", Qt::CaseInsensitive) == 0)
+        {
+            QString nickname = commandRX.cap(2);
+            QString channel = commandRX.cap(3);
+            return IrcCommand::createInvite(nickname, channel);
+        }
         // /JOIN
-        if(commandString.compare("join", Qt::CaseInsensitive) == 0)
+        else if(commandString.compare("join", Qt::CaseInsensitive) == 0)
         {
             QString channelStr = commandRX.cap(2);
             QStringList passwords = commandRX.cap(3).trimmed().split(',');
@@ -36,22 +57,16 @@ IrcCommand *CommandParser::parse(QString commandStr)
                 getServer()->partAllChannels();
             }
         }
-        // /PART
-        else if (commandString.compare("part", Qt::CaseInsensitive) == 0)
-        {
-            QString channelStr = commandRX.cap(2);
-            if (channelRX.indexIn(channelStr) > -1) {
-                //TODO: Get Reason
-               return IrcCommand::createPart(channelStr, NULL);
-            }
-        }
-        // /INVITE
-        else if (commandString.compare("invite", Qt::CaseInsensitive) == 0)
-        {
-            QString nickname = commandRX.cap(2);
-            QString channel = commandRX.cap(3);
-            return IrcCommand::createInvite(nickname, channel);
-        }
+        // /KICK
+
+        // /KNOCK
+
+        // /LIST
+
+        // /MODE
+
+        // /MOTD
+
         // /MSG
         else if (commandString.compare("msg", Qt::CaseInsensitive) == 0)
         {
@@ -66,6 +81,44 @@ IrcCommand *CommandParser::parse(QString commandStr)
             channel->appendText(ourName, msg);
             return IrcCommand::createMessage(nickname, msg);
         }
+
+        // /NAMES
+
+        // /NICK
+
+        // /NOTICE
+
+        // /PART
+        else if (commandString.compare("part", Qt::CaseInsensitive) == 0)
+        {
+            QString channelStr = commandRX.cap(2);
+            if (channelRX.indexIn(channelStr) > -1) {
+                //TODO: Get Reason
+               return IrcCommand::createPart(channelStr, NULL);
+            }
+        }
+
+        // /QUIT
+
+        // /QUOTE
+
+        // /STATS
+
+        // /TIME
+
+        // /TOPIC
+
+        // /TRACE
+
+        // /USERS
+
+        // /VERSION
+
+        // /WHO
+
+        // /WHOIS
+
+        // /WHOWAS
     }
     return NULL;
 }
