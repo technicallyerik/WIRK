@@ -9,11 +9,12 @@ AnimationViewModel::AnimationViewModel(QByteArray bytes, QUrl url, QTextDocument
     buffer.open(QBuffer::ReadWrite);
     buffer.write(bytes);
     buffer.seek(0);
-    movie = new QMovie(&buffer);
+    movie = new QMovie(&buffer, QByteArray(), this);
     QPixmap map;
     map.loadFromData(bytes);
     if(!map.isNull()) {
-        movie->setScaledSize(QSize((150 * map.size().width()) / map.size().height(), 150));
+        QSize size = map.size();
+        movie->setScaledSize(QSize((150 * size.width()) / size.height(), 150));
     }
     movieUrl = url;
     textDocument = document;

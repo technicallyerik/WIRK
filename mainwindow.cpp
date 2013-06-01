@@ -78,8 +78,8 @@ void MainWindow::handleMessage(Server *inServer, Channel *inChannel, QString inM
     QRegExp imageRegex(".*(src=\"(([^>]+)\\.(jpg|png|gif))\").*");
     int pos = 0;
     while ((pos = imageRegex.indexIn(inMessage, pos)) != -1) {
-        QUrl url = QUrl(imageRegex.cap(2));
-        QNetworkRequest request = QNetworkRequest(url);
+        QUrl url(imageRegex.cap(2));
+        QNetworkRequest request(url);
         networkAccessManager->get(request);
         pos += imageRegex.matchedLength();
     }
@@ -100,12 +100,12 @@ void MainWindow::handleMessage(Server *inServer, Channel *inChannel, QString inM
         QVariant data = selectedItem.data(Qt::UserRole);
         if(data.canConvert<Channel*>()) {
             Channel *selectedChannel = data.value<Channel*>();
-            QString channelName = selectedChannel->getName();
+            QString selectedChannelName = selectedChannel->getName();
             Server *selectedServer = selectedChannel->getServer();
-            QString serverName = selectedServer->getHost();
-            if(serverName.compare(inServer->getHost(), Qt::CaseInsensitive) == 0 &&
+            QString selectedServerName = selectedServer->getHost();
+            if(selectedServerName.compare(inServer->getHost(), Qt::CaseInsensitive) == 0 &&
                inChannel != NULL &&
-               channelName.compare(inChannel->getName(), Qt::CaseInsensitive) == 0) {
+               selectedChannelName.compare(inChannel->getName(), Qt::CaseInsensitive) == 0) {
                 // Channel message with channel selected
                 ui->mainText->append(inMessage);
             } else {
@@ -117,8 +117,8 @@ void MainWindow::handleMessage(Server *inServer, Channel *inChannel, QString inM
             }
         } else if(data.canConvert<Server*>()) {
             Server *selectedServer = data.value<Server*>();
-            QString serverName = selectedServer->getHost();
-            if(serverName.compare(inServer->getHost(), Qt::CaseInsensitive) == 0 &&
+            QString selectedServerName = selectedServer->getHost();
+            if(selectedServerName.compare(inServer->getHost(), Qt::CaseInsensitive) == 0 &&
                inChannel == NULL) {
                 // Server message with server selected
                 ui->mainText->append(inMessage);
@@ -130,9 +130,7 @@ void MainWindow::handleMessage(Server *inServer, Channel *inChannel, QString inM
                 }
             }
         }
-        QTextCursor c = ui->mainText->textCursor();
-        c.movePosition(QTextCursor::End);
-        ui->mainText->setTextCursor(c);
+        scrollToBottom();
     }
 }
 
@@ -237,7 +235,7 @@ void MainWindow::imageDownloaded(QNetworkReply* networkReply)
 {
     QByteArray bytes = networkReply->readAll();
     QUrl url = networkReply->url();
-    QImage image = QImage();
+    QImage image;
     image.loadFromData(bytes);
     image = image.scaledToHeight(150, Qt::SmoothTransformation);
 

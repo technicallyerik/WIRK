@@ -11,6 +11,11 @@ Channel::Channel(QString inName, QStandardItem *inMenuItem, Server *parent) : QO
     this->setName(inName);
 }
 
+Channel::~Channel()
+{
+
+}
+
 QString Channel::getName() {
     return name;
 }
@@ -28,9 +33,9 @@ void Channel::appendText(QString inText) {
     this->appendText("", inText, Channel::Info);
 }
 
-
 void Channel::appendText(QString sender, QString inText, MessageType type) {
-    QString currentUser = this->getServer()->getNickname();
+    Server *server = this->getServer();
+    QString currentUser = server->getNickname();
     bool textContainsUser = inText.contains(currentUser, Qt::CaseInsensitive);
     QDateTime currentTime = QDateTime::currentDateTime();
     QString currentTimeStr = currentTime.toString("h:mmap");
@@ -61,9 +66,8 @@ void Channel::appendText(QString sender, QString inText, MessageType type) {
         tableRow += "<td class=\"col-meta\" width=\"50\"><h6 class=\"metainfo\">" + currentTimeStr +"</h6></td>";
         tableRow += "</tr></table>";
     text += tableRow;
-    Server *server = this->getServer();
     Session *session = server->getSession();
-    session->emitMessageReceived(this->getServer(), this, tableRow, type);
+    session->emitMessageReceived(server, this, tableRow, type);
 }
 
 QStandardItemModel* Channel::getUsers() {
@@ -77,19 +81,22 @@ void Channel::addUsers(QStringList inUsers) {
     }
 }
 
-void Channel::addUser(QString inUser) {
+User* Channel::addUser(QString inUser) {
     QStandardItem *newMenuItem = new QStandardItem();
     User *newUser = new User(inUser.toLower(), newMenuItem, this);
     newMenuItem->setData(QVariant::fromValue<User*>(newUser), Qt::UserRole);
     users->appendRow(newMenuItem);
     users->sort(0);
+    return newUser;
 }
 
 void Channel::removeUser(QString inUser) {
-    QStandardItem *menuItem = getUserMenuItem(inUser);
-    if(menuItem != NULL) {
+    User* user = getUser(inUser);
+    if(user != NULL) {
+        QStandardItem *menuItem = user->getMenuItem();
         int row = menuItem->row();
         users->removeRow(row);
+        delete user;
     }
 }
 
