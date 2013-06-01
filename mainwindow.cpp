@@ -154,7 +154,7 @@ QBrush MainWindow::getColorForHighlightType(ChannelHighlightType ht)
 {
     switch(ht) {
         case ChannelHighlightTypeMention:
-            return QBrush((QColor(19,90,176)));
+            return QBrush((QColor(41,167,33)));
         case ChannelHighlightTypeNew:
             return QBrush((QColor(177,44,51)));
         case ChannelHighlightTypeNone:

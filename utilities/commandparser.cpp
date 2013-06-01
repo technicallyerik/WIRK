@@ -57,12 +57,13 @@ IrcCommand *CommandParser::parse(QString commandStr)
         {
             QString nickname = commandRX.cap(2);
             QString msg = commandRX.cap(3).trimmed();
-            if (this->getServer()->getChannel(nickname) == NULL)
-            {
-                this->getServer()->addChannel(nickname);
+            Server *server = this->getServer();
+            Channel *channel = server->getChannel(nickname);
+            if (channel == NULL) {
+                channel = server->addChannel(nickname);
             }
-            Channel *channel = this->getServer()->getChannel(nickname);
-            channel->appendText(this->getServer()->getNickname(), msg);
+            QString ourName = server->getNickname();
+            channel->appendText(ourName, msg);
             return IrcCommand::createMessage(nickname, msg);
         }
     }

@@ -3,14 +3,13 @@
 
 #include <QStandardItem>
 #include <QSslSocket>
-#include <irccommand.h>
 
 class Session;
 class IrcSession;
 class MessageParser;
 class CommandParser;
 class IrcMessage;
-
+class IrcCommand;
 class Channel;
 
 class Server : public QObject
@@ -60,7 +59,7 @@ public:
     QStandardItem* getChannelMenuItem(QString inChannel);
     Channel* getChannel(QString inChannel);
 
-    void removeUserFromAllChannels(QString username);
+    void removeUserFromAllChannels(QString username, QString reason);
 
     Session* getSession();
     QStandardItem* getMenuItem();

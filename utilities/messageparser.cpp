@@ -4,6 +4,7 @@
 #include "channel.h"
 #include "irc.h"
 #include "irccommand.h"
+#include "session.h"
 
 #include <QMessageBox>
 
@@ -14,12 +15,16 @@ MessageParser::MessageParser(Server *parent) : QObject(parent)
 
 void MessageParser::parse(IrcMessage *message)
 {
+    bool valid = message->isValid();
+    IrcMessage::Type type = message->type();
+    IrcMessage::Flags flags = message->flags();
+    bool senderIsSelf = (flags & IrcMessage::Own);
     QString sender = message->sender().name();
+
     Server *server = this->getServer();
     QString currentNickname = server->getNickname();
-    bool senderIsSelf = (message->flags() & IrcMessage::Own);
 
-    switch (message->type()) {
+    switch (type) {
         case IrcMessage::Invite: {
             IrcInviteMessage *invite = static_cast<IrcInviteMessage*>(message);
             QString user = invite->user();
@@ -65,29 +70,57 @@ void MessageParser::parse(IrcMessage *message)
 
         case IrcMessage::Kick: {
             IrcKickMessage *kick = static_cast<IrcKickMessage*>(message);
+            QString channel = kick->channel();
+            QString user = kick->user();
+            QString reason = kick->reason();
+            if(user.compare(currentNickname, Qt::CaseInsensitive)) {
+                // We got kicked
+                // TODO
+            } else {
+                // Someone else got kicked
+                // TODO
+            }
             break;
         }
 
         case IrcMessage::Mode: {
             IrcModeMessage *mode = static_cast<IrcModeMessage*>(message);
+            QString target = mode->target();
+            QString modeFlag = mode->mode();
+            QString argument = mode->argument();
+            if(target.compare(currentNickname, Qt::CaseInsensitive)) {
+                // We changed modes
+                // TODO
+            } else {
+                // Someone else changed modes
+                // TODO
+            }
             break;
         }
 
         case IrcMessage::Nick: {
             IrcNickMessage *nick = static_cast<IrcNickMessage*>(message);
+            QString newNick = nick->nick();
+            if(senderIsSelf) {
+                // We changed nicks
+                // TODO:
+            } else {
+                // Someone else changed nicks
+                // TODO:
+            }
             break;
         }
 
         case IrcMessage::Notice: {
             IrcNoticeMessage *notice = static_cast<IrcNoticeMessage*>(message);
-            Server *server = this->getServer();
-            QString styledMessage = this->styleString(notice->message());
+            QString message = notice->message();
             QString target = notice->target();
+            QString styledMessage = this->styleString(message);
             Channel *channel = this->getChannel(target);
             if(channel != NULL) {
                 // Notice about channel
                 channel->appendText(QString("Notice: %1").arg(styledMessage));
-            } else if(target.compare(currentNickname) == 0) {
+            } else if(target.compare(currentNickname, Qt::CaseInsensitive) == 0) {
                 // Notice to self
                 server->appendText(QString("Notice: %1").arg(styledMessage));
             } else {
@@ -131,60 +164,67 @@ void MessageParser::parse(IrcMessage *message)
 
         case IrcMessage::Pong: {
             IrcPongMessage *pong = static_cast<IrcPongMessage*>(message);
+            QString argument = pong->argument();
+            break;
+        }
+
+        case IrcMessage::Ping: {
+            IrcPingMessage *pong = static_cast<IrcPingMessage*>(message);
+            QString argument = pong->argument();
             break;
         }
 
         case IrcMessage::Private: {
+            // Messages from both channels and PMs from other users
             IrcPrivateMessage *pm = static_cast<IrcPrivateMessage*>(message);
-            QString channelName = pm->target();
-            Channel *channel = this->getChannel(channelName);
+            QString messageTarget = pm->target();
             QString styledMessage = this->styleString(pm->message());
-            if(channel != NULL) {
-                // Message from channel
-                Channel::MessageType messageType = pm->isAction() ? Channel::Emote : Channel::Default;
-                channel->appendText(sender, styledMessage, messageType);
-            }
-            else
-            {
-                // Message from user
-                // TODO: Create User Chat Window to display there
+            Channel *channel = this->getChannel(messageTarget);
+            if(channel == NULL) {
+                // Probably from another user, create a 'channel' for them
                 channel = this->getChannel(sender);
-                if (channel == NULL)
-                {
-                    server->addChannel(sender);
-                    channel = this->getChannel(sender);
+                if(channel == NULL) {
+                    channel = server->addChannel(sender);
                 }
-
-                channel->appendText(sender, styledMessage, Channel::Default);
             }
-
+            Channel::MessageType messageType = pm->isAction() ? Channel::Emote : Channel::Default;
+            channel->appendText(sender, styledMessage, messageType);
             break;
         }
 
         case IrcMessage::Quit: {
             IrcQuitMessage *quit = static_cast<IrcQuitMessage*>(message);
-            if (senderIsSelf)
-            {
-                // Current user quit
-                // TODO: Remove server from node
+            QString reason = quit->reason();
+            if (senderIsSelf) {
+                // We quit
+                Server *server = getServer();
+                QString serverName = server->getHost();
+                Session *session = server->getSession();
+                session->removeServer(serverName);
             }
             else {
                 // Other user quit
-                server->removeUserFromAllChannels(sender);
+                server->removeUserFromAllChannels(sender, reason);
             }
             break;
         }
 
         case IrcMessage::Topic: {
             IrcTopicMessage *topic = static_cast<IrcTopicMessage*>(message);
-            Channel *channel = this->getChannel(topic->channel());
-            channel->appendText("Channel Topic", topic->topic(), Channel::Topic);
+            QString targetChannel = topic->channel();
+            QString topicMsg = topic->topic();
+            Channel *channel = this->getChannel(targetChannel);
+            channel->appendText("Channel Topic", topicMsg, Channel::Topic);
             break;
         }
-        case IrcMessage::Unknown: {
 
+        case IrcMessage::Capability: {
+            IrcCapabilityMessage *capability = static_cast<IrcCapabilityMessage*>(message);
+            QString subCommand = capability->subCommand();
+            QStringList capabilities = capability->capabilities();
             break;
         }
+
         case IrcMessage::Error: {
             IrcErrorMessage *error = static_cast<IrcErrorMessage*>(message);
             Server *server = this->getServer();
@@ -193,8 +233,12 @@ void MessageParser::parse(IrcMessage *message)
             // TODO: Show alert?  Reconnect?
             break;
         }
+
+        case IrcMessage::Unknown: {
+            break;
+        }
+
         default: {
-            // Ping, Capability?
             break;
         }
     }
@@ -202,17 +246,14 @@ void MessageParser::parse(IrcMessage *message)
 
 QString MessageParser::parseNumeric(IrcNumericMessage *message)
 {
-    QString sender = message->sender().name();
-    QString text = message->parameters().join(" ");    
-    QString code = QString::number(message->code());
-
     QString formattedMessage = "";
-
-    switch (message->code()) {
+    QStringList p = message->parameters();
+    int code = message->code();
+    switch (code) {
         case Irc::RPL_NAMREPLY_: { }
         case Irc::RPL_NAMREPLY: {
-            QString targetChannel = message->parameters().value(2);
-            QStringList users = message->parameters().value(3).split(" ");
+            QString targetChannel = p.value(2);
+            QStringList users = p.value(3).split(" ");
             Channel *channel = this->getChannel(targetChannel);
             channel->addUsers(users);
             break;
@@ -221,8 +262,8 @@ QString MessageParser::parseNumeric(IrcNumericMessage *message)
             break; // We don't care to see this
         }
         case Irc::RPL_TOPIC: {
-            QString channel = message->parameters().value(1);
-            QString topic = message->parameters().value(2);
+            QString channel = p.value(1);
+            QString topic = p.value(2);
             QString styledString = styleString(topic);
             this->getChannel(channel)->appendText("Channel Topic", styledString, Channel::Topic);
             break;
@@ -596,7 +637,8 @@ QString MessageParser::parseNumeric(IrcNumericMessage *message)
         case Irc::ERR_TEXTTOOSHORT: { }
         case Irc::ERR_NUMERIC_ERR: { }
         default:
-            formattedMessage = text;
+            formattedMessage = p.join(" ");
+            QString codeString = QString::number(code);
 
             // Remove your name if it's at the beginning of the string
             Server *server = this->getServer();
@@ -611,7 +653,7 @@ QString MessageParser::parseNumeric(IrcNumericMessage *message)
             formattedMessage = this->styleString(formattedMessage);
 
             // Prepend message code for debugging
-            formattedMessage = QString("[%1] %2").arg(code, formattedMessage);
+            formattedMessage = QString("[%1] %2").arg(codeString, formattedMessage);
 
             break;
     }

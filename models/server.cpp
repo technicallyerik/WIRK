@@ -185,7 +185,7 @@ Channel* Server::getChannel(QString inChannel)
     return NULL;
 }
 
-void Server::removeUserFromAllChannels(QString username)
+void Server::removeUserFromAllChannels(QString username, QString reason)
 {
     int totalMenuItems = menuItem->rowCount()-1;
     for(int i = totalMenuItems; i >= 0; i--) {
@@ -196,7 +196,12 @@ void Server::removeUserFromAllChannels(QString username)
         if(user) {
             channel->removeUser(username);
             QString channelName = channel->getName();
-            channel->appendText(QString("%1 has left %2").arg(username, channelName));
+            QString partMessage = QString("%1 has left %2").arg(username, channelName);
+            if (!reason.trimmed().isEmpty())
+            {
+                partMessage.append(QString(" (Reason: %3)").arg(reason));
+            }
+            channel->appendText(partMessage);
         }
     }
 }
