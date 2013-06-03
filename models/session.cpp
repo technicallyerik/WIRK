@@ -38,13 +38,13 @@ void Session::removeServer(QString inServer)
         QStandardItem *servMeuItem = server->getMenuItem();
         int row = servMeuItem->row();
         this->removeRow(row);
-        delete server;
+        server->deleteLater();
     }
 }
 
 QStandardItem* Session::getServerMenuItem(QString inServer)
 {
-    QList<QStandardItem*> foundServers = this->findItems(inServer.toLower(), Qt::MatchExactly);
+    QList<QStandardItem*> foundServers = this->findItems(inServer, Qt::MatchExactly);
     if(foundServers.count() == 1) {
         QStandardItem *server = foundServers[0];
         return server;

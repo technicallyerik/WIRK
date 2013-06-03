@@ -96,7 +96,7 @@ void Channel::addUsers(QStringList inUsers) {
 
 User* Channel::addUser(QString inUser, QChar prefix) {
     QStandardItem *newMenuItem = new QStandardItem();
-    User *newUser = new User(inUser.toLower(), prefix, newMenuItem, this);
+    User *newUser = new User(inUser, prefix, newMenuItem, this);
     newMenuItem->setData(QVariant::fromValue<User*>(newUser), Qt::UserRole);
     users->appendRow(newMenuItem);
     users->setSortRole(User::UserDataSort);
@@ -110,7 +110,7 @@ void Channel::removeUser(QString inUser) {
         QStandardItem *menuItem = user->getMenuItem();
         int row = menuItem->row();
         users->removeRow(row);
-        delete user;
+        user->deleteLater();
     }
 }
 

@@ -132,7 +132,7 @@ void Server::appendText(QString inText)
 Channel* Server::addChannel(QString inChannel)
 {
     QStandardItem *newMenuItem = new QStandardItem();
-    Channel *newChannel = new Channel(inChannel.toLower(), newMenuItem, this);
+    Channel *newChannel = new Channel(inChannel, newMenuItem, this);
     newMenuItem->setData(QVariant::fromValue<Channel*>(newChannel), Qt::UserRole);
     menuItem->appendRow(newMenuItem);
     newMenuItem->setFlags(newMenuItem->flags() & ~Qt::ItemIsEditable);
@@ -147,7 +147,7 @@ void Server::removeChannel(QString inChannel)
         QStandardItem *chanMenuItem = channel->getMenuItem();
         int row = chanMenuItem->row();
         menuItem->removeRow(row);
-        delete channel;
+        channel->deleteLater();
     }
 }
 
@@ -167,7 +167,7 @@ void Server::partAllChannels()
 QStandardItem* Server::getChannelMenuItem(QString inChannel)
 {
     Session *session = this->getSession();
-    QList<QStandardItem*> foundChannels = session->findItems(inChannel.toLower(), Qt::MatchExactly | Qt::MatchRecursive);
+    QList<QStandardItem*> foundChannels = session->findItems(inChannel, Qt::MatchExactly | Qt::MatchRecursive);
     if(foundChannels.count() == 1) {
         QStandardItem *channel = foundChannels[0];
         return channel;
