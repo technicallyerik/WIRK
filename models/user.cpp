@@ -46,13 +46,13 @@ QChar User::getModeDisplayString()
     QChar mode = char();
     if (modes.contains('q'))
         mode = USER_MODE_OWNER;
-    else if (modes.contains('a') || modes.contains('A') || modes.contains('N') || modes.contains('T') || modes.contains('C'))
+    else if (modes.contains('a'))
         mode = USER_MODE_ADMIN;
-    else if (modes.contains('o') || modes.contains('O'))
+    else if (modes.contains('o'))
         mode = USER_MODE_OPERATOR;
     else if (modes.contains('h'))
         mode = USER_MODE_HALF_OP;
-    else if (modes.contains('v') || modes.contains('V'))
+    else if (modes.contains('v'))
         mode = USER_MODE_VOICED;
 
     return mode;
@@ -84,7 +84,7 @@ void User::removeMode(QChar mode)
 
 QString User::getSortString()
 {
-    int sortNumberPrefix = 999;
+    int sortNumberPrefix;
     QChar mode = this->getModeDisplayString();
 
     if (mode == USER_MODE_OWNER)
@@ -96,7 +96,9 @@ QString User::getSortString()
     else if (mode == USER_MODE_HALF_OP)
         sortNumberPrefix = 4;
     else if (mode == USER_MODE_VOICED)
-        sortNumberPrefix = 5;
+        sortNumberPrefix = 5;\
+    else
+        sortNumberPrefix = 6;
 
     return sortNumberPrefix + name.toLower();
 }
