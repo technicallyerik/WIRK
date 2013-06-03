@@ -5,6 +5,7 @@
 #include "irc.h"
 #include "irccommand.h"
 #include "session.h"
+#include "user.h"
 
 #include <QMessageBox>
 
@@ -93,13 +94,23 @@ void MessageParser::parse(IrcMessage *message)
             QString target = mode->target();
             QString modeFlag = mode->mode();
             QString argument = mode->argument();
-            if(target.compare(currentNickname, Qt::CaseInsensitive)) {
-                // We changed modes
-                // TODO
-            } else {
-                // Someone else changed modes
-                // TODO
+
+            Channel *channel = server->getChannel(target);
+            if (!channel){
+                break;
             }
+            User *user = channel->getUser(argument);
+
+            if (modeFlag.startsWith('-', Qt::CaseInsensitive))
+            {
+                user->removeMode(modeFlag.at(1));
+            }
+            else if (modeFlag.startsWith("+", Qt::CaseInsensitive))
+            {
+                user->addMode(modeFlag.at(1));
+            }
+            channel->appendText(QString("%1 sets mode: %2 %3").arg(sender, modeFlag, argument));
+
             break;
         }
 

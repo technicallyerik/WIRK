@@ -1,12 +1,13 @@
 #include "user.h"
 #include "channel.h"
+#include <QSet>
 #include <QDebug>
 
 User::User(QString inName, QChar inMode, QStandardItem *inMenuItem, Channel *parent) : QObject(parent)
 {
     menuItem = inMenuItem;
     this->setName(inName);
-    this->setMode(inMode);
+    this->addMode(inMode);
 }
 
 User::~User()
@@ -20,39 +21,83 @@ QString User::getName() {
 
 void User::setName(QString inName) {
     name = inName;
+    QString mode = this->getModeDisplayString();
     menuItem->setText(mode + name);
     menuItem->setData(name, UserDataName);
 }
 
-QChar User::getMode()
+QSet<QChar> User::getModes()
 {
-    return mode;
+    return modes;
 }
 
-void User::setMode(QChar inMode)
+void User::setDisplayMode()
 {
-    mode = inMode;
+    QString mode = this->getModeDisplayString();
+
     menuItem->setText(mode + name);
     QString sortString = getSortString();
     menuItem->setData(sortString, UserDataSort);
+    this->getChannel()->getUsers()->sort(0);
+}
+
+QChar User::getModeDisplayString()
+{
+    QChar mode = char();
+    if (modes.contains('q'))
+        mode = USER_MODE_OWNER;
+    else if (modes.contains('a') || modes.contains('A') || modes.contains('N') || modes.contains('T') || modes.contains('C'))
+        mode = USER_MODE_ADMIN;
+    else if (modes.contains('o') || modes.contains('O'))
+        mode = USER_MODE_OPERATOR;
+    else if (modes.contains('h'))
+        mode = USER_MODE_HALF_OP;
+    else if (modes.contains('v') || modes.contains('V'))
+        mode = USER_MODE_VOICED;
+
+    return mode;
+}
+
+void User::addMode(QChar mode)
+{
+    if (mode == USER_MODE_OWNER)
+        mode = 'q';
+    else if (mode == USER_MODE_ADMIN)
+        mode = 'a';
+    else if (mode == USER_MODE_OPERATOR)
+        mode = 'o';
+    else if (mode == USER_MODE_HALF_OP)
+        mode = 'h';
+    else if (mode == USER_MODE_VOICED)
+        mode = 'v';
+
+    modes.insert(mode);
+    this->getMenuItem()->setData(this->getSortString(), UserDataSort);
+    this->setDisplayMode();
+}
+
+void User::removeMode(QChar mode)
+{
+    modes.remove(mode);
+    this->setDisplayMode();
 }
 
 QString User::getSortString()
 {
-    int sortNumberPrefix;
-    if(mode == USER_MODE_OWNER) {
-        sortNumberPrefix = 0;
-    } else if(mode == USER_MODE_ADMIN) {
+    int sortNumberPrefix = 999;
+    QChar mode = this->getModeDisplayString();
+
+    if (mode == USER_MODE_OWNER)
         sortNumberPrefix = 1;
-    } else if(mode == USER_MODE_OPERATOR) {
+    else if (mode == USER_MODE_ADMIN)
         sortNumberPrefix = 2;
-    } else if(mode == USER_MODE_HALF_OP) {
+    else if (mode == USER_MODE_OPERATOR)
         sortNumberPrefix = 3;
-    } else if(mode == USER_MODE_VOICED) {
+    else if (mode == USER_MODE_HALF_OP)
         sortNumberPrefix = 4;
-    } else {
+    else if (mode == USER_MODE_VOICED)
         sortNumberPrefix = 5;
-    }
+
     return sortNumberPrefix + name.toLower();
 }
 

@@ -2,6 +2,7 @@
 #define USER_H
 
 #include <QStandardItem>
+#include <QSet>
 
 class Channel;
 
@@ -26,8 +27,12 @@ public:
     QString getName();
     void setName(QString name);
 
-    QChar getMode();
-    void setMode(QChar mode);
+    QSet<QChar> getModes();
+    void addMode(QChar mode);
+    void removeMode(QChar mode);
+    void setDisplayMode();
+    QChar getModeDisplayString();
+    char convertFlagToDisplayMode(QChar flag);
 
     QString getSortString();
 
@@ -36,7 +41,7 @@ public:
 
 private:
     QString name;
-    QChar mode;
+    QSet<QChar> modes;
     QStandardItem *menuItem;
 };
 
