@@ -163,7 +163,8 @@ IrcSessionPrivate::IrcSessionPrivate(IrcSession* session) :
     realName(),
     active(false),
     connected(false),
-    capabilities()
+    activeCaps(),
+    availableCaps()
 {
 }
 
@@ -177,6 +178,10 @@ void IrcSessionPrivate::_irc_connected()
 
     QString password;
     emit q->password(&password);
+
+    activeCaps.clear();
+    availableCaps.clear();
+
     protocol->login(password);
 }
 
@@ -242,6 +247,17 @@ void IrcSessionPrivate::setConnected(bool value)
     }
 }
 
+static void handleCapability(QSet<QString>* caps, const QString& cap)
+{
+    Q_ASSERT(caps);
+    if (cap.startsWith(QLatin1Char('-')) || cap.startsWith(QLatin1Char('=')))
+        caps->remove(cap.mid(1));
+    else if (cap.startsWith(QLatin1Char('~')))
+        caps->insert(cap.mid(1));
+    else
+        caps->insert(cap);
+}
+
 void IrcSessionPrivate::receiveMessage(IrcMessage* msg)
 {
     Q_Q(IrcSession);
@@ -276,28 +292,34 @@ void IrcSessionPrivate::receiveMessage(IrcMessage* msg)
             if (msg->flags() & IrcMessage::Own)
                 setNick(static_cast<IrcNickMessage*>(msg)->nick());
             break;
-        case IrcMessage::Capability:
-            if (!connected) {
-                IrcCapabilityMessage* capMsg = static_cast<IrcCapabilityMessage*>(msg);
-                QString subCommand = capMsg->subCommand();
-                if (subCommand == "LS") {
-                    foreach (const QString& cap, capMsg->capabilities())
-                        capabilities.insert(cap);
+        case IrcMessage::Capability: {
+            IrcCapabilityMessage* capMsg = static_cast<IrcCapabilityMessage*>(msg);
+            QString subCommand = capMsg->subCommand();
+            if (subCommand == "LS") {
+                foreach (const QString& cap, capMsg->capabilities())
+                    handleCapability(&availableCaps, cap);
 
+                if (!connected) {
                     QStringList params = capMsg->parameters();
                     if (params.value(params.count() - 1) != QLatin1String("*")) {
                         QStringList request;
-                        emit q->capabilities(capabilities.toList(), &request);
+                        emit q->capabilities(availableCaps.toList(), &request);
                         if (!request.isEmpty())
                             q->sendCommand(IrcCommand::createCapability("REQ", request));
                         else
                             q->sendData("CAP END");
                     }
-                } else if (subCommand == "ACK" || subCommand == "NAK") {
-                    q->sendData("CAP END");
                 }
+            } else if (subCommand == "ACK" || subCommand == "NAK") {
+                if (subCommand == "ACK") {
+                    foreach (const QString& cap, capMsg->capabilities())
+                        handleCapability(&activeCaps, cap);
+                }
+                if (!connected)
+                    q->sendData("CAP END");
             }
             break;
+        }
         default:
             break;
     }
