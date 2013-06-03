@@ -53,7 +53,7 @@ QString User::getSortString()
     } else {
         sortNumberPrefix = 5;
     }
-    return sortNumberPrefix + name;
+    return sortNumberPrefix + name.toLower();
 }
 
 Channel* User::getChannel() {
