@@ -76,12 +76,10 @@ void MessageParser::parse(IrcMessage *message)
             QString reason = kick->reason();
             if(user.compare(currentNickname, Qt::CaseInsensitive) == 0) {
                 // We got kicked
-                // TODO
                 server->removeChannel(channel);
                 server->appendText(QString("You have been kicked from %1 by %2 (Reason: %3)").arg(channel, user, reason));
             } else {
                 // Someone else got kicked
-                // TODO
                 Channel *targetChannel = server->getChannel(channel);
                 targetChannel->removeUser(user);
                 targetChannel->appendText(QString("%1 has been kicked by %2 (Reason: %3)").arg(user, sender, reason));
@@ -96,21 +94,27 @@ void MessageParser::parse(IrcMessage *message)
             QString argument = mode->argument();
 
             Channel *channel = server->getChannel(target);
-            if (!channel){
-                break;
+            if(channel) {
+                if(argument.length() == 0) {
+                    // Flag for a channel
+                    // TODO:  Set flags on the channel object
+                } else  {
+                    // Flags for a user in a channel
+                    User *user = channel->getUser(argument);
+                    if (modeFlag.startsWith('-', Qt::CaseInsensitive))
+                    {
+                        user->removeMode(modeFlag.at(1));
+                    }
+                    else if (modeFlag.startsWith("+", Qt::CaseInsensitive))
+                    {
+                        user->addMode(modeFlag.at(1));
+                    }
+                    channel->appendText(QString("%1 sets mode: %2 %3").arg(sender, modeFlag, argument));
+                }
+            } else if(target.compare(currentNickname) == 0) {
+                // System wide flags about ourself
+                // TODO:  Set flags about ourself on the server
             }
-            User *user = channel->getUser(argument);
-
-            if (modeFlag.startsWith('-', Qt::CaseInsensitive))
-            {
-                user->removeMode(modeFlag.at(1));
-            }
-            else if (modeFlag.startsWith("+", Qt::CaseInsensitive))
-            {
-                user->addMode(modeFlag.at(1));
-            }
-            channel->appendText(QString("%1 sets mode: %2 %3").arg(sender, modeFlag, argument));
-
             break;
         }
 
