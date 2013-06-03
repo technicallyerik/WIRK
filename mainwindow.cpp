@@ -12,6 +12,7 @@
 #include <QBuffer>
 #include <QDesktopServices>
 #include <QStandardItem>
+#include <QTimer>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -65,6 +66,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->userList->setAttribute(Qt::WA_MacShowFocusRect, 0);
     ui->treeView->setAttribute(Qt::WA_MacShowFocusRect, 0);
     ui->sendText->setAttribute(Qt::WA_MacShowFocusRect, 0);
+
+    // Setup redraw timer
+    timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), this, SLOT(refreshImages()));
+    timer->start(100);
 }
 
 MainWindow::~MainWindow()
@@ -108,6 +114,7 @@ void MainWindow::handleMessage(Server *inServer, Channel *inChannel, QString inM
                selectedChannelName.compare(inChannel->getName(), Qt::CaseInsensitive) == 0) {
                 // Channel message with channel selected
                 ui->mainText->append(inMessage);
+                scrollToBottom();
             } else {
                 if(inChannel == NULL) {
                     highlightServer(inServer, ht);
@@ -122,6 +129,7 @@ void MainWindow::handleMessage(Server *inServer, Channel *inChannel, QString inM
                inChannel == NULL) {
                 // Server message with server selected
                 ui->mainText->append(inMessage);
+                scrollToBottom();
             } else {
                 if(inChannel == NULL) {
                     highlightServer(inServer, ht);
@@ -130,7 +138,6 @@ void MainWindow::handleMessage(Server *inServer, Channel *inChannel, QString inM
                 }
             }
         }
-        scrollToBottom();
     }
 }
 
@@ -241,18 +248,20 @@ void MainWindow::imageDownloaded(QNetworkReply* networkReply)
 
     if(networkReply->url().toString().endsWith(".gif")) {
         AnimationViewModel *avm = new AnimationViewModel(bytes, url, document, this);
-        connect(avm, SIGNAL(movieAnimated()), this, SLOT(movieAnimated()), Qt::QueuedConnection);
         animations.append(avm);
     }
 
     document->addResource(QTextDocument::ImageResource, url, image);
-    ui->mainText->setLineWrapColumnOrWidth(ui->mainText->lineWrapColumnOrWidth()); // Hack to get the image to redraw
     scrollToBottom();
 }
 
-void MainWindow::movieAnimated()
+void MainWindow::refreshImages()
 {
-    ui->mainText->setLineWrapColumnOrWidth(ui->mainText->lineWrapColumnOrWidth()); // Hack to get the image to redraw
+    // This is a hack to get the images to redraw.
+    // We'd really like to call relayoutDocument(), but it's private
+    // Luckily setLineWrapColumnOrWidth doesn't check to see the value changed
+    // before calling the relayoutDocument itself.
+    ui->mainText->setLineWrapColumnOrWidth(ui->mainText->lineWrapColumnOrWidth());
 }
 
 void MainWindow::anchorClicked(QUrl url)

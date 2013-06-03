@@ -39,6 +39,7 @@ private:
     QNetworkAccessManager *networkAccessManager;
     QTextDocument *document;
     QList<AnimationViewModel *> animations;
+    QTimer *timer;
 
     void changeToServer(Server *newServer);
     void changeToChannel(Channel *newChannel);
@@ -54,7 +55,7 @@ private slots:
     void handleMessage(Server *server, Channel *channel, QString message, Channel::MessageType type);
     void imageDownloaded(QNetworkReply *networkReply);
     void anchorClicked(QUrl url);
-    void movieAnimated();
+    void refreshImages();
 
 };
 
