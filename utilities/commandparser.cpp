@@ -58,6 +58,37 @@ IrcCommand *CommandParser::parse(QString commandStr)
             }
         }
         // /KICK
+        else if(commandString.compare("kick", Qt::CaseInsensitive) == 0)
+        {
+            QStringList channels = commandRX.cap(2).split(",");
+            QStringList params = commandRX.cap(3).trimmed().split(" ");
+            QStringList users = params[0].split(",");
+            QString reason = "";
+
+            for (int i = 1; i < params.length(); i++)
+            {
+                reason.append(params[i] + " ");
+            }
+
+            Server *server = this->getServer();
+            int numOfChannels = channels.count();
+            if (numOfChannels == 1)
+            {
+                for (int userIndex = 0; userIndex < users.count(); userIndex++)
+                {
+                    IrcCommand *command = IrcCommand::createKick(channels[0], users[userIndex], reason);
+                    server->sendCommand(command);
+                }
+            }
+            else if (numOfChannels > 1)
+            {
+                for (int index = 0; index < numOfChannels && index < users.count(); index++)
+                {
+                    IrcCommand *command = IrcCommand::createKick(channels[index], users[index], reason);
+                    server->sendCommand(command);
+                }
+            }
+        }
 
         // /KNOCK
 

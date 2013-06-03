@@ -73,12 +73,17 @@ void MessageParser::parse(IrcMessage *message)
             QString channel = kick->channel();
             QString user = kick->user();
             QString reason = kick->reason();
-            if(user.compare(currentNickname, Qt::CaseInsensitive)) {
+            if(user.compare(currentNickname, Qt::CaseInsensitive) == 0) {
                 // We got kicked
                 // TODO
+                server->removeChannel(channel);
+                server->appendText(QString("You have been kicked from %1 by %2 (Reason: %3)").arg(channel, user, reason));
             } else {
                 // Someone else got kicked
                 // TODO
+                Channel *targetChannel = server->getChannel(channel);
+                targetChannel->removeUser(user);
+                targetChannel->appendText(QString("%1 has been kicked by %2 (Reason: %3)").arg(user, sender, reason));
             }
             break;
         }
