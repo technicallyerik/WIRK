@@ -75,17 +75,31 @@ QStandardItemModel* Channel::getUsers() {
 }
 
 void Channel::addUsers(QStringList inUsers) {
+    QRegExp nickRegex("^(~|&|@|%|\\+)?(.*)");
     for (int i = 0; i < inUsers.count(); i++) {
         QString newUserName = inUsers[i];
-        this->addUser(newUserName);
+        int pos = nickRegex.indexIn(newUserName);
+        QString namePart;
+        QChar flagPart;
+        if(pos > -1) {
+            QString flagPartString = nickRegex.cap(1);
+            if(flagPartString.length() > 0) {
+                flagPart = nickRegex.cap(1).at(0);
+            }
+            namePart = nickRegex.cap(2);
+        } else {
+            namePart = newUserName;
+        }
+        this->addUser(namePart, flagPart);
     }
 }
 
-User* Channel::addUser(QString inUser) {
+User* Channel::addUser(QString inUser, QChar prefix) {
     QStandardItem *newMenuItem = new QStandardItem();
-    User *newUser = new User(inUser.toLower(), newMenuItem, this);
+    User *newUser = new User(inUser.toLower(), prefix, newMenuItem, this);
     newMenuItem->setData(QVariant::fromValue<User*>(newUser), Qt::UserRole);
     users->appendRow(newMenuItem);
+    users->setSortRole(User::UserDataSort);
     users->sort(0);
     return newUser;
 }
@@ -102,9 +116,10 @@ void Channel::removeUser(QString inUser) {
 
 QStandardItem* Channel::getUserMenuItem(QString inUser)
 {
-    QList<QStandardItem*> foundUsers = users->findItems(inUser.toLower());
+    QModelIndex startIndex = users->index(0, 0);
+    QModelIndexList foundUsers = users->match(startIndex, User::UserDataName, inUser, -1, Qt::MatchExactly);
     if(foundUsers.count() == 1) {
-        QStandardItem *user = foundUsers[0];
+        QStandardItem *user = users->itemFromIndex(foundUsers.at(0));
         return user;
     }
     return NULL;

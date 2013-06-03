@@ -62,7 +62,7 @@ void MessageParser::parse(IrcMessage *message)
             } else {
                 // Another user joined
                 Channel *channel = this->getChannel(targetChannel);
-                channel->addUser(sender);
+                channel->addUser(sender, QChar::Null);
                 channel->appendText(QString("%1 has joined %2").arg(sender, targetChannel));
             }
             break;
@@ -677,7 +677,7 @@ QString MessageParser::styleString(QString fullMessage) {
 
     // Postpend post with images in image tags
     QString postpendedImageTags = "";
-    QRegExp imageRegex(".*(href=\"(([^>]+)\.(jpg|png|gif))\").*"); // this warning is a lie
+    QRegExp imageRegex(".*(href=\"(([^>]+)\\.(jpg|png|gif))\").*");
     int pos = 0;
     while ((pos = imageRegex.indexIn(fullMessage, pos)) != -1) {
         QString imageUrl = imageRegex.cap(2);

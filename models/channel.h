@@ -2,6 +2,7 @@
 #define CHANNEL_H
 
 #include <QStandardItem>
+#include <QChar>
 
 class Server;
 class User;
@@ -35,7 +36,7 @@ public:
 
     QStandardItemModel* getUsers();
     void addUsers(QStringList inUsers);
-    User* addUser(QString inUser);
+    User* addUser(QString inUser, QChar prefix);
     void removeUser(QString inUser);
     QStandardItem* getUserMenuItem(QString inUser);
     User* getUser(QString inUser);
