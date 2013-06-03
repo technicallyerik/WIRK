@@ -13,6 +13,7 @@
 #include <QDesktopServices>
 #include <QStandardItem>
 #include <QTimer>
+#include "preferences.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -71,6 +72,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(refreshImages()));
     timer->start(100);
+
+    // Setup menu items
+    connect(ui->actionPreferences, SIGNAL(triggered()), this, SLOT(openPreferences()));
 }
 
 MainWindow::~MainWindow()
@@ -270,4 +274,10 @@ void MainWindow::anchorClicked(QUrl url)
         url.setUrl("http://" + url.toString());
     }
     QDesktopServices::openUrl(url);
+}
+
+void MainWindow::openPreferences()
+{
+    Preferences dialog(this);
+    dialog.exec();
 }

@@ -58,7 +58,8 @@ SOURCES += main.cpp\
     models/user.cpp \
     utilities/messageparser.cpp \
     utilities/commandparser.cpp \
-    viewmodels/animationviewmodel.cpp
+    viewmodels/animationviewmodel.cpp \
+    preferences.cpp
 
 HEADERS  += mainwindow.h \
     ext_lib/communi/irctextformat.h \
@@ -101,9 +102,11 @@ HEADERS  += mainwindow.h \
     models/user.h \
     utilities/messageparser.h \
     utilities/commandparser.h \
-    viewmodels/animationviewmodel.h
+    viewmodels/animationviewmodel.h \
+    preferences.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    preferences.ui
 
 OTHER_FILES += \
     ext_lib/uchardet/JISFreq.tab \

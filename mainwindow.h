@@ -56,6 +56,7 @@ private slots:
     void imageDownloaded(QNetworkReply *networkReply);
     void anchorClicked(QUrl url);
     void refreshImages();
+    void openPreferences();
 
 };
 
