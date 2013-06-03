@@ -117,9 +117,13 @@ void MessageParser::parse(IrcMessage *message)
             QString target = notice->target();
             QString styledMessage = this->styleString(message);
             Channel *channel = this->getChannel(target);
+            Channel *senderChannel = this->getChannel(sender);
             if(channel != NULL) {
                 // Notice about channel
                 channel->appendText(QString("Notice: %1").arg(styledMessage));
+            } else if(senderChannel != NULL) {
+                // Notice from service
+                senderChannel->appendText(sender, styledMessage);
             } else if(target.compare(currentNickname, Qt::CaseInsensitive) == 0) {
                 // Notice to self
                 server->appendText(QString("Notice: %1").arg(styledMessage));
