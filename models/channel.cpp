@@ -99,9 +99,14 @@ User* Channel::addUser(QString inUser, QChar prefix) {
     User *newUser = new User(inUser, prefix, newMenuItem, this);
     newMenuItem->setData(QVariant::fromValue<User*>(newUser), Qt::UserRole);
     users->appendRow(newMenuItem);
+    this->sortUsers();
+    return newUser;
+}
+
+void Channel::sortUsers()
+{
     users->setSortRole(User::UserDataSort);
     users->sort(0);
-    return newUser;
 }
 
 void Channel::removeUser(QString inUser) {

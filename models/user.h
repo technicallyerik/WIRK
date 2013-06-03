@@ -30,7 +30,7 @@ public:
     QSet<QChar> getModes();
     void addMode(QChar mode);
     void removeMode(QChar mode);
-    void setDisplayMode();
+    void refreshUserDisplay();
     QChar getModeDisplayString();
     char convertFlagToDisplayMode(QChar flag);
 

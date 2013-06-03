@@ -31,14 +31,15 @@ QSet<QChar> User::getModes()
     return modes;
 }
 
-void User::setDisplayMode()
+void User::refreshUserDisplay()
 {
     QString mode = this->getModeDisplayString();
-
     menuItem->setText(mode + name);
+
     QString sortString = getSortString();
     menuItem->setData(sortString, UserDataSort);
-    this->getChannel()->getUsers()->sort(0);
+    Channel *channel = this->getChannel();
+    channel->sortUsers();
 }
 
 QChar User::getModeDisplayString()
@@ -72,14 +73,13 @@ void User::addMode(QChar mode)
         mode = 'v';
 
     modes.insert(mode);
-    this->getMenuItem()->setData(this->getSortString(), UserDataSort);
-    this->setDisplayMode();
+    this->refreshUserDisplay();
 }
 
 void User::removeMode(QChar mode)
 {
     modes.remove(mode);
-    this->setDisplayMode();
+    this->refreshUserDisplay();
 }
 
 QString User::getSortString()

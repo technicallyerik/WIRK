@@ -38,6 +38,7 @@ public:
     void addUsers(QStringList inUsers);
     User* addUser(QString inUser, QChar prefix);
     void removeUser(QString inUser);
+    void sortUsers();
     QStandardItem* getUserMenuItem(QString inUser);
     User* getUser(QString inUser);
 
