@@ -16,17 +16,16 @@ class AnimationViewModel : public QThread
 public:
     explicit AnimationViewModel(QByteArray bytes, QUrl url, QTextDocument *document, QObject *parent = 0);
 
-signals:
-    void movieAnimated();
-
 private slots:
     void movieAnimated(int frame);
 
 private:
-    QBuffer buffer;
-    QMovie* movie;
+    void run();
+    QByteArray movieBits;
     QUrl movieUrl;
     QTextDocument *textDocument;
+
+    QMovie *movie;
 };
 
 #endif // ANIMATIONVIEWMODEL_H

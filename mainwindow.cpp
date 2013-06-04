@@ -14,6 +14,8 @@
 #include <QStandardItem>
 #include <QTimer>
 #include "preferences.h"
+#include <QDebug>
+#include <QThread>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -252,6 +254,7 @@ void MainWindow::imageDownloaded(QNetworkReply* networkReply)
 
     if(networkReply->url().toString().endsWith(".gif")) {
         AnimationViewModel *avm = new AnimationViewModel(bytes, url, document, this);
+        avm->start();
         animations.append(avm);
     }
 
