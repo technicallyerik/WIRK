@@ -16,6 +16,8 @@
 #include "preferences.h"
 #include <QDebug>
 #include <QThread>
+#include <QAbstractTextDocumentLayout>
+#include <QTextBlock>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -265,16 +267,23 @@ void MainWindow::imageDownloaded(QNetworkReply* networkReply)
 
 void MainWindow::refreshImages()
 {
-    // This is a hack to get the images to redraw.
-    // We'd really like to call relayoutDocument(), but it's private
-    // Luckily setLineWrapColumnOrWidth doesn't check to see the value changed
-    // before calling the relayoutDocument itself.
-    ui->mainText->setLineWrapColumnOrWidth(ui->mainText->lineWrapColumnOrWidth());
+    // I think it's more efficient to change the block of the movie
+    // that animated instead of consistently refresh the whole document.
+    // See:  movieChanged()
+    //document->markContentsDirty(0, document->characterCount());
 }
 
 void MainWindow::movieChanged(QPixmap pixels, QUrl url)
 {
     document->addResource(QTextDocument::ImageResource, url, pixels);
+
+    QTextCursor cursor = document->find(url.toString());
+    if(cursor.position() > -1) {
+        QTextBlock block = document->findBlock(cursor.position());
+        if(block.position() > -1 && block.length() > 0) {
+            document->markContentsDirty(block.position(), block.length());
+        }
+    }
 }
 
 void MainWindow::anchorClicked(QUrl url)
