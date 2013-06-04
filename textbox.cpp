@@ -12,7 +12,6 @@ TextBox::TextBox(QWidget *parent) : QLineEdit(parent)
 TextBox::~TextBox()
 {
     delete messageHistory;
-    QLineEdit::~QLineEdit();
 }
 
 void TextBox::keyPressEvent(QKeyEvent *event)
