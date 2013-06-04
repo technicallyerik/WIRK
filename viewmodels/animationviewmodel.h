@@ -19,12 +19,16 @@ public:
 private slots:
     void movieAnimated(int frame);
 
+signals:
+    void movieChanged(QPixmap pixels, QUrl url);
+
 private:
     void run();
     QByteArray movieBits;
     QUrl movieUrl;
     QTextDocument *textDocument;
 
+    QBuffer buffer;
     QMovie *movie;
 };
 

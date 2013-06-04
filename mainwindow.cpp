@@ -73,7 +73,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     // Setup redraw timer
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(refreshImages()));
-    timer->start(100);
+    timer->start(150);
 
     // Setup menu items
     connect(ui->actionPreferences, SIGNAL(triggered()), this, SLOT(openPreferences()));
@@ -254,6 +254,7 @@ void MainWindow::imageDownloaded(QNetworkReply* networkReply)
 
     if(networkReply->url().toString().endsWith(".gif")) {
         AnimationViewModel *avm = new AnimationViewModel(bytes, url, document, this);
+        connect(avm, SIGNAL(movieChanged(QPixmap, QUrl)), this, SLOT(movieChanged(QPixmap, QUrl)), Qt::QueuedConnection);
         avm->start();
         animations.append(avm);
     }
@@ -269,6 +270,11 @@ void MainWindow::refreshImages()
     // Luckily setLineWrapColumnOrWidth doesn't check to see the value changed
     // before calling the relayoutDocument itself.
     ui->mainText->setLineWrapColumnOrWidth(ui->mainText->lineWrapColumnOrWidth());
+}
+
+void MainWindow::movieChanged(QPixmap pixels, QUrl url)
+{
+    document->addResource(QTextDocument::ImageResource, url, pixels);
 }
 
 void MainWindow::anchorClicked(QUrl url)

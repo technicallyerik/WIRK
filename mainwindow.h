@@ -56,8 +56,8 @@ private slots:
     void imageDownloaded(QNetworkReply *networkReply);
     void anchorClicked(QUrl url);
     void refreshImages();
+    void movieChanged(QPixmap pixels, QUrl url);
     void openPreferences();
-
 };
 
 #endif // MAINWINDOW_H

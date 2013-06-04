@@ -14,7 +14,6 @@ AnimationViewModel::AnimationViewModel(QByteArray bytes, QUrl url, QTextDocument
 
 void AnimationViewModel::run()
 {
-    QBuffer buffer;
     buffer.open(QBuffer::ReadWrite);
     buffer.write(movieBits);
     buffer.seek(0);
@@ -36,5 +35,5 @@ void AnimationViewModel::run()
 void AnimationViewModel::movieAnimated(int frame)
 {
     QPixmap map = movie->currentPixmap();
-    textDocument->addResource(QTextDocument::ImageResource, movieUrl, map);
+    emit(movieChanged(map, movieUrl));
 }
