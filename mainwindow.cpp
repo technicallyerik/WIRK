@@ -180,7 +180,7 @@ void MainWindow::sendMessage()
 {
     QModelIndexList selectedItems = ui->treeView->selectionModel()->selectedIndexes();
     QString text = ui->sendText->text();
-    if(selectedItems.count() == 1) {
+    if(selectedItems.count() == 1 && text.length() > 0) {
         QModelIndex selectedItem = selectedItems[0];
         QVariant data = selectedItem.data(Qt::UserRole);
         if(data.canConvert<Channel*>()) {
