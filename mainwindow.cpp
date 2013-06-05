@@ -80,6 +80,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     // Setup menu items
     connect(ui->actionPreferences, SIGNAL(triggered()), this, SLOT(openPreferences()));
+
+    // Right-click menu test
+    ui->treeView->setContextMenuPolicy(Qt::ActionsContextMenu);
+    QAction *testMenuItem = new QAction("Test", ui->treeView);
+    ui->treeView->addAction(testMenuItem);
 }
 
 MainWindow::~MainWindow()
