@@ -34,6 +34,9 @@ public:
     void appendText(QString text);
     void appendText(QString sender, QString text, MessageType type = Channel::Default);
 
+    bool getIsJoined();
+    void setIsJoined(bool isJoined);
+
     QStandardItemModel* getUsers();
     void addUsers(QStringList inUsers);
     User* addUser(QString inUser, QChar prefix);
@@ -50,6 +53,7 @@ private:
     QString text;
     QStandardItemModel *users;
     QStandardItem *menuItem;
+    bool isJoined;
 };
 
 #endif // CHANNEL_H

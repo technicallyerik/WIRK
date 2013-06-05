@@ -28,16 +28,18 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     // Setup servers
     session = new Session(this);
     // TODO:  Get from settings
-    session->addServer("irc.freenode.net",  // host
+    Server *server = session->addServer("irc.freenode.net",  // host
                        7000,                // port
                        "wirktest1234",       // username
                        "wirktest1234",       // nickname
                        "WIRK Test",         // real name
                        "",                  // password
                        true);               // is ssl
+    server->openConnection();
 
     // Hook up session messages
     connect(session, SIGNAL(messageReceived(Server*,Channel*,QString,Channel::MessageType)), this, SLOT(handleMessage(Server*,Channel*,QString,Channel::MessageType)));
+    connect(session, SIGNAL(selectItem(QModelIndex)), this, SLOT(selectItem(QModelIndex)));
 
     // Hook up user interactions
     connect(ui->sendText, SIGNAL(returnPressed()), this, SLOT(sendMessage()));
@@ -56,9 +58,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     // Set focus on first server
     QModelIndex modelIndex = session->index(0, 0);
     ui->treeView->selectionModel()->select(modelIndex, QItemSelectionModel::ClearAndSelect);
-    QVariant data = modelIndex.data(Qt::UserRole);
-    Server *server = data.value<Server*>();
-    this->changeToServer(server);
+    this->treeItemClicked(modelIndex);
 
     // Setup network manager
     networkAccessManager = new QNetworkAccessManager(this);
@@ -213,6 +213,13 @@ void MainWindow::sendMessage()
         }
         ui->sendText->setText("");
     }
+}
+
+void MainWindow::selectItem(QModelIndex index)
+{
+    ui->treeView->expandAll();
+    ui->treeView->selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
+    this->treeItemClicked(index);
 }
 
 void MainWindow::treeItemClicked(const QModelIndex& index)

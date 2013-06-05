@@ -18,6 +18,10 @@ Server::Server(QStandardItem *inMenuItem, Session *parent) : QObject(parent)
     connect(ircSession, SIGNAL(socketError(QAbstractSocket::SocketError)), this, SLOT(processError(QAbstractSocket::SocketError)));
     connect(ircSession, SIGNAL(nickNameChanged(const QString&)), this, SLOT(nickNameChanged(const QString&)));
     connect(ircSession, SIGNAL(password(QString*)), this, SLOT(passwordRequested(QString*)));
+    connect(ircSession, SIGNAL(connecting()), this, SLOT(connecting()));
+    connect(ircSession, SIGNAL(connected()), this, SLOT(connected()));
+    connect(ircSession, SIGNAL(disconnected()), this, SLOT(disconnected()));
+    this->disconnected();
 }
 
 Server::~Server()
@@ -215,8 +219,43 @@ QStandardItem* Server::getMenuItem()
     return menuItem;
 }
 
-void Server::openConnection() {
+void Server::connecting()
+{
+    this->appendText("Connecting...");
+}
+
+void Server::connected()
+{
+    this->appendText("Connected.");
+    menuItem->setForeground(QBrush((QColor(255,255,255))));
+}
+
+void Server::disconnected()
+{
+    this->appendText("Disconnected.");
+    menuItem->setForeground(QBrush((QColor(125,125,125))));
+    int totalMenuItems = menuItem->rowCount()-1;
+    for(int i = totalMenuItems; i >= 0; i--) {
+        QStandardItem *channelMenuItem = this->menuItem->child(i);
+        QVariant data = channelMenuItem->data(Qt::UserRole);
+        Channel* channel = data.value<Channel*>();
+        channel->setIsJoined(false);
+    }
+}
+
+bool Server::getIsConnected()
+{
+    return ircSession->isConnected();
+}
+
+void Server::openConnection()
+{
     ircSession->open();
+}
+
+void Server::closeConnection()
+{
+    ircSession->close();
 }
 
 void Server::sendMessage(QString message) {

@@ -64,12 +64,18 @@ public:
     Session* getSession();
     QStandardItem* getMenuItem();
 
+    bool getIsConnected();
     void openConnection();
+    void closeConnection();
+
     void sendMessage(QString command);
     void sendChannelMessage(QString channel, QString message);
     void sendCommand(IrcCommand *command);
 
 private slots:
+    void connecting();
+    void connected();
+    void disconnected();
     void processMessage(IrcMessage *message);
     void processError(QAbstractSocket::SocketError error);
     void nickNameChanged(const QString &name);
@@ -84,6 +90,8 @@ private:
     QString password;
     bool ssl;
     QString text;
+
+    bool isConnected;
 
     IrcSession *ircSession;
     MessageParser *messageParser;

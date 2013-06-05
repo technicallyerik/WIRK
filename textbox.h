@@ -13,7 +13,7 @@ public:
     virtual ~TextBox();
 
 protected:
-    void keyPressEvent(QKeyEvent *event) override;
+    void keyPressEvent(QKeyEvent *event);
     
 signals:
     

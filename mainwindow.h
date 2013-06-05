@@ -58,6 +58,7 @@ private slots:
     void refreshImages();
     void movieChanged(QPixmap pixels, QUrl url);
     void openPreferences();
+    void selectItem(QModelIndex index);
 };
 
 #endif // MAINWINDOW_H

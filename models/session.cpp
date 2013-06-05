@@ -23,7 +23,6 @@ Server* Session::addServer(QString host, int port, QString username, QString nic
     server->setRealname(realname);
     server->setPassword(password);
     server->setSSL(isSSL);
-    server->openConnection();
     newMenuItem->setData(QVariant::fromValue<Server*>(server), Qt::UserRole);
     this->appendRow(newMenuItem);
     newMenuItem->setFlags(newMenuItem->flags() & ~Qt::ItemIsEditable);
@@ -60,6 +59,16 @@ Server* Session::getServer(QString inServer)
         return data.value<Server*>();
     }
     return NULL;
+}
+
+void Session::selectItem(QString string)
+{
+    QList<QStandardItem*> foundItems = this->findItems(string, Qt::MatchExactly | Qt::MatchRecursive);
+    if(foundItems.count() == 1) {
+        QStandardItem *item = foundItems[0];
+        QModelIndex index = item->index();
+        emit(selectItem(index));
+    }
 }
 
 void Session::emitMessageReceived(Server *server, Channel *channel, QString message, Channel::MessageType type) {

@@ -7,6 +7,7 @@ class Server;
 class Channel;
 class IrcMessage;
 class IrcNumericMessage;
+class Session;
 
 class MessageParser : public QObject
 {
@@ -18,6 +19,7 @@ public:
     QString parseNumeric(IrcNumericMessage *message);
     QString styleString(QString fullMessage);
 
+    Session* getSession();
     Server* getServer();
     Channel* getChannel(QString name);
 };

@@ -9,6 +9,7 @@ Channel::Channel(QString inName, QStandardItem *inMenuItem, Server *parent) : QO
     users = new QStandardItemModel(this);
     menuItem = inMenuItem;
     this->setName(inName);
+    this->setIsJoined(false);
 }
 
 Channel::~Channel()
@@ -68,6 +69,22 @@ void Channel::appendText(QString sender, QString inText, MessageType type) {
     text += tableRow;
     Session *session = server->getSession();
     session->emitMessageReceived(server, this, tableRow, type);
+}
+
+bool Channel::getIsJoined()
+{
+    return isJoined;
+}
+
+void Channel::setIsJoined(bool inIsJoined)
+{
+    isJoined = inIsJoined;
+    if(isJoined) {
+        menuItem->setForeground(QBrush((QColor(255,255,255))));
+    } else {
+        menuItem->setForeground(QBrush((QColor(125,125,125))));
+        users->clear();
+    }
 }
 
 QStandardItemModel* Channel::getUsers() {

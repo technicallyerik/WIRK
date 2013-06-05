@@ -59,7 +59,15 @@ void MessageParser::parse(IrcMessage *message)
             QString targetChannel = join->channel();
             if (senderIsSelf) {
                 // Current user joined
-                server->addChannel(targetChannel);
+                Channel *channel = this->getChannel(targetChannel);
+                if(!channel) {
+                    channel = server->addChannel(targetChannel);
+                } else {
+                    channel->appendText(QString("You have joined %1").arg(targetChannel));
+                }
+                channel->setIsJoined(true);
+                Session* session = this->getSession();
+                session->selectItem(targetChannel);
             } else {
                 // Another user joined
                 Channel *channel = this->getChannel(targetChannel);
@@ -74,13 +82,13 @@ void MessageParser::parse(IrcMessage *message)
             QString channel = kick->channel();
             QString user = kick->user();
             QString reason = kick->reason();
+            Channel *targetChannel = server->getChannel(channel);
             if(user.compare(currentNickname, Qt::CaseInsensitive) == 0) {
                 // We got kicked
-                server->removeChannel(channel);
-                server->appendText(QString("You have been kicked from %1 by %2 (Reason: %3)").arg(channel, user, reason));
+                targetChannel->setIsJoined(false);
+                targetChannel->appendText(QString("You have been kicked from %1 by %2 (Reason: %3)").arg(channel, user, reason));
             } else {
                 // Someone else got kicked
-                Channel *targetChannel = server->getChannel(channel);
                 targetChannel->removeUser(user);
                 targetChannel->appendText(QString("%1 has been kicked by %2 (Reason: %3)").arg(user, sender, reason));
             }
@@ -168,13 +176,13 @@ void MessageParser::parse(IrcMessage *message)
             IrcPartMessage *part = static_cast<IrcPartMessage*>(message);
             QString targetChannel = part->channel();
             QString reason = part->reason();
+            Channel *channel = this->getChannel(targetChannel);
             if(senderIsSelf) {
                 // Current user left
-                Server *server = this->getServer();
-                server->removeChannel(targetChannel);
+                channel->setIsJoined(false);
+                channel->appendText(QString("You have left %1").arg(targetChannel));
             } else {
                 // Other user left
-                Channel *channel = this->getChannel(targetChannel);
                 channel->removeUser(sender);
                 QString partMessage = QString("%1 has left %2").arg(sender, targetChannel);
                 if (!reason.trimmed().isEmpty())
@@ -714,6 +722,11 @@ QString MessageParser::styleString(QString fullMessage) {
     fullMessage += postpendedImageTags;
 
     return fullMessage;
+}
+
+Session* MessageParser::getSession() {
+   Server *server = this->getServer();
+   return server->getSession();
 }
 
 Server* MessageParser::getServer() {
