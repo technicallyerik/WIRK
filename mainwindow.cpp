@@ -93,9 +93,13 @@ void MainWindow::handleMessage(Server *inServer, Channel *inChannel, QString inM
     QRegExp imageRegex(".*(src=\"(([^>]+)\\.(jpg|png|gif))\").*");
     int pos = 0;
     while ((pos = imageRegex.indexIn(inMessage, pos)) != -1) {
-        QUrl url(imageRegex.cap(2));
-        QNetworkRequest request(url);
-        networkAccessManager->get(request);
+        QString urlString = imageRegex.cap(2);
+        QVariant existingResource = document->resource(QTextDocument::ImageResource, urlString);
+        if(existingResource.isNull()) {
+            QUrl url(urlString);
+            QNetworkRequest request(url);
+            networkAccessManager->get(request);
+        }
         pos += imageRegex.matchedLength();
     }
 
