@@ -59,7 +59,9 @@ SOURCES += main.cpp\
     utilities/messageparser.cpp \
     utilities/commandparser.cpp \
     viewmodels/animationviewmodel.cpp \
-    preferences.cpp
+    preferences.cpp \
+    models/messagehistory.cpp \
+    textbox.cpp
 
 HEADERS  += mainwindow.h \
     ext_lib/communi/irctextformat.h \
@@ -103,7 +105,9 @@ HEADERS  += mainwindow.h \
     utilities/messageparser.h \
     utilities/commandparser.h \
     viewmodels/animationviewmodel.h \
-    preferences.h
+    preferences.h \
+    models/messagehistory.h \
+    textbox.h
 
 FORMS    += mainwindow.ui \
     preferences.ui
