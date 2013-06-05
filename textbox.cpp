@@ -6,12 +6,12 @@
 
 TextBox::TextBox(QWidget *parent) : QLineEdit(parent)
 {
-    messageHistory = new MessageHistory();
+    messageHistory = new MessageHistory(this);
 }
 
 TextBox::~TextBox()
 {
-    delete messageHistory;
+
 }
 
 void TextBox::keyPressEvent(QKeyEvent *event)

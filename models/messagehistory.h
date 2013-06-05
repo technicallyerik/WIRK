@@ -3,7 +3,7 @@
 
 #include <QStandardItemModel>
 
-class MessageHistory : public QStandardItemModel
+class MessageHistory : public QObject
 {
     Q_OBJECT
 public:

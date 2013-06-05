@@ -1,6 +1,6 @@
 #include "messagehistory.h"
 
-MessageHistory::MessageHistory(QObject *parent) : QStandardItemModel(parent)
+MessageHistory::MessageHistory(QObject *parent) : QObject(parent)
 {
     messageIndex = 0;
     sentMessages = QStringList();

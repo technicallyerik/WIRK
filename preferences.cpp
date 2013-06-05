@@ -9,14 +9,13 @@ const QString Preferences::settingsFileName = "wirk.ini";
 Preferences::Preferences(QWidget *parent) : QDialog(parent), ui(new Ui::Preferences)
 {
     ui->setupUi(this);
-    settings = new QSettings(settingsFileName, QSettings::IniFormat);
+    settings = new QSettings(settingsFileName, QSettings::IniFormat, this);
     readSettings();
 }
 
 Preferences::~Preferences()
 {
     delete ui;
-    delete settings;
 }
 
 void Preferences::accept()
