@@ -18,6 +18,7 @@
 #include <QThread>
 #include <QAbstractTextDocumentLayout>
 #include <QTextBlock>
+#include <QScrollBar>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -262,6 +263,7 @@ void MainWindow::imageDownloaded(QNetworkReply* networkReply)
     }
 
     document->addResource(QTextDocument::ImageResource, url, image);
+    document->markContentsDirty(0, document->characterCount());
     scrollToBottom();
 }
 
@@ -277,11 +279,26 @@ void MainWindow::movieChanged(QPixmap pixels, QUrl url)
 {
     document->addResource(QTextDocument::ImageResource, url, pixels);
 
+    // Find the location of the URL in the text
     QTextCursor cursor = document->find(url.toString());
-    if(cursor.position() > -1) {
-        QTextBlock block = document->findBlock(cursor.position());
-        if(block.position() > -1 && block.length() > 0) {
-            document->markContentsDirty(block.position(), block.length());
+    int cursorPosition = cursor.position();
+    if(cursorPosition > -1) {
+        // Find the location and size of the block containing the url
+        QTextBlock block = document->findBlock(cursorPosition);
+        int blockStart = block.position();
+        int blockLength = block.length();
+        int blockEnd = blockStart + blockLength;
+        if(blockStart > -1 && blockLength > 0) {
+            // Make sure the image is scrolled into view
+            QRect viewport = ui->mainText->viewport()->visibleRegion().boundingRect();
+            QPoint scrollStartPoint = viewport.topLeft();
+            QPoint scrollEndPoint = viewport.bottomRight();
+            int scrollStartCursorPosition = ui->mainText->cursorForPosition(scrollStartPoint).position();
+            int scrollEndCursorPosition = ui->mainText->cursorForPosition(scrollEndPoint).position();
+            if((blockEnd > scrollStartCursorPosition) &&
+               (blockStart < scrollEndCursorPosition)) {
+                document->markContentsDirty(blockStart, blockLength);
+            }
         }
     }
 }
