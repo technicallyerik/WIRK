@@ -15,12 +15,14 @@ public:
     virtual ~Session();
     
     Server* addServer(QString host, int port, QString username, QString nickname, QString realname, QString password, bool isSSL);
-    void removeServer(QString inServer);
     QStandardItem* getServerMenuItem(QString inServer);
     Server* getServer(QString inServer);
 
     void selectItem(QString string);
     void emitMessageReceived(Server *server, Channel *channel, QString message, Channel::MessageType type = Channel::Default);
+
+public slots:
+    void removeServer(QString inServer);
 
 signals:
     void messageReceived(Server *server, Channel *channel, QString message, Channel::MessageType type);

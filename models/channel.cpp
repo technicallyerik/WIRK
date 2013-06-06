@@ -2,6 +2,7 @@
 #include "server.h"
 #include "user.h"
 #include "session.h"
+#include "irccommand.h"
 
 Channel::Channel(QString inName, QStandardItem *inMenuItem, Server *parent) : QObject(parent)
 {
@@ -85,6 +86,20 @@ void Channel::setIsJoined(bool inIsJoined)
         menuItem->setForeground(QBrush((QColor(125,125,125))));
         users->clear();
     }
+}
+
+void Channel::join()
+{
+    Server *server = this->getServer();
+    IrcCommand *command = IrcCommand::createJoin(name, NULL);
+    server->sendCommand(command);
+}
+
+void Channel::part()
+{
+    Server *server = this->getServer();
+    IrcCommand *command = IrcCommand::createPart(name, NULL);
+    server->sendCommand(command);
 }
 
 QStandardItemModel* Channel::getUsers() {

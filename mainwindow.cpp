@@ -19,6 +19,8 @@
 #include <QAbstractTextDocumentLayout>
 #include <QTextBlock>
 #include <QScrollBar>
+#include <QSignalMapper>
+#include <QAction>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -81,10 +83,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     // Setup menu items
     connect(ui->actionPreferences, SIGNAL(triggered()), this, SLOT(openPreferences()));
 
-    // Right-click menu test
-    ui->treeView->setContextMenuPolicy(Qt::ActionsContextMenu);
-    QAction *testMenuItem = new QAction("Test", ui->treeView);
-    ui->treeView->addAction(testMenuItem);
+    // Enable right-click on the tree
+    ui->treeView->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui->treeView, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(generateContextMenu(const QPoint &)));
 }
 
 MainWindow::~MainWindow()
@@ -237,6 +238,50 @@ void MainWindow::treeItemClicked(const QModelIndex& index)
         Server *server = data.value<Server*>();
         this->changeToServer(server);
     }
+}
+
+void MainWindow::generateContextMenu(const QPoint &point)
+{
+    QModelIndex modelIndex = ui->treeView->indexAt(point);
+    QVariant data = modelIndex.data(Qt::UserRole);
+    QMenu menu;
+
+    if(data.canConvert<Channel*>()) {
+
+        Channel *channel = data.value<Channel*>();
+        Server *server = channel->getServer();
+
+        if(channel->getIsJoined()) {
+            menu.addAction("Part", channel, SLOT(part()));
+        } else {
+            menu.addAction("Join", channel, SLOT(join()));
+
+            QAction *removeAction = menu.addAction("Remove");
+            QSignalMapper *removeMapper = new QSignalMapper(this);
+            removeMapper->setMapping(removeAction, channel->getName());
+            connect(removeAction, SIGNAL(triggered()), removeMapper, SLOT(map()));
+            connect(removeMapper, SIGNAL(mapped(const QString &)), server, SLOT(removeChannel(const QString &)));
+        }
+
+    } else if(data.canConvert<Server*>()) {
+
+        Server *server = data.value<Server*>();
+
+        if(server->getIsConnected()) {
+            menu.addAction("Disconnect", server, SLOT(closeConnection()));
+        } else {
+            menu.addAction("Connect", server, SLOT(openConnection()));
+
+            QAction *removeAction = menu.addAction("Remove");
+            QSignalMapper *removeMapper = new QSignalMapper(this);
+            removeMapper->setMapping(removeAction, server->getHost());
+            connect(removeAction, SIGNAL(triggered()), removeMapper, SLOT(map()));
+            connect(removeMapper, SIGNAL(mapped(const QString &)), session, SLOT(removeServer(const QString &)));
+        }
+
+    }
+
+    menu.exec(ui->treeView->viewport()->mapToGlobal(point));
 }
 
 void MainWindow::scrollToBottom()

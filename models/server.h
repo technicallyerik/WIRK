@@ -54,7 +54,6 @@ public:
     void appendText(QString text);
 
     Channel* addChannel(QString inChannel);
-    void removeChannel(QString inChannel);
     void partAllChannels();
     QStandardItem* getChannelMenuItem(QString inChannel);
     Channel* getChannel(QString inChannel);
@@ -65,12 +64,15 @@ public:
     QStandardItem* getMenuItem();
 
     bool getIsConnected();
-    void openConnection();
-    void closeConnection();
 
     void sendMessage(QString command);
     void sendChannelMessage(QString channel, QString message);
     void sendCommand(IrcCommand *command);
+
+public slots:
+    void removeChannel(QString inChannel);
+    void openConnection();
+    void closeConnection();
 
 private slots:
     void connecting();

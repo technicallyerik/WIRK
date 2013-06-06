@@ -48,6 +48,10 @@ public:
     Server* getServer();
     QStandardItem* getMenuItem();
 
+public slots:
+    void join();
+    void part();
+
 private:
     QString name;
     QString text;

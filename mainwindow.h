@@ -59,6 +59,7 @@ private slots:
     void movieChanged(QPixmap pixels, QUrl url);
     void openPreferences();
     void selectItem(QModelIndex index);
+    void generateContextMenu(const QPoint &point);
 };
 
 #endif // MAINWINDOW_H
