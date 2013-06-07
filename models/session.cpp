@@ -132,6 +132,7 @@ void Session::writeToSettings()
     settings->endArray();
 }
 
+// TODO:  Need to account for multiple servers with same channel
 void Session::selectItem(QString string)
 {
     QList<QStandardItem*> foundItems = this->findItems(string, Qt::MatchExactly | Qt::MatchRecursive);

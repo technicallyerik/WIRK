@@ -170,11 +170,15 @@ void Server::partAllChannels()
 
 QStandardItem* Server::getChannelMenuItem(QString inChannel)
 {
-    Session *session = this->getSession();
-    QList<QStandardItem*> foundChannels = session->findItems(inChannel, Qt::MatchExactly | Qt::MatchRecursive);
-    if(foundChannels.count() == 1) {
-        QStandardItem *channel = foundChannels[0];
-        return channel;
+    QStandardItem *firstChild = menuItem->child(0);
+    if(firstChild) {
+        QModelIndex startIndex = firstChild->index();
+        Session *session = this->getSession();
+        QModelIndexList foundChannels = session->match(startIndex, Qt::DisplayRole, inChannel, -1, Qt::MatchExactly);
+        if(foundChannels.count() == 1) {
+            QStandardItem *channel = session->itemFromIndex(foundChannels.at(0));
+            return channel;
+        }
     }
     return NULL;
 }
