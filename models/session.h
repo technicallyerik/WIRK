@@ -6,6 +6,7 @@
 
 class Server;
 class Channel;
+class QSettings;
 
 class Session : public QStandardItemModel
 {
@@ -21,8 +22,15 @@ public:
     void selectItem(QString string);
     void emitMessageReceived(Server *server, Channel *channel, QString message, Channel::MessageType type = Channel::Default);
 
+    void readFromSettings();
+    void writeToSettings();
+
 public slots:
     void removeServer(QString inServer);
+
+private:
+    static const QString settingsFileName;
+    QSettings *settings;
 
 signals:
     void messageReceived(Server *server, Channel *channel, QString message, Channel::MessageType type);

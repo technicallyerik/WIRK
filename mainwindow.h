@@ -49,6 +49,8 @@ private:
     void highlightChannel(Channel *channel, ChannelHighlightType highlight, Channel::MessageType type);
     QBrush getColorForHighlightType(ChannelHighlightType ht);
 
+    void closeEvent(QCloseEvent *event);
+
 private slots:
     void sendMessage();
     void treeItemClicked(const QModelIndex& index);
@@ -60,6 +62,7 @@ private slots:
     void openPreferences();
     void selectItem(QModelIndex index);
     void generateContextMenu(const QPoint &point);
+    void newServerWindow();
 };
 
 #endif // MAINWINDOW_H

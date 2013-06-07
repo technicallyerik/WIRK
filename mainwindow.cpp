@@ -21,6 +21,7 @@
 #include <QScrollBar>
 #include <QSignalMapper>
 #include <QAction>
+#include "newserver.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -29,15 +30,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     // Setup servers
     session = new Session(this);
-    // TODO:  Get from settings
-    Server *server = session->addServer("irc.freenode.net",  // host
-                       7000,                // port
-                       "wirktest1234",       // username
-                       "wirktest1234",       // nickname
-                       "WIRK Test",         // real name
-                       "",                  // password
-                       true);               // is ssl
-    server->openConnection();
+    session->readFromSettings();
+
 
     // Hook up session messages
     connect(session, SIGNAL(messageReceived(Server*,Channel*,QString,Channel::MessageType)), this, SLOT(handleMessage(Server*,Channel*,QString,Channel::MessageType)));
@@ -70,6 +64,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     QString controlStyles = "background:#333;font-family:\"Lucida Console\",Monaco,monospace;font-size:11px;color:#fff;";
     ui->userList->setStyleSheet(controlStyles);
     ui->treeView->setStyleSheet(controlStyles);
+    ui->mainText->setStyleSheet(controlStyles);
     ui->sendText->setStyleSheet(controlStyles + "padding:5px;");
     ui->userList->setAttribute(Qt::WA_MacShowFocusRect, 0);
     ui->treeView->setAttribute(Qt::WA_MacShowFocusRect, 0);
@@ -82,6 +77,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     // Setup menu items
     connect(ui->actionPreferences, SIGNAL(triggered()), this, SLOT(openPreferences()));
+    connect(ui->actionNewServer, SIGNAL(triggered()), this, SLOT(newServerWindow()));
 
     // Enable right-click on the tree
     ui->treeView->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -91,6 +87,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 MainWindow::~MainWindow()
 {    
     delete ui;
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    session->writeToSettings();
+    event->accept();
 }
 
 void MainWindow::handleMessage(Server *inServer, Channel *inChannel, QString inMessage, Channel::MessageType type)
@@ -279,6 +281,10 @@ void MainWindow::generateContextMenu(const QPoint &point)
             connect(removeMapper, SIGNAL(mapped(const QString &)), session, SLOT(removeServer(const QString &)));
         }
 
+    } else {
+
+        menu.addAction("Add Server...", this, SLOT(newServerWindow()));
+
     }
 
     menu.exec(ui->treeView->viewport()->mapToGlobal(point));
@@ -375,5 +381,11 @@ void MainWindow::anchorClicked(QUrl url)
 void MainWindow::openPreferences()
 {
     Preferences dialog(this);
+    dialog.exec();
+}
+
+void MainWindow::newServerWindow()
+{
+    NewServer dialog(*session, this);
     dialog.exec();
 }

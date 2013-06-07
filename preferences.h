@@ -21,11 +21,6 @@ private slots:
     
 private:
     Ui::Preferences *ui;
-    QSettings *settings;
-    static const QString settingsFileName;
-
-    void writeSettings();
-    void readSettings();
 };
 
 #endif // PREFERENCES_H

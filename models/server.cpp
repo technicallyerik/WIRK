@@ -228,6 +228,16 @@ void Server::connected()
 {
     this->appendText("Connected.");
     menuItem->setForeground(QBrush((QColor(255,255,255))));
+
+    Session* session = this->getSession();
+    session->selectItem(this->getHost());
+
+    for(int c = 0; c < menuItem->rowCount(); c++) {
+        QStandardItem *channelMenuItem = getMenuItem()->child(c);
+        QVariant channelData = channelMenuItem->data(Qt::UserRole);
+        Channel *channel = channelData.value<Channel*>();
+        channel->join();
+    }
 }
 
 void Server::disconnected()
