@@ -45,6 +45,8 @@ public:
     QStandardItem* getUserMenuItem(QString inUser);
     User* getUser(QString inUser);
 
+    QStringList getUserList();
+
     Server* getServer();
     QStandardItem* getMenuItem();
 
@@ -58,6 +60,7 @@ private:
     QStandardItemModel *users;
     QStandardItem *menuItem;
     bool isJoined;
+    QStringList userList;
 };
 
 #endif // CHANNEL_H

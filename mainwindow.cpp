@@ -301,6 +301,7 @@ void MainWindow::changeToServer(Server *newServer)
 
 void MainWindow::changeToChannel(Channel *newChannel)
 {
+    ui->sendText->setUsernames(newChannel->getUserList());
     ui->mainText->setHtml(newChannel->getText());
     QStandardItemModel *users = newChannel->getUsers();
     ui->userList->setModel(users);

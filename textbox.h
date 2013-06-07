@@ -11,9 +11,11 @@ class TextBox : public QLineEdit
 public:
     explicit TextBox(QWidget *parent = 0);
     virtual ~TextBox();
+    void setUsernames(QStringList users);
 
 protected:
     void keyPressEvent(QKeyEvent *event);
+    bool event(QEvent *e);
     
 signals:
     
@@ -21,6 +23,12 @@ public slots:
 
 private:
     MessageHistory *messageHistory;
+    QStringList usernames, searchingUsernames;
+    QString currentFullMessage;
+    int userSearchIndex;
+
+    QString getLastArgument();
+
     
 };
 

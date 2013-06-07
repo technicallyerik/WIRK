@@ -11,6 +11,7 @@ Channel::Channel(QString inName, QStandardItem *inMenuItem, Server *parent) : QO
     menuItem = inMenuItem;
     this->setName(inName);
     this->setIsJoined(false);
+    userList = QStringList();
 }
 
 Channel::~Channel()
@@ -106,6 +107,11 @@ QStandardItemModel* Channel::getUsers() {
     return users;
 }
 
+QStringList Channel::getUserList()
+{
+    return userList;
+}
+
 void Channel::addUsers(QStringList inUsers) {
     QRegExp nickRegex("^(~|&|@|%|\\+)?(.*)");
     for (int i = 0; i < inUsers.count(); i++) {
@@ -124,9 +130,12 @@ void Channel::addUsers(QStringList inUsers) {
         }
         this->addUser(namePart, flagPart);
     }
+
 }
 
 User* Channel::addUser(QString inUser, QChar prefix) {
+    userList.append(inUser);
+
     QStandardItem *newMenuItem = new QStandardItem();
     User *newUser = new User(inUser, prefix, newMenuItem, this);
     newMenuItem->setData(QVariant::fromValue<User*>(newUser), Qt::UserRole);
