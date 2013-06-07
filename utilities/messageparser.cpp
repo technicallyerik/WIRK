@@ -67,7 +67,8 @@ void MessageParser::parse(IrcMessage *message)
                 }
                 channel->setIsJoined(true);
                 Session* session = this->getSession();
-                session->selectItem(targetChannel);
+                QModelIndex index = channel->getMenuItem()->index();
+                session->emitSelectItem(index);
             } else {
                 // Another user joined
                 Channel *channel = this->getChannel(targetChannel);

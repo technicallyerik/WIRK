@@ -132,15 +132,9 @@ void Session::writeToSettings()
     settings->endArray();
 }
 
-// TODO:  Need to account for multiple servers with same channel
-void Session::selectItem(QString string)
+void Session::emitSelectItem(QModelIndex index)
 {
-    QList<QStandardItem*> foundItems = this->findItems(string, Qt::MatchExactly | Qt::MatchRecursive);
-    if(foundItems.count() == 1) {
-        QStandardItem *item = foundItems[0];
-        QModelIndex index = item->index();
-        emit(selectItem(index));
-    }
+    emit(selectItem(index));
 }
 
 void Session::emitMessageReceived(Server *server, Channel *channel, QString message, Channel::MessageType type) {
