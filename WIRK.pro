@@ -61,7 +61,8 @@ SOURCES += main.cpp\
     viewmodels/animationviewmodel.cpp \
     preferences.cpp \
     models/messagehistory.cpp \
-    textbox.cpp
+    textbox.cpp \
+    newserver.cpp
 
 HEADERS  += mainwindow.h \
     ext_lib/communi/irctextformat.h \
@@ -107,10 +108,12 @@ HEADERS  += mainwindow.h \
     viewmodels/animationviewmodel.h \
     preferences.h \
     models/messagehistory.h \
-    textbox.h
+    textbox.h \
+    newserver.h
 
 FORMS    += mainwindow.ui \
-    preferences.ui
+    preferences.ui \
+    newserver.ui
 
 OTHER_FILES += \
     ext_lib/uchardet/JISFreq.tab \
