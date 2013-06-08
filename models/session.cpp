@@ -90,7 +90,7 @@ void Session::readFromSettings()
             settings->setArrayIndex(c);
             settings->beginGroup("channel");
             QString channelName = settings->value("name").toString();
-            newServer->addChannel(channelName);
+            newServer->addChannel(channelName, Channel::ChannelTypeNormal);
             settings->endGroup();
          }
          newServer->openConnection();
@@ -117,14 +117,18 @@ void Session::writeToSettings()
         settings->setValue("password", server->getPassword());
         settings->setValue("usessl", server->isSSL());
         settings->beginWriteArray("channels");
+        int ci = 0;
         for(int c = 0; c < server->getMenuItem()->rowCount(); c++) {
-            settings->setArrayIndex(c);
-            settings->beginGroup("channel");
             QStandardItem *channelMenuItem = server->getMenuItem()->child(c);
             QVariant channelData = channelMenuItem->data(Qt::UserRole);
             Channel *channel = channelData.value<Channel*>();
-            settings->setValue("name", channel->getName());
-            settings->endGroup();
+            if(channel->getType() == Channel::ChannelTypeNormal) {
+                settings->setArrayIndex(ci);
+                settings->beginGroup("channel");
+                settings->setValue("name", channel->getName());
+                settings->endGroup();
+                ci++;
+            }
         }
         settings->endArray();
         settings->endGroup();

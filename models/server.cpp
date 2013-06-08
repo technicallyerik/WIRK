@@ -133,10 +133,10 @@ void Server::appendText(QString inText)
     session->emitMessageReceived(this, NULL, tableRow);
 }
 
-Channel* Server::addChannel(QString inChannel)
+Channel* Server::addChannel(QString inChannel, Channel::ChannelType inType)
 {
     QStandardItem *newMenuItem = new QStandardItem();
-    Channel *newChannel = new Channel(inChannel, newMenuItem, this);
+    Channel *newChannel = new Channel(inChannel, inType, newMenuItem, this);
     newMenuItem->setData(QVariant::fromValue<Channel*>(newChannel), Qt::UserRole);
     menuItem->appendRow(newMenuItem);
     newMenuItem->setFlags(newMenuItem->flags() & ~Qt::ItemIsEditable);

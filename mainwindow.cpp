@@ -262,11 +262,15 @@ void MainWindow::generateContextMenu(const QPoint &point)
         Channel *channel = data.value<Channel*>();
         Server *server = channel->getServer();
 
-        if(channel->getIsJoined()) {
+        if(channel->getIsJoined() && channel->getType() == Channel::ChannelTypeNormal) {
             menu.addAction("Part", channel, SLOT(part()));
-        } else {
-            menu.addAction("Join", channel, SLOT(join()));
+        }
 
+        if(!channel->getIsJoined() && channel->getType() == Channel::ChannelTypeNormal) {
+                menu.addAction("Join", channel, SLOT(join()));
+        }
+
+        if(!channel->getIsJoined() || channel->getType() == Channel::ChannelTypeUser) {
             QAction *removeAction = menu.addAction("Remove");
             QSignalMapper *removeMapper = new QSignalMapper(this);
             removeMapper->setMapping(removeAction, channel->getName());

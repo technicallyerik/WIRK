@@ -61,7 +61,7 @@ void MessageParser::parse(IrcMessage *message)
                 // Current user joined
                 Channel *channel = this->getChannel(targetChannel);
                 if(!channel) {
-                    channel = server->addChannel(targetChannel);
+                    channel = server->addChannel(targetChannel, Channel::ChannelTypeNormal);
                 } else {
                     channel->appendText(QString("You have joined %1").arg(targetChannel));
                 }
@@ -217,7 +217,7 @@ void MessageParser::parse(IrcMessage *message)
                 // Probably from another user, create a 'channel' for them
                 channel = this->getChannel(sender);
                 if(channel == NULL) {
-                    channel = server->addChannel(sender);
+                    channel = server->addChannel(sender, Channel::ChannelTypeUser);
                 }
             }
             Channel::MessageType messageType = pm->isAction() ? Channel::Emote : Channel::Default;

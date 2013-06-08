@@ -4,13 +4,18 @@
 #include "session.h"
 #include "irccommand.h"
 
-Channel::Channel(QString inName, QStandardItem *inMenuItem, Server *parent) : QObject(parent)
+Channel::Channel(QString inName, ChannelType type, QStandardItem *inMenuItem, Server *parent) : QObject(parent)
 {
     text = "<body>";
     users = new QStandardItemModel(this);
     menuItem = inMenuItem;
     this->setName(inName);
-    this->setIsJoined(false);
+    this->setType(type);
+    if(type == ChannelTypeNormal) {
+        this->setIsJoined(false);
+    } else {
+        this->setIsJoined(true);
+    }
 }
 
 Channel::~Channel()
@@ -70,6 +75,16 @@ void Channel::appendText(QString sender, QString inText, MessageType type) {
     text += tableRow;
     Session *session = server->getSession();
     session->emitMessageReceived(server, this, tableRow, type);
+}
+
+Channel::ChannelType Channel::getType()
+{
+    return type;
+}
+
+void Channel::setType(Channel::ChannelType inType)
+{
+    type = inType;
 }
 
 bool Channel::getIsJoined()
@@ -179,4 +194,10 @@ Server* Channel::getServer() {
 QStandardItem* Channel::getMenuItem()
 {
     return menuItem;
+}
+
+bool Channel::isChannel(QString name)
+{
+    return (name.startsWith("&") || name.startsWith("#") ||
+            name.startsWith("+") || name.startsWith("!"));
 }

@@ -106,7 +106,11 @@ IrcCommand *CommandParser::parse(QString commandStr)
             Server *server = this->getServer();
             Channel *channel = server->getChannel(nickname);
             if (channel == NULL) {
-                channel = server->addChannel(nickname);
+                if(Channel::isChannel(nickname)) {
+                    channel = server->addChannel(nickname, Channel::ChannelTypeNormal);
+                } else {
+                    channel = server->addChannel(nickname, Channel::ChannelTypeUser);
+                }
             }
             QString ourName = server->getNickname();
             channel->appendText(ourName, msg);
