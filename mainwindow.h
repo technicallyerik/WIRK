@@ -65,6 +65,7 @@ private slots:
     void selectItem(QModelIndex index);
     void generateContextMenu(const QPoint &point);
     void newServerWindow();
+    void rowsRemoved(const QModelIndex &modelIndex, int start, int end);
 };
 
 #endif // MAINWINDOW_H

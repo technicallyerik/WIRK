@@ -31,7 +31,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     // Setup servers
     session = new Session(this);
     session->readFromSettings();
-
+    connect(session, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(rowsRemoved(QModelIndex,int,int)));
 
     // Hook up session messages
     connect(session, SIGNAL(messageReceived(Server*,Channel*,QString,Channel::MessageType)), this, SLOT(handleMessage(Server*,Channel*,QString,Channel::MessageType)));
@@ -53,8 +53,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     // Set focus on first server
     QModelIndex modelIndex = session->index(0, 0);
-    ui->treeView->selectionModel()->select(modelIndex, QItemSelectionModel::ClearAndSelect);
-    this->treeItemClicked(modelIndex);
+    this->selectItem(modelIndex);
 
     // Setup network manager
     networkAccessManager = new QNetworkAccessManager(this);
@@ -248,7 +247,16 @@ void MainWindow::treeItemClicked(const QModelIndex& index)
     } else if(data.canConvert<Server*>()) {
         Server *server = data.value<Server*>();
         this->changeToServer(server);
+    } else {
+        ui->mainText->setHtml("");
+        ui->userList->setModel(NULL);
     }
+}
+
+void MainWindow::rowsRemoved(const QModelIndex &modelIndex, int start, int end)
+{
+    QModelIndex index = ui->treeView->selectionModel()->currentIndex();
+    this->selectItem(index);
 }
 
 void MainWindow::generateContextMenu(const QPoint &point)
