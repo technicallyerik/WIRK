@@ -164,30 +164,39 @@ void MainWindow::handleMessage(Server *inServer, Channel *inChannel, QString inM
 
 void MainWindow::highlightServer(Server *server, ChannelHighlightType highlight)
 {
-    QBrush color = getColorForHighlightType(highlight);
     QStandardItem* menuItem = server->getMenuItem();
-    menuItem->setBackground(color);
+    highlightMenuItem(menuItem, highlight);
 }
 
 void MainWindow::highlightChannel(Channel *channel, ChannelHighlightType highlight, Channel::MessageType type)
 {
     if(type != Channel::Info) {
-        QBrush color = getColorForHighlightType(highlight);
         QStandardItem* menuItem = channel->getMenuItem();
-        menuItem->setBackground(color);
+        highlightMenuItem(menuItem, highlight);
     }
 }
 
-QBrush MainWindow::getColorForHighlightType(ChannelHighlightType ht)
+void MainWindow::highlightMenuItem(QStandardItem *menuItem, ChannelHighlightType highlight)
 {
-    switch(ht) {
-        case ChannelHighlightTypeMention:
-            return QBrush((QColor(41,167,33)));
-        case ChannelHighlightTypeNew:
-            return QBrush((QColor(177,44,51)));
-        case ChannelHighlightTypeNone:
-        default:
-            return QBrush((QColor(0,0,0)), Qt::NoBrush);
+    QVariant data = menuItem->data(HighlightType);
+    int currentHighlight = data.value<int>();
+    int enumValue = highlight;
+    if(enumValue == 0 || enumValue > currentHighlight) {
+        QBrush color;
+        switch(highlight) {
+            case ChannelHighlightTypeMention:
+                color = QBrush((QColor(41,167,33)));
+                break;
+            case ChannelHighlightTypeNew:
+                color = QBrush((QColor(177,44,51)));
+                break;
+            case ChannelHighlightTypeNone:
+            default:
+                color = QBrush((QColor(0,0,0)), Qt::NoBrush);
+        }
+
+        menuItem->setBackground(color);
+        menuItem->setData(highlight, HighlightType);
     }
 }
 

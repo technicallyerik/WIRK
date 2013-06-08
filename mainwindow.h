@@ -26,6 +26,8 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+    static const int HighlightType = 64;
+
     enum ChannelHighlightType
     {
         ChannelHighlightTypeNone,
@@ -47,7 +49,7 @@ private:
 
     void highlightServer(Server *server, ChannelHighlightType highlight);
     void highlightChannel(Channel *channel, ChannelHighlightType highlight, Channel::MessageType type);
-    QBrush getColorForHighlightType(ChannelHighlightType ht);
+    void highlightMenuItem(QStandardItem *menuItem, ChannelHighlightType highlight);
 
     void closeEvent(QCloseEvent *event);
 
