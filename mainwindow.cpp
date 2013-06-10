@@ -22,6 +22,14 @@
 #include <QSignalMapper>
 #include <QAction>
 #include "newserver.h"
+#include <QtWebKitWidgets/QWebView>
+#include <QtWebKitWidgets/QWebFrame>
+#include <QtWebKitWidgets/QWebPage>
+#include <QtWebKit/QWebElementCollection>
+#include <QtWebKit/QWebElement>
+#include <QtWebKit/QWebHistory>
+#include <QtWebKit/QWebHistoryItem>
+#include <QtWebKit/QWebSettings>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -31,10 +39,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     // Setup servers
     session = new Session(this);
     session->readFromSettings();
-
+    connect(session, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(rowsRemoved(QModelIndex,int,int)));
 
     // Hook up session messages
-    connect(session, SIGNAL(messageReceived(Server*,Channel*,QString,Channel::MessageType)), this, SLOT(handleMessage(Server*,Channel*,QString,Channel::MessageType)));
+    connect(session, SIGNAL(messageReceived(Server*,Channel*,QString,QStringList,Channel::MessageType)), this, SLOT(handleMessage(Server*,Channel*,QString,QStringList,Channel::MessageType)));
     connect(session, SIGNAL(selectItem(QModelIndex)), this, SLOT(selectItem(QModelIndex)));
 
     // Hook up user interactions
@@ -53,12 +61,18 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     // Set focus on first server
     QModelIndex modelIndex = session->index(0, 0);
-    ui->treeView->selectionModel()->select(modelIndex, QItemSelectionModel::ClearAndSelect);
-    this->treeItemClicked(modelIndex);
+    this->selectItem(modelIndex);
 
     // Setup network manager
     networkAccessManager = new QNetworkAccessManager(this);
     connect(networkAccessManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(imageDownloaded(QNetworkReply*)));
+
+    // Setup web view for checking oembed
+    webView = new QWebView(this);
+    QWebSettings::globalSettings()->setAttribute(QWebSettings::AutoLoadImages, false);
+    QWebSettings::globalSettings()->setAttribute(QWebSettings::JavascriptEnabled, false);
+    webView->hide();
+    connect(webView, SIGNAL(loadFinished(bool)), this, SLOT(webLoadFinished(bool)));
 
     // Let's get some styles up in here
     QString controlStyles = "background:#333;font-family:\"Lucida Console\",Monaco,monospace;font-size:11px;color:#fff;";
@@ -95,20 +109,28 @@ void MainWindow::closeEvent(QCloseEvent *event)
     event->accept();
 }
 
-void MainWindow::handleMessage(Server *inServer, Channel *inChannel, QString inMessage, Channel::MessageType type)
+void MainWindow::handleMessage(Server *inServer, Channel *inChannel, QString inMessage, QStringList images, Channel::MessageType type)
 {
-    // Download any image assets included in the message
-    QRegExp imageRegex(".*(src=\"(([^>]+)\\.(jpg|png|gif))\").*");
-    int pos = 0;
-    while ((pos = imageRegex.indexIn(inMessage, pos)) != -1) {
-        QString urlString = imageRegex.cap(2);
-        QVariant existingResource = document->resource(QTextDocument::ImageResource, urlString);
+    // Get images for the links
+    foreach(QString image, images)
+    {
+        QVariant existingResource = document->resource(QTextDocument::ImageResource, image);
         if(existingResource.isNull()) {
-            QUrl url(urlString);
+            QImage emptyImage(1, 1, QImage::Format_ARGB32);
+            emptyImage.fill(Qt::transparent);
+            document->addResource(QTextDocument::ImageResource, image, emptyImage); // placeholder
+            QUrl url(image);
             QNetworkRequest request(url);
-            networkAccessManager->get(request);
+            if(image.endsWith(".gif") || image.endsWith(".jpg") || image.endsWith(".png"))
+            {
+                // Start downloading the image
+                imagePageMap.insert(image, image);
+                networkAccessManager->get(request);
+            } else {
+                // Parse the image markup for an open graph image
+                webView->load(request);
+            }
         }
-        pos += imageRegex.matchedLength();
     }
 
     // Determine highlight type if this server/channel isn't enabled
@@ -164,30 +186,39 @@ void MainWindow::handleMessage(Server *inServer, Channel *inChannel, QString inM
 
 void MainWindow::highlightServer(Server *server, ChannelHighlightType highlight)
 {
-    QBrush color = getColorForHighlightType(highlight);
     QStandardItem* menuItem = server->getMenuItem();
-    menuItem->setBackground(color);
+    highlightMenuItem(menuItem, highlight);
 }
 
 void MainWindow::highlightChannel(Channel *channel, ChannelHighlightType highlight, Channel::MessageType type)
 {
     if(type != Channel::Info) {
-        QBrush color = getColorForHighlightType(highlight);
         QStandardItem* menuItem = channel->getMenuItem();
-        menuItem->setBackground(color);
+        highlightMenuItem(menuItem, highlight);
     }
 }
 
-QBrush MainWindow::getColorForHighlightType(ChannelHighlightType ht)
+void MainWindow::highlightMenuItem(QStandardItem *menuItem, ChannelHighlightType highlight)
 {
-    switch(ht) {
-        case ChannelHighlightTypeMention:
-            return QBrush((QColor(41,167,33)));
-        case ChannelHighlightTypeNew:
-            return QBrush((QColor(177,44,51)));
-        case ChannelHighlightTypeNone:
-        default:
-            return QBrush((QColor(0,0,0)), Qt::NoBrush);
+    QVariant data = menuItem->data(HighlightType);
+    int currentHighlight = data.value<int>();
+    int enumValue = highlight;
+    if(enumValue == 0 || enumValue > currentHighlight) {
+        QBrush color;
+        switch(highlight) {
+            case ChannelHighlightTypeMention:
+                color = QBrush((QColor(41,167,33)));
+                break;
+            case ChannelHighlightTypeNew:
+                color = QBrush((QColor(177,44,51)));
+                break;
+            case ChannelHighlightTypeNone:
+            default:
+                color = QBrush((QColor(0,0,0)), Qt::NoBrush);
+        }
+
+        menuItem->setBackground(color);
+        menuItem->setData(highlight, HighlightType);
     }
 }
 
@@ -239,7 +270,16 @@ void MainWindow::treeItemClicked(const QModelIndex& index)
     } else if(data.canConvert<Server*>()) {
         Server *server = data.value<Server*>();
         this->changeToServer(server);
+    } else {
+        ui->mainText->setHtml("");
+        ui->userList->setModel(NULL);
     }
+}
+
+void MainWindow::rowsRemoved(const QModelIndex &modelIndex, int start, int end)
+{
+    QModelIndex index = ui->treeView->selectionModel()->currentIndex();
+    this->selectItem(index);
 }
 
 void MainWindow::generateContextMenu(const QPoint &point)
@@ -253,11 +293,15 @@ void MainWindow::generateContextMenu(const QPoint &point)
         Channel *channel = data.value<Channel*>();
         Server *server = channel->getServer();
 
-        if(channel->getIsJoined()) {
+        if(channel->getIsJoined() && channel->getType() == Channel::ChannelTypeNormal) {
             menu.addAction("Part", channel, SLOT(part()));
-        } else {
-            menu.addAction("Join", channel, SLOT(join()));
+        }
 
+        if(!channel->getIsJoined() && channel->getType() == Channel::ChannelTypeNormal) {
+                menu.addAction("Join", channel, SLOT(join()));
+        }
+
+        if(!channel->getIsJoined() || channel->getType() == Channel::ChannelTypeUser) {
             QAction *removeAction = menu.addAction("Remove");
             QSignalMapper *removeMapper = new QSignalMapper(this);
             removeMapper->setMapping(removeAction, channel->getName());
@@ -315,22 +359,50 @@ void MainWindow::changeToChannel(Channel *newChannel)
     scrollToBottom();
 }
 
+void MainWindow::webLoadFinished(bool ok)
+{
+    webView->triggerPageAction(QWebPage::Stop); // stop loading sub frames
+    webView->triggerPageAction(QWebPage::StopScheduledPageRefresh);
+
+    QUrl requestUrl = webView->url();
+    QString requestUrlString = requestUrl.toString();
+
+    QWebPage *page = webView->page();
+    QWebFrame *mainFrame = page->mainFrame();
+    QWebElementCollection metaTags = mainFrame->findAllElements("meta");
+
+    foreach (QWebElement metaTag, metaTags)
+    {
+        QString property = metaTag.attribute("property");
+        QString content = metaTag.attribute("content");
+        if (property.compare("og:image", Qt::CaseInsensitive) == 0)
+        {
+            imagePageMap.insert(content, requestUrlString);
+            QUrl url(content);
+            QNetworkRequest request(url);
+            networkAccessManager->get(request);
+            return;
+        }
+    }
+}
+
 void MainWindow::imageDownloaded(QNetworkReply* networkReply)
 {
     QByteArray bytes = networkReply->readAll();
     QUrl url = networkReply->url();
+    QUrl mappedUrl = QUrl(imagePageMap.value(url.toString()));
     QImage image;
     image.loadFromData(bytes);
     image = image.scaledToHeight(150, Qt::SmoothTransformation);
 
-    if(networkReply->url().toString().endsWith(".gif")) {
-        AnimationViewModel *avm = new AnimationViewModel(bytes, url, document, this);
+    if(url.toString().endsWith(".gif")) {
+        AnimationViewModel *avm = new AnimationViewModel(bytes, mappedUrl, document, this);
         connect(avm, SIGNAL(movieChanged(QPixmap, QUrl)), this, SLOT(movieChanged(QPixmap, QUrl)), Qt::QueuedConnection);
         avm->start();
         animations.append(avm);
     }
 
-    document->addResource(QTextDocument::ImageResource, url, image);
+    document->addResource(QTextDocument::ImageResource, mappedUrl, image);
     document->markContentsDirty(0, document->characterCount());
     scrollToBottom();
 }

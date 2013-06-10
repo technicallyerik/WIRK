@@ -16,7 +16,13 @@ class Channel : public QObject
     Q_PROPERTY(QStandardItemModel* users READ getUsers)
 
 public:
-    explicit Channel(QString inName, QStandardItem *inMenuItem, Server *parent = 0);
+    enum ChannelType
+    {
+        ChannelTypeNormal,
+        ChannelTypeUser
+    };
+
+    explicit Channel(QString inName, ChannelType type, QStandardItem *inMenuItem, Server *parent = 0);
     virtual ~Channel();
 
     enum MessageType
@@ -34,6 +40,9 @@ public:
     void appendText(QString text);
     void appendText(QString sender, QString text, MessageType type = Channel::Default);
 
+    ChannelType getType();
+    void setType(ChannelType type);
+
     bool getIsJoined();
     void setIsJoined(bool isJoined);
 
@@ -50,6 +59,8 @@ public:
     Server* getServer();
     QStandardItem* getMenuItem();
 
+    static bool isChannel(QString name);
+
 public slots:
     void join();
     void part();
@@ -57,6 +68,7 @@ public slots:
 private:
     QString name;
     QString text;
+    ChannelType type;
     QStandardItemModel *users;
     QStandardItem *menuItem;
     bool isJoined;

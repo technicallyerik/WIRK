@@ -4,14 +4,18 @@
 #include "session.h"
 #include "irccommand.h"
 
-Channel::Channel(QString inName, QStandardItem *inMenuItem, Server *parent) : QObject(parent)
+Channel::Channel(QString inName, ChannelType type, QStandardItem *inMenuItem, Server *parent) : QObject(parent)
 {
     text = "<body>";
     users = new QStandardItemModel(this);
     menuItem = inMenuItem;
     this->setName(inName);
-    this->setIsJoined(false);
-    userList = QStringList();
+    this->setType(type);
+    if(type == ChannelTypeNormal) {
+        this->setIsJoined(false);
+    } else {
+        this->setIsJoined(true);
+    }
 }
 
 Channel::~Channel()
@@ -37,6 +41,23 @@ void Channel::appendText(QString inText) {
 }
 
 void Channel::appendText(QString sender, QString inText, MessageType type) {
+    // Postpend post with images in image tags
+    QString postpendedImageTags = "";
+    QStringList foundLinks;
+    QRegExp imageRegex(".*(href=\"(([^>]+)\\.*)\").*");
+    int pos = 0;
+    while ((pos = imageRegex.indexIn(inText, pos)) != -1) {
+        QString imageUrl = imageRegex.cap(2);
+        if(!imageUrl.startsWith("http://", Qt::CaseInsensitive)) {
+            imageUrl = "http://" + imageUrl;
+        }
+        postpendedImageTags += QString("<br /><img src=\"%1\" />").arg(imageUrl);
+        foundLinks.append(imageUrl);
+        pos += imageRegex.matchedLength();
+    }
+    inText += postpendedImageTags;
+
+    // Build HTML wrapper for message
     Server *server = this->getServer();
     QString currentUser = server->getNickname();
     bool textContainsUser = inText.contains(currentUser, Qt::CaseInsensitive);
@@ -70,7 +91,17 @@ void Channel::appendText(QString sender, QString inText, MessageType type) {
         tableRow += "</tr></table>";
     text += tableRow;
     Session *session = server->getSession();
-    session->emitMessageReceived(server, this, tableRow, type);
+    session->emitMessageReceived(server, this, tableRow, foundLinks, type);
+}
+
+Channel::ChannelType Channel::getType()
+{
+    return type;
+}
+
+void Channel::setType(Channel::ChannelType inType)
+{
+    type = inType;
 }
 
 bool Channel::getIsJoined()
@@ -107,11 +138,6 @@ QStandardItemModel* Channel::getUsers() {
     return users;
 }
 
-QStringList Channel::getUserList()
-{
-    return userList;
-}
-
 void Channel::addUsers(QStringList inUsers) {
     QRegExp nickRegex("^(~|&|@|%|\\+)?(.*)");
     for (int i = 0; i < inUsers.count(); i++) {
@@ -130,12 +156,9 @@ void Channel::addUsers(QStringList inUsers) {
         }
         this->addUser(namePart, flagPart);
     }
-
 }
 
 User* Channel::addUser(QString inUser, QChar prefix) {
-    userList.append(inUser);
-
     QStandardItem *newMenuItem = new QStandardItem();
     User *newUser = new User(inUser, prefix, newMenuItem, this);
     newMenuItem->setData(QVariant::fromValue<User*>(newUser), Qt::UserRole);
@@ -188,4 +211,10 @@ Server* Channel::getServer() {
 QStandardItem* Channel::getMenuItem()
 {
     return menuItem;
+}
+
+bool Channel::isChannel(QString name)
+{
+    return (name.startsWith("&") || name.startsWith("#") ||
+            name.startsWith("+") || name.startsWith("!"));
 }

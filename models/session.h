@@ -19,8 +19,8 @@ public:
     QStandardItem* getServerMenuItem(QString inServer);
     Server* getServer(QString inServer);
 
-    void selectItem(QString string);
-    void emitMessageReceived(Server *server, Channel *channel, QString message, Channel::MessageType type = Channel::Default);
+    void emitMessageReceived(Server *server, Channel *channel, QString message, QStringList images, Channel::MessageType type = Channel::Default);
+    void emitSelectItem(QModelIndex index);
 
     void readFromSettings();
     void writeToSettings();
@@ -33,7 +33,7 @@ private:
     QSettings *settings;
 
 signals:
-    void messageReceived(Server *server, Channel *channel, QString message, Channel::MessageType type);
+    void messageReceived(Server *server, Channel *channel, QString message, QStringList images, Channel::MessageType type);
     void selectItem(QModelIndex index);
 
 };

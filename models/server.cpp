@@ -130,13 +130,14 @@ void Server::appendText(QString inText)
     tableRow += "</tr></table>";
     text += tableRow;
     Session *session = this->getSession();
-    session->emitMessageReceived(this, NULL, tableRow);
+    QStringList emptyList;
+    session->emitMessageReceived(this, NULL, tableRow, emptyList);
 }
 
-Channel* Server::addChannel(QString inChannel)
+Channel* Server::addChannel(QString inChannel, Channel::ChannelType inType)
 {
     QStandardItem *newMenuItem = new QStandardItem();
-    Channel *newChannel = new Channel(inChannel, newMenuItem, this);
+    Channel *newChannel = new Channel(inChannel, inType, newMenuItem, this);
     newMenuItem->setData(QVariant::fromValue<Channel*>(newChannel), Qt::UserRole);
     menuItem->appendRow(newMenuItem);
     newMenuItem->setFlags(newMenuItem->flags() & ~Qt::ItemIsEditable);
@@ -170,11 +171,15 @@ void Server::partAllChannels()
 
 QStandardItem* Server::getChannelMenuItem(QString inChannel)
 {
-    Session *session = this->getSession();
-    QList<QStandardItem*> foundChannels = session->findItems(inChannel, Qt::MatchExactly | Qt::MatchRecursive);
-    if(foundChannels.count() == 1) {
-        QStandardItem *channel = foundChannels[0];
-        return channel;
+    QStandardItem *firstChild = menuItem->child(0);
+    if(firstChild) {
+        QModelIndex startIndex = firstChild->index();
+        Session *session = this->getSession();
+        QModelIndexList foundChannels = session->match(startIndex, Qt::DisplayRole, inChannel, -1, Qt::MatchExactly);
+        if(foundChannels.count() == 1) {
+            QStandardItem *channel = session->itemFromIndex(foundChannels.at(0));
+            return channel;
+        }
     }
     return NULL;
 }
@@ -230,7 +235,8 @@ void Server::connected()
     menuItem->setForeground(QBrush((QColor(255,255,255))));
 
     Session* session = this->getSession();
-    session->selectItem(this->getHost());
+    QModelIndex index = menuItem->index();
+    session->emitSelectItem(index);
 
     for(int c = 0; c < menuItem->rowCount(); c++) {
         QStandardItem *channelMenuItem = getMenuItem()->child(c);

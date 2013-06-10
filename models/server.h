@@ -3,6 +3,7 @@
 
 #include <QStandardItem>
 #include <QSslSocket>
+#include "channel.h"
 
 class Session;
 class IrcSession;
@@ -10,7 +11,6 @@ class MessageParser;
 class CommandParser;
 class IrcMessage;
 class IrcCommand;
-class Channel;
 
 class Server : public QObject
 {
@@ -53,7 +53,7 @@ public:
     QString getText();
     void appendText(QString text);
 
-    Channel* addChannel(QString inChannel);
+    Channel* addChannel(QString inChannel, Channel::ChannelType inType);
     void partAllChannels();
     QStandardItem* getChannelMenuItem(QString inChannel);
     Channel* getChannel(QString inChannel);

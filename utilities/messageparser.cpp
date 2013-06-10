@@ -61,13 +61,14 @@ void MessageParser::parse(IrcMessage *message)
                 // Current user joined
                 Channel *channel = this->getChannel(targetChannel);
                 if(!channel) {
-                    channel = server->addChannel(targetChannel);
+                    channel = server->addChannel(targetChannel, Channel::ChannelTypeNormal);
                 } else {
                     channel->appendText(QString("You have joined %1").arg(targetChannel));
                 }
                 channel->setIsJoined(true);
                 Session* session = this->getSession();
-                session->selectItem(targetChannel);
+                QModelIndex index = channel->getMenuItem()->index();
+                session->emitSelectItem(index);
             } else {
                 // Another user joined
                 Channel *channel = this->getChannel(targetChannel);
@@ -216,7 +217,7 @@ void MessageParser::parse(IrcMessage *message)
                 // Probably from another user, create a 'channel' for them
                 channel = this->getChannel(sender);
                 if(channel == NULL) {
-                    channel = server->addChannel(sender);
+                    channel = server->addChannel(sender, Channel::ChannelTypeUser);
                 }
             }
             Channel::MessageType messageType = pm->isAction() ? Channel::Emote : Channel::Default;
@@ -706,20 +707,6 @@ QString MessageParser::styleString(QString fullMessage) {
     QString username = server->getUsername();
     QRegExp usernameRX("(" + username + ")");
     fullMessage.replace(usernameRX, "<b>\\1</b>");
-
-    // Postpend post with images in image tags
-    QString postpendedImageTags = "";
-    QRegExp imageRegex(".*(href=\"(([^>]+)\\.(jpg|png|gif))\").*");
-    int pos = 0;
-    while ((pos = imageRegex.indexIn(fullMessage, pos)) != -1) {
-        QString imageUrl = imageRegex.cap(2);
-        if(!imageUrl.startsWith("http://", Qt::CaseInsensitive)) {
-            imageUrl = "http://" + imageUrl;
-        }
-        postpendedImageTags += QString("<br /><img src=\"%1\" />").arg(imageUrl);
-        pos += imageRegex.matchedLength();
-    }
-    fullMessage += postpendedImageTags;
 
     return fullMessage;
 }
