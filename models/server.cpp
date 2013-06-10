@@ -130,7 +130,8 @@ void Server::appendText(QString inText)
     tableRow += "</tr></table>";
     text += tableRow;
     Session *session = this->getSession();
-    session->emitMessageReceived(this, NULL, tableRow, QStringList::QStringList());
+    QStringList emptyList;
+    session->emitMessageReceived(this, NULL, tableRow, emptyList);
 }
 
 Channel* Server::addChannel(QString inChannel, Channel::ChannelType inType)
