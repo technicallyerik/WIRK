@@ -8,7 +8,6 @@ Channel::Channel(QString inName, ChannelType type, QStandardItem *inMenuItem, Se
 {
     text = "<body>";
     users = new QStandardItemModel(this);
-    userList = QStringList();
     menuItem = inMenuItem;
     this->setName(inName);
     this->setType(type);
@@ -164,7 +163,6 @@ User* Channel::addUser(QString inUser, QChar prefix) {
     User *newUser = new User(inUser, prefix, newMenuItem, this);
     newMenuItem->setData(QVariant::fromValue<User*>(newUser), Qt::UserRole);
     users->appendRow(newMenuItem);
-    userList.append(newUser->getName());
     this->sortUsers();
     return newUser;
 }
@@ -206,8 +204,18 @@ User* Channel::getUser(QString inUser)
     return NULL;
 }
 
-QStringList Channel::getUserList()
+QStringList Channel::findUserName(QString searchStr)
 {
+    QStringList userList = QStringList();
+
+    QModelIndex startIndex = users->index(0, 0);
+    QModelIndexList foundUsers = users->match(startIndex, User::UserDataName, searchStr, -1, Qt::MatchStartsWith);
+    for(QModelIndexList::Iterator iter = foundUsers.begin(); iter != foundUsers.end(); iter++) {
+        QStandardItem *user = users->itemFromIndex(*iter);
+        QString username = user->data(User::UserDataName).value<QString>();
+        userList.append(username);
+    }
+
     return userList;
 }
 

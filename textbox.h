@@ -12,7 +12,6 @@ class TextBox : public QLineEdit
 public:
     explicit TextBox(QWidget *parent = 0);
     virtual ~TextBox();
-    void setUsernames(QStringList users);
     void setChannel(Channel &chan);
 
 protected:
@@ -25,7 +24,7 @@ public slots:
 
 private:
     MessageHistory *messageHistory;
-    QStringList usernames, searchingUsernames;
+    QStringList searchingUsernames;
     int userSearchIndex;
     Channel *channel;
     QString searchString;

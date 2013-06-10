@@ -19,7 +19,6 @@ void TextBox::setChannel(Channel &chan)
 {
 
     channel = &chan;
-    usernames = channel->getUserList();
     userSearchIndex = 0;
     searchingUsernames = QStringList();
 }
@@ -53,7 +52,6 @@ bool TextBox::event(QEvent *e)
     if(e->type() == QEvent::KeyPress) {
         QKeyEvent *ke = static_cast<QKeyEvent *>(e);
         if(ke->key() == Qt::Key_Tab) {
-            usernames = channel->getUserList();
             getLastArgument();
             return true;
         } else {
@@ -65,10 +63,7 @@ bool TextBox::event(QEvent *e)
     return QLineEdit::event(e);
 }
 
-void TextBox::setUsernames(QStringList users)
-{
-    usernames = users;
-}
+
 
 void TextBox::getLastArgument()
 {
@@ -91,12 +86,13 @@ void TextBox::getLastArgument()
 
     if(searchingUsernames.isEmpty()) {
         userSearchIndex = 0;
+        QStringList usernames = channel->findUserName(lastWord);
         for(QStringList::Iterator iter = usernames.begin(); iter != usernames.end(); iter++) {
-            QString wordToCheck = *iter;
-            if(wordToCheck.startsWith(lastWord, Qt::CaseInsensitive)) {
-                searchingUsernames.append(wordToCheck);
-            }
+            searchingUsernames.append(*iter);
         }
+
+
+
 
     } else {
         userSearchIndex++;
