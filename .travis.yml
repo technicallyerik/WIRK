@@ -6,6 +6,7 @@ before_install:
   - sudo apt-add-repository -y ppa:canonical-qt5-edgers/qt5-proper
   - sudo apt-get update
   - sudo apt-get install qtdeclarative5-dev
+  - sudo apt-get install libqt5webkit5-dev
 script:
   - /usr/lib/x86_64-linux-gnu/qt5/bin/qmake -v
   - /usr/lib/x86_64-linux-gnu/qt5/bin/qmake
