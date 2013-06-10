@@ -2,6 +2,7 @@
 #define TEXTBOX_H
 
 #include <QLineEdit>
+#include "channel.h"
 
 class MessageHistory;
 
@@ -12,6 +13,7 @@ public:
     explicit TextBox(QWidget *parent = 0);
     virtual ~TextBox();
     void setUsernames(QStringList users);
+    void setChannel(Channel &chan);
 
 protected:
     void keyPressEvent(QKeyEvent *event);
@@ -24,10 +26,12 @@ public slots:
 private:
     MessageHistory *messageHistory;
     QStringList usernames, searchingUsernames;
-    QString currentFullMessage;
     int userSearchIndex;
+    Channel *channel;
+    QString searchString;
+    QString lastWord;
 
-    QString getLastArgument();
+    void getLastArgument();
 
     
 };

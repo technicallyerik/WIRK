@@ -6,12 +6,22 @@
 
 
 
-
 TextBox::TextBox(QWidget *parent) : QLineEdit(parent)
 {
     messageHistory = new MessageHistory(this);
     searchingUsernames = QStringList();
     userSearchIndex = 0;
+    channel = NULL;
+    searchString = "";
+}
+
+void TextBox::setChannel(Channel &chan)
+{
+
+    channel = &chan;
+    usernames = channel->getUserList();
+    userSearchIndex = 0;
+    searchingUsernames = QStringList();
 }
 
 TextBox::~TextBox()
@@ -43,8 +53,11 @@ bool TextBox::event(QEvent *e)
     if(e->type() == QEvent::KeyPress) {
         QKeyEvent *ke = static_cast<QKeyEvent *>(e);
         if(ke->key() == Qt::Key_Tab) {
+            usernames = channel->getUserList();
             getLastArgument();
             return true;
+        } else {
+            lastWord = "";
         }
 
     }
@@ -57,18 +70,23 @@ void TextBox::setUsernames(QStringList users)
     usernames = users;
 }
 
-QString TextBox::getLastArgument()
+void TextBox::getLastArgument()
 {
     QStringList messageList = this->text().split(QRegExp("\\s+"));
 
-    QString lastWord = NULL;
-    if(!messageList.isEmpty()) {
+
+
+    if(!messageList.isEmpty() && lastWord == "") {
         lastWord = messageList.last();
-        qDebug() << lastWord;
     }
 
     if(lastWord == NULL || lastWord.isEmpty()) {
-        return this->text();
+        return;
+    }
+
+    if(searchString != lastWord) {
+        searchString = lastWord;
+        searchingUsernames = QStringList();
     }
 
     if(searchingUsernames.isEmpty()) {
@@ -83,14 +101,27 @@ QString TextBox::getLastArgument()
     } else {
         userSearchIndex++;
     }
-    if(searchingUsernames.isEmpty()) {
-        QString foundName = searchingUsernames.at(userSearchIndex % searchingUsernames.length());
+    QString foundName = "";
+    if(!searchingUsernames.isEmpty()) {
+        foundName = searchingUsernames.at(userSearchIndex % searchingUsernames.length());
+    } else {
+        return;
     }
 
+    QString fullMessage = "";
+    for(QStringList::Iterator iter = messageList.begin(); iter != messageList.end()-1; iter++) {
+        if(iter != messageList.begin()) {
+            fullMessage += " ";
+        }
+        fullMessage += *iter;
+    }
+    if(!foundName.isEmpty()) {
+        if(!fullMessage.isEmpty()) {
+            fullMessage += " ";
+        }
+        fullMessage += foundName + ":";
+    }
 
-    qDebug() << "Found name: " << foundName;
-
-
-    return lastWord;
+    this->setText(fullMessage);
 
 }

@@ -8,6 +8,7 @@ Channel::Channel(QString inName, ChannelType type, QStandardItem *inMenuItem, Se
 {
     text = "<body>";
     users = new QStandardItemModel(this);
+    userList = QStringList();
     menuItem = inMenuItem;
     this->setName(inName);
     this->setType(type);
@@ -163,6 +164,7 @@ User* Channel::addUser(QString inUser, QChar prefix) {
     User *newUser = new User(inUser, prefix, newMenuItem, this);
     newMenuItem->setData(QVariant::fromValue<User*>(newUser), Qt::UserRole);
     users->appendRow(newMenuItem);
+    userList.append(newUser->getName());
     this->sortUsers();
     return newUser;
 }
@@ -202,6 +204,11 @@ User* Channel::getUser(QString inUser)
         return data.value<User*>();
     }
     return NULL;
+}
+
+QStringList Channel::getUserList()
+{
+    return userList;
 }
 
 Server* Channel::getServer() {
