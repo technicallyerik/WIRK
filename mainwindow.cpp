@@ -116,8 +116,8 @@ void MainWindow::handleMessage(Server *inServer, Channel *inChannel, QString inM
     {
         QVariant existingResource = document->resource(QTextDocument::ImageResource, image);
         if(existingResource.isNull()) {
-            QImage emptyImage(1, 1, QImage::Format::Format_ARGB32);
-            emptyImage.fill(Qt::GlobalColor::transparent);
+            QImage emptyImage(1, 1, QImage::Format_ARGB32);
+            emptyImage.fill(Qt::transparent);
             document->addResource(QTextDocument::ImageResource, image, emptyImage); // placeholder
             QUrl url(image);
             QNetworkRequest request(url);
