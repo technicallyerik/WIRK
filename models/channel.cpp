@@ -41,6 +41,23 @@ void Channel::appendText(QString inText) {
 }
 
 void Channel::appendText(QString sender, QString inText, MessageType type) {
+    // Postpend post with images in image tags
+    QString postpendedImageTags = "";
+    QStringList foundLinks;
+    QRegExp imageRegex(".*(href=\"(([^>]+)\\.*)\").*");
+    int pos = 0;
+    while ((pos = imageRegex.indexIn(inText, pos)) != -1) {
+        QString imageUrl = imageRegex.cap(2);
+        if(!imageUrl.startsWith("http://", Qt::CaseInsensitive)) {
+            imageUrl = "http://" + imageUrl;
+        }
+        postpendedImageTags += QString("<br /><img src=\"%1\" />").arg(imageUrl);
+        foundLinks.append(imageUrl);
+        pos += imageRegex.matchedLength();
+    }
+    inText += postpendedImageTags;
+
+    // Build HTML wrapper for message
     Server *server = this->getServer();
     QString currentUser = server->getNickname();
     bool textContainsUser = inText.contains(currentUser, Qt::CaseInsensitive);
@@ -74,7 +91,7 @@ void Channel::appendText(QString sender, QString inText, MessageType type) {
         tableRow += "</tr></table>";
     text += tableRow;
     Session *session = server->getSession();
-    session->emitMessageReceived(server, this, tableRow, type);
+    session->emitMessageReceived(server, this, tableRow, foundLinks, type);
 }
 
 Channel::ChannelType Channel::getType()

@@ -141,6 +141,6 @@ void Session::emitSelectItem(QModelIndex index)
     emit(selectItem(index));
 }
 
-void Session::emitMessageReceived(Server *server, Channel *channel, QString message, Channel::MessageType type) {
-    emit(messageReceived(server, channel, message, type));
+void Session::emitMessageReceived(Server *server, Channel *channel, QString message, QStringList images, Channel::MessageType type) {
+    emit(messageReceived(server, channel, message, images, type));
 }

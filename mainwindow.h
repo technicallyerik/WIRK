@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QUrl>
 #include <QPixmap>
+#include <QtWebKitWidgets/QWebView>
 #include "channel.h"
 
 namespace Ui {
@@ -39,9 +40,11 @@ private:
     Ui::MainWindow *ui;
     Session *session;
     QNetworkAccessManager *networkAccessManager;
+    QWebView *webView;
     QTextDocument *document;
     QList<AnimationViewModel *> animations;
     QTimer *timer;
+    QHash<QString, QString> imagePageMap;
 
     void changeToServer(Server *newServer);
     void changeToChannel(Channel *newChannel);
@@ -56,7 +59,8 @@ private:
 private slots:
     void sendMessage();
     void treeItemClicked(const QModelIndex& index);
-    void handleMessage(Server *server, Channel *channel, QString message, Channel::MessageType type);
+    void handleMessage(Server *server, Channel *channel, QString message, QStringList images, Channel::MessageType type);
+    void webLoadFinished(bool ok);
     void imageDownloaded(QNetworkReply *networkReply);
     void anchorClicked(QUrl url);
     void refreshImages();
