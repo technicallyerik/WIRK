@@ -446,7 +446,7 @@ void MainWindow::movieChanged(QPixmap pixels, QUrl url)
 
 void MainWindow::anchorClicked(QUrl url)
 {
-    if(!url.toString().startsWith("http://", Qt::CaseInsensitive)) {
+    if(!url.toString().startsWith("http", Qt::CaseInsensitive)) {
         url.setUrl("http://" + url.toString());
     }
     QDesktopServices::openUrl(url);
