@@ -132,10 +132,11 @@ void MessageParser::parse(IrcMessage *message)
             QString newNick = nick->nick();
             if(senderIsSelf) {
                 // We changed nicks
-                // TODO:
+                // This is handled by nickNameChanged signal
             } else {
                 // Someone else changed nicks
-                // TODO:
+                Server *server = this->getServer();
+                server->renameUserInAllChannels(sender, newNick);
             }
             break;
         }

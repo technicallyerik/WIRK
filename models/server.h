@@ -59,6 +59,7 @@ public:
     Channel* getChannel(QString inChannel);
 
     void removeUserFromAllChannels(QString username, QString reason);
+    void renameUserInAllChannels(QString oldName, QString newName);
 
     Session* getSession();
     QStandardItem* getMenuItem();

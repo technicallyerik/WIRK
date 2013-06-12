@@ -5,6 +5,7 @@
 #include "messageparser.h"
 #include "commandparser.h"
 #include "ircsession.h"
+#include "user.h"
 #include <QMessageBox>
 
 Server::Server(QStandardItem *inMenuItem, Session *parent) : QObject(parent)
@@ -211,6 +212,22 @@ void Server::removeUserFromAllChannels(QString username, QString reason)
                 partMessage.append(QString(" (Reason: %3)").arg(reason));
             }
             channel->appendText(partMessage);
+        }
+    }
+}
+
+void Server::renameUserInAllChannels(QString oldName, QString newName)
+{
+    int totalMenuItems = menuItem->rowCount()-1;
+    for(int i = totalMenuItems; i >= 0; i--) {
+        QStandardItem *channelMenuItem = this->menuItem->child(i);
+        QVariant data = channelMenuItem->data(Qt::UserRole);
+        Channel* channel = data.value<Channel*>();
+        User *user = channel->getUser(oldName);
+        if(user) {
+            user->setName(newName);
+            QString renameMessage = QString("%1 is now known as %2").arg(oldName, newName);
+            channel->appendText(renameMessage);
         }
     }
 }

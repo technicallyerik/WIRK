@@ -24,6 +24,7 @@ void User::setName(QString inName) {
     QString mode = this->getModeDisplayString();
     menuItem->setText(mode + name);
     menuItem->setData(name, UserDataName);
+    this->refreshUserDisplay();
 }
 
 QSet<QChar> User::getModes()
