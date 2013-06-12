@@ -80,11 +80,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(webView, SIGNAL(loadFinished(bool)), this, SLOT(webLoadFinished(bool)));
 
     // Let's get some styles up in here
-    QString controlStyles = "background:#333;font-family:\"Lucida Console\",Monaco,monospace;font-size:11px;color:#fff;";
+    QString controlStyles = "QListView, QTreeView, QLineEdit { background:#333;font-family:\"Lucida Console\",Monaco,monospace;font-size:11px;color:#fff; }";
     ui->userList->setStyleSheet(controlStyles);
     ui->treeView->setStyleSheet(controlStyles);
     ui->mainText->setStyleSheet(controlStyles);
-    ui->sendText->setStyleSheet(controlStyles + "padding:5px;");
+    ui->sendText->setStyleSheet(controlStyles + "QLineEdit { padding:5px; }");
     ui->userList->setAttribute(Qt::WA_MacShowFocusRect, 0);
     ui->treeView->setAttribute(Qt::WA_MacShowFocusRect, 0);
     ui->sendText->setAttribute(Qt::WA_MacShowFocusRect, 0);
