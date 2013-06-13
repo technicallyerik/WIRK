@@ -85,7 +85,7 @@ void Channel::appendText(QString sender, QString inText, MessageType type) {
     {
         tableRow = "<table width=\"100%\"><tr>";
     }
-        tableRow += "<th class=\"col-name\" width=\"140\" align=\"right\"><span class=\"user\">" + sender + "</span></th>";
+        tableRow += "<th class=\"col-name\" width=\"115\" align=\"right\"><span class=\"user\">" + sender + "</span></th>";
         tableRow += "<td class=\"col-message\"><p class=\"message\">" + inText + "</p></td>";
         tableRow += "<td class=\"col-meta\" width=\"50\"><h6 class=\"metainfo\">" + currentTimeStr +"</h6></td>";
         tableRow += "</tr></table>";
