@@ -51,7 +51,7 @@ void Channel::appendText(QString sender, QString inText, MessageType type) {
         if(!imageUrl.startsWith("http", Qt::CaseInsensitive)) {
             imageUrl = "http://" + imageUrl;
         }
-        postpendedImageTags += QString("<br /><img src=\"%1\" />").arg(imageUrl);
+        postpendedImageTags += QString("<br /><a href=\"%1\"><img src=\"%1\" /></a>").arg(imageUrl);
         foundLinks.append(imageUrl);
         pos += imageRegex.matchedLength();
     }
