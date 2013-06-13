@@ -22,6 +22,7 @@
 #include <QSignalMapper>
 #include <QAction>
 #include "newserver.h"
+#include <QMessageBox>
 #include <QtWebKitWidgets/QWebView>
 #include <QtWebKitWidgets/QWebFrame>
 #include <QtWebKitWidgets/QWebPage>
@@ -33,6 +34,8 @@
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
+    QApplication::setApplicationVersion(VER);
+
     // Setup UI
     ui->setupUi(this);
 
@@ -98,6 +101,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     // Setup menu items
     connect(ui->actionPreferences, SIGNAL(triggered()), this, SLOT(openPreferences()));
     connect(ui->actionNewServer, SIGNAL(triggered()), this, SLOT(newServerWindow()));
+    connect(ui->actionAbout, SIGNAL(triggered()), this, SLOT(showAboutInfo()));
 
     // Enable right-click on the tree
     ui->treeView->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -468,4 +472,13 @@ void MainWindow::newServerWindow()
 {
     NewServer dialog(*session, this);
     dialog.exec();
+}
+
+void MainWindow::showAboutInfo()
+{
+    QMessageBox msgBox;
+    msgBox.setText("About");
+    msgBox.setInformativeText(QString("Version: %1").arg(QApplication::applicationVersion()));
+    msgBox.setStandardButtons(QMessageBox::Ok);
+    msgBox.exec();
 }

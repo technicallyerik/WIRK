@@ -142,3 +142,7 @@ RESOURCES += \
     wirk.qrc
 
 RC_FILE = assets/icon.rc
+
+VERSION = 0.1.0
+
+DEFINES += VER=\\\"$${VERSION}.$$system(git rev-parse --short HEAD)\\\"
