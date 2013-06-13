@@ -66,12 +66,18 @@ void TextBox::getLastArgument()
 {
     QStringList messageList = this->text().split(QRegExp("\\s+"));
 
+
     if(!messageList.isEmpty() && lastWord == "") {
         lastWord = messageList.last();
     }
 
     if(lastWord == NULL || lastWord.isEmpty()) {
         return;
+    }
+
+
+    if(messageList.last().isEmpty()) {
+        messageList.removeLast();
     }
 
     if(searchString != lastWord) {
@@ -88,6 +94,8 @@ void TextBox::getLastArgument()
     } else {
         userSearchIndex++;
     }
+
+    bool useColon = messageList.size() == 1;
 
     QString foundName = "";
     if(!searchingUsernames.isEmpty()) {
@@ -108,7 +116,11 @@ void TextBox::getLastArgument()
         if(!fullMessage.isEmpty()) {
             fullMessage += " ";
         }
-        fullMessage += foundName + ":";
+        if(useColon) {
+            fullMessage += foundName + ": ";
+        } else {
+            fullMessage += foundName + " ";
+        }
     }
 
     this->setText(fullMessage);
