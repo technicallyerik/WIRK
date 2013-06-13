@@ -4,8 +4,6 @@
 #include <QLineEdit>
 #include "messagehistory.h"
 
-
-
 TextBox::TextBox(QWidget *parent) : QLineEdit(parent)
 {
     messageHistory = new MessageHistory(this);
@@ -17,7 +15,6 @@ TextBox::TextBox(QWidget *parent) : QLineEdit(parent)
 
 void TextBox::setChannel(Channel &chan)
 {
-
     channel = &chan;
     userSearchIndex = 0;
     searchingUsernames = QStringList();
@@ -51,6 +48,8 @@ bool TextBox::event(QEvent *e)
 {
     if(e->type() == QEvent::KeyPress) {
         QKeyEvent *ke = static_cast<QKeyEvent *>(e);
+        // We listen to the tab press here because
+        // it's not sent all the way to keyPressEvent
         if(ke->key() == Qt::Key_Tab) {
             getLastArgument();
             return true;
@@ -63,13 +62,9 @@ bool TextBox::event(QEvent *e)
     return QLineEdit::event(e);
 }
 
-
-
 void TextBox::getLastArgument()
 {
     QStringList messageList = this->text().split(QRegExp("\\s+"));
-
-
 
     if(!messageList.isEmpty() && lastWord == "") {
         lastWord = messageList.last();
@@ -90,13 +85,10 @@ void TextBox::getLastArgument()
         for(QStringList::Iterator iter = usernames.begin(); iter != usernames.end(); iter++) {
             searchingUsernames.append(*iter);
         }
-
-
-
-
     } else {
         userSearchIndex++;
     }
+
     QString foundName = "";
     if(!searchingUsernames.isEmpty()) {
         foundName = searchingUsernames.at(userSearchIndex % searchingUsernames.length());
@@ -111,6 +103,7 @@ void TextBox::getLastArgument()
         }
         fullMessage += *iter;
     }
+
     if(!foundName.isEmpty()) {
         if(!fullMessage.isEmpty()) {
             fullMessage += " ";
@@ -119,5 +112,4 @@ void TextBox::getLastArgument()
     }
 
     this->setText(fullMessage);
-
 }
