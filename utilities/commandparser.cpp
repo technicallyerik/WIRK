@@ -22,6 +22,11 @@ IrcCommand *CommandParser::parse(QString commandStr)
         // /ADMIN
 
         // /AWAY
+        if (commandString.compare("away", Qt::CaseInsensitive) == 0)
+        {
+            QString mesg = (!commandBlock.isEmpty())?commandBlock.join(" "):NULL;
+            return IrcCommand::createAway(mesg);
+        }
 
         // /CAP
 
@@ -32,9 +37,14 @@ IrcCommand *CommandParser::parse(QString commandStr)
         // CtcpRequest
 
         // /INFO
+        else if (commandString.compare("info", Qt::CaseInsensitive) == 0)
+        {
+            QString serverStr = (!commandBlock.isEmpty())?commandBlock.join(" "):NULL;
+            return IrcCommand::createInfo(serverStr);
+        }
 
         // /INVITE
-        if (commandString.compare("invite", Qt::CaseInsensitive) == 0)
+        else if (commandString.compare("invite", Qt::CaseInsensitive) == 0)
         {
             QString nickname = commandBlock.takeFirst();
             QString channel = commandBlock.takeFirst();
@@ -91,6 +101,12 @@ IrcCommand *CommandParser::parse(QString commandStr)
         // /KNOCK
 
         // /LIST
+        else if (commandString.compare("list", Qt::CaseInsensitive) == 0)
+        {
+            QStringList channelList = (!commandBlock.isEmpty())?commandBlock.takeFirst().split(","):QStringList();
+            QString server = (!commandBlock.isEmpty())?commandBlock.join(" "):NULL;
+            return IrcCommand::createList(channelList,server);
+        }
 
         // /MODE
 
