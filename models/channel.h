@@ -27,10 +27,10 @@ public:
 
     enum MessageType
     {
-        Default,
-        Topic,
-        Emote,
-        Info
+        MessageTypeDefault,
+        MessageTypeTopic,
+        MessageTypeEmote,
+        MessageTypeInfo
     };
     
     QString getName();
@@ -39,7 +39,7 @@ public:
     QString getText();
     QString getLatestText();
     void appendText(QString text);
-    void appendText(QString sender, QString text, MessageType type = Channel::Default);
+    void appendText(QString sender, QString text, MessageType type = Channel::MessageTypeDefault);
 
     ChannelType getType();
     void setType(ChannelType type);

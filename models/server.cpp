@@ -308,11 +308,22 @@ void Server::sendMessage(QString message) {
 }
 
 void Server::sendChannelMessage(QString channel, QString message) {
-    IrcCommand *command = IrcCommand::createMessage(channel, message);
+    IrcCommand *command;
     Channel* sendChannel = this->getChannel(channel);
     QString nickname = this->getNickname();
+    Channel::MessageType type;
+
+    if(message.startsWith("/me ", Qt::CaseInsensitive)) {
+        message = message.mid(4);
+        command = IrcCommand::createCtcpAction(channel, message);
+        type = Channel::MessageTypeEmote;
+    } else {
+        command = IrcCommand::createMessage(channel, message);
+        type = Channel::MessageTypeDefault;
+    }
+
     QString styledString = messageParser->styleString(message);
-    sendChannel->appendText(nickname, styledString);
+    sendChannel->appendText(nickname, styledString, type);
     ircSession->sendCommand(command);
 }
 

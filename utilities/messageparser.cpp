@@ -221,7 +221,7 @@ void MessageParser::parse(IrcMessage *message)
                     channel = server->addChannel(sender, Channel::ChannelTypeUser);
                 }
             }
-            Channel::MessageType messageType = pm->isAction() ? Channel::Emote : Channel::Default;
+            Channel::MessageType messageType = pm->isAction() ? Channel::MessageTypeEmote : Channel::MessageTypeDefault;
             channel->appendText(sender, styledMessage, messageType);
             break;
         }
@@ -248,7 +248,7 @@ void MessageParser::parse(IrcMessage *message)
             QString targetChannel = topic->channel();
             QString topicMsg = topic->topic();
             Channel *channel = this->getChannel(targetChannel);
-            channel->appendText("Channel Topic", topicMsg, Channel::Topic);
+            channel->appendText("Channel Topic", topicMsg, Channel::MessageTypeTopic);
             break;
         }
 
@@ -299,7 +299,7 @@ QString MessageParser::parseNumeric(IrcNumericMessage *message)
             QString channel = p.value(1);
             QString topic = p.value(2);
             QString styledString = styleString(topic);
-            this->getChannel(channel)->appendText("Channel Topic", styledString, Channel::Topic);
+            this->getChannel(channel)->appendText("Channel Topic", styledString, Channel::MessageTypeTopic);
             break;
         }
         case Irc::RPL_TOPICWHOTIME: {

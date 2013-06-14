@@ -49,7 +49,7 @@ QString Channel::getLatestText()
 
 void Channel::appendText(QString inText)
 {
-    this->appendText("", inText, Channel::Info);
+    this->appendText("", inText, Channel::MessageTypeInfo);
 }
 
 void Channel::appendText(QString sender, QString inText, MessageType type) {
@@ -77,15 +77,15 @@ void Channel::appendText(QString sender, QString inText, MessageType type) {
     QString currentTimeStr = currentTime.toString("h:mmap");
 
     QString tableRow = "";
-    if (type == Channel::Emote)
+    if (type == Channel::MessageTypeEmote)
     {
         tableRow = "<table class=\"msg-emote\" width=\"100%\"><tr>";
     }
-    else if (type == Channel::Topic)
+    else if (type == Channel::MessageTypeTopic)
     {
         tableRow = "<table class=\"msg-topic\" width=\"100%\"><tr>";
     }
-    else if (type == Channel::Info)
+    else if (type == Channel::MessageTypeInfo)
     {
         tableRow = "<table class=\"msg-info\" width=\"100%\"><tr>";
     }

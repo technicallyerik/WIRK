@@ -191,7 +191,7 @@ void MainWindow::highlightServer(Server *server, ChannelHighlightType highlight)
 
 void MainWindow::highlightChannel(Channel *channel, ChannelHighlightType highlight, Channel::MessageType type)
 {
-    if(type != Channel::Info) {
+    if(type != Channel::MessageTypeInfo) {
         QStandardItem* menuItem = channel->getMenuItem();
         highlightMenuItem(menuItem, highlight);
     }
@@ -231,7 +231,7 @@ void MainWindow::sendMessage()
         if(data.canConvert<Channel*>()) {
             Channel *channel = data.value<Channel*>();
             Server *server = channel->getServer();
-            if(text.at(0) == '/') {
+            if(text.at(0) == '/' && !text.startsWith("/me ", Qt::CaseInsensitive)) {
                 // User entered command
                 server->sendMessage(text);
             } else {
@@ -353,7 +353,7 @@ void MainWindow::changeToChannel(Channel *newChannel)
     ui->mainText->setHtml(newChannel->getLatestText());
     QStandardItemModel *users = newChannel->getUsers();
     ui->userList->setModel(users);
-    highlightChannel(newChannel, ChannelHighlightTypeNone, Channel::Default);
+    highlightChannel(newChannel, ChannelHighlightTypeNone, Channel::MessageTypeDefault);
     scrollToBottom();
 
     ui->sendText->setChannel(*newChannel);
