@@ -14,7 +14,7 @@ Server::Server(QStandardItem *inMenuItem, Session *parent) : QObject(parent)
     commandParser = new CommandParser(this);
     ircSession = new IrcSession(this);
     menuItem = inMenuItem;
-    text = "<body>";
+    text = QStringList();
     connect(ircSession, SIGNAL(messageReceived(IrcMessage*)), this, SLOT(processMessage(IrcMessage*)));
     connect(ircSession, SIGNAL(socketError(QAbstractSocket::SocketError)), this, SLOT(processError(QAbstractSocket::SocketError)));
     connect(ircSession, SIGNAL(nickNameChanged(const QString&)), this, SLOT(nickNameChanged(const QString&)));
@@ -116,7 +116,18 @@ void Server::setSSL(bool inSsl)
 
 QString Server::getText()
 {
-    return text;
+    return text.join("");
+}
+
+QString Server::getLatestText()
+{
+    int latestTextCount = 100;
+    if(text.length() > latestTextCount) {
+        QStringList latestItems = QStringList(text.mid(text.length() - latestTextCount));
+        return latestItems.join("");
+    } else {
+        return getText();
+    }
 }
 
 void Server::appendText(QString inText)
@@ -129,7 +140,7 @@ void Server::appendText(QString inText)
     tableRow += "<td class=\"col-message\"><p class=\"message\">" + inText + "</p></td>";
     tableRow += "<td class=\"col-meta\" width=\"50\"><h6 class=\"metainfo\">" + currentTimeStr +"</h6></td>";
     tableRow += "</tr></table>";
-    text += tableRow;
+    text.append(tableRow);
     Session *session = this->getSession();
     QStringList emptyList;
     session->emitMessageReceived(this, NULL, tableRow, emptyList);

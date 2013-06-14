@@ -62,8 +62,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     // Setup the main text area
     document = new QTextDocument(ui->mainText);
     // TODO: create a function to return this as a string from the actual CSS file instead of putting in a minified string
-    document->setDefaultStyleSheet("body{background:#333;margin:0}table{font-family:\"Lucida Console\",Monaco,monospace;font-size:11px;line-height:1.25;margin:0}th,td{padding:2px 5px;vertical-align:top;color:#fff}h1,h2,h3,h4,h5,h6{margin:0}p{margin:0}a{color:#ddd;text-decoration:underline}.user{color:#aaa;font-size:11px;font-weight:bold}.metainfo{color:#999;font-size:8px}.col-name{text-align:right}.col-meta{padding-top:4px}.msg-mentioned{background:#736500}.msg-mentioned .user{color:#ddd}.msg-mentioned .message{color:#ffe100}.msg-mentioned a{color:#d6bd00}.msg-info .message{font-style:italic;color:#999}.msg-topic{background:#555}.msg-topic .user{color:#fff}.msg-topic .message{font-style:italic}.msg-emote{background:#73005e}.msg-emote .message{font-style:italic;color:#ff00d1}.msg-emote a{color:#cc00a7}");
-    document->setMaximumBlockCount(1000);  // 200 lines.  1 row = 5 blocks.
+    document->setDefaultStyleSheet("table{font-family:\"Lucida Console\",Monaco,monospace;font-size:11px;line-height:1.25;margin:0}th,td{padding:2px 5px;vertical-align:top;color:#fff}h1,h2,h3,h4,h5,h6{margin:0}p{margin:0}a{color:#ddd;text-decoration:underline}.user{color:#aaa;font-size:11px;font-weight:bold}.metainfo{color:#999;font-size:8px}.col-name{text-align:right}.col-meta{padding-top:4px}.msg-mentioned{background:#736500}.msg-mentioned .user{color:#ddd}.msg-mentioned .message{color:#ffe100}.msg-mentioned a{color:#d6bd00}.msg-info .message{font-style:italic;color:#999}.msg-topic{background:#555}.msg-topic .user{color:#fff}.msg-topic .message{font-style:italic}.msg-emote{background:#73005e}.msg-emote .message{font-style:italic;color:#ff00d1}.msg-emote a{color:#cc00a7}");
     ui->mainText->setDocument(document);
     connect(ui->mainText, SIGNAL(anchorClicked(QUrl)), this, SLOT(anchorClicked(QUrl)));
     ui->mainText->setFocusPolicy(Qt::NoFocus);
@@ -84,7 +83,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(webView, SIGNAL(loadFinished(bool)), this, SLOT(webLoadFinished(bool)));
 
     // Let's get some styles up in here
-    QString controlStyles = "QListView, QTreeView, QLineEdit { background:#333;font-family:\"Lucida Console\",Monaco,monospace;font-size:11px;color:#fff; }";
+    QString controlStyles = "QListView, QTreeView, QLineEdit, QTextBrowser { background:#333;font-family:\"Lucida Console\",Monaco,monospace;font-size:11px;color:#fff; }";
     ui->userList->setStyleSheet(controlStyles);
     ui->treeView->setStyleSheet(controlStyles);
     ui->mainText->setStyleSheet(controlStyles);
@@ -353,7 +352,7 @@ void MainWindow::scrollToBottom()
 
 void MainWindow::changeToServer(Server *newServer)
 {
-    ui->mainText->setHtml(newServer->getText());
+    ui->mainText->setHtml(newServer->getLatestText());
     ui->userList->setModel(NULL);
     highlightServer(newServer, ChannelHighlightTypeNone);
     scrollToBottom();
@@ -361,7 +360,7 @@ void MainWindow::changeToServer(Server *newServer)
 
 void MainWindow::changeToChannel(Channel *newChannel)
 {
-    ui->mainText->setHtml(newChannel->getText());
+    ui->mainText->setHtml(newChannel->getLatestText());
     QStandardItemModel *users = newChannel->getUsers();
     ui->userList->setModel(users);
     highlightChannel(newChannel, ChannelHighlightTypeNone, Channel::Default);

@@ -6,7 +6,7 @@
 
 Channel::Channel(QString inName, ChannelType type, QStandardItem *inMenuItem, Server *parent) : QObject(parent)
 {
-    text = "<body>";
+    text = QStringList();
     users = new QStandardItemModel(this);
     menuItem = inMenuItem;
     this->setName(inName);
@@ -33,10 +33,22 @@ void Channel::setName(QString inName) {
 }
 
 QString Channel::getText() {
-    return text;
+    return text.join("");
 }
 
-void Channel::appendText(QString inText) {
+QString Channel::getLatestText()
+{
+    int latestTextCount = 100;
+    if(text.length() > latestTextCount) {
+        QStringList latestItems = QStringList(text.mid(text.length() - latestTextCount));
+        return latestItems.join("");
+    } else {
+        return getText();
+    }
+}
+
+void Channel::appendText(QString inText)
+{
     this->appendText("", inText, Channel::Info);
 }
 
@@ -89,7 +101,7 @@ void Channel::appendText(QString sender, QString inText, MessageType type) {
         tableRow += "<td class=\"col-message\"><p class=\"message\">" + inText + "</p></td>";
         tableRow += "<td class=\"col-meta\" width=\"50\"><h6 class=\"metainfo\">" + currentTimeStr +"</h6></td>";
         tableRow += "</tr></table>";
-    text += tableRow;
+    text.append(tableRow);
     Session *session = server->getSession();
     session->emitMessageReceived(server, this, tableRow, foundLinks, type);
 }

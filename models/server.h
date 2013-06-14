@@ -51,6 +51,7 @@ public:
     void setSSL(bool ssl);
 
     QString getText();
+    QString getLatestText();
     void appendText(QString text);
 
     Channel* addChannel(QString inChannel, Channel::ChannelType inType);
@@ -92,7 +93,7 @@ private:
     QString realname;
     QString password;
     bool ssl;
-    QString text;
+    QStringList text;
 
     bool isConnected;
 

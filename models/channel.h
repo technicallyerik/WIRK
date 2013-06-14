@@ -37,6 +37,7 @@ public:
     void setName(QString name);
 
     QString getText();
+    QString getLatestText();
     void appendText(QString text);
     void appendText(QString sender, QString text, MessageType type = Channel::Default);
 
@@ -67,7 +68,7 @@ public slots:
 
 private:
     QString name;
-    QString text;
+    QStringList text;
     ChannelType type;
     QStandardItemModel *users;
     QStandardItem *menuItem;
