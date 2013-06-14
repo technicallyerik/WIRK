@@ -55,6 +55,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     // Setup sending text
     connect(ui->sendText, SIGNAL(returnPressed()), this, SLOT(sendMessage()));
+    ui->sendText->setFocus();
 
     // Setup user list
     ui->userList->setFocusPolicy(Qt::NoFocus);
@@ -106,6 +107,12 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
     session->writeToSettings();
     event->accept();
+}
+
+void MainWindow::keyPressEvent(QKeyEvent *event)
+{
+    ui->sendText->setFocus();
+    QMainWindow::keyPressEvent(event);
 }
 
 void MainWindow::handleMessage(Server *inServer, Channel *inChannel, QString inMessage, QStringList images, Channel::MessageType type)
@@ -346,6 +353,7 @@ void MainWindow::changeToServer(Server *newServer)
     ui->userList->setModel(NULL);
     highlightServer(newServer, ChannelHighlightTypeNone);
     scrollToBottom();
+    ui->sendText->setFocus();
 }
 
 void MainWindow::changeToChannel(Channel *newChannel)
@@ -355,6 +363,7 @@ void MainWindow::changeToChannel(Channel *newChannel)
     ui->userList->setModel(users);
     highlightChannel(newChannel, ChannelHighlightTypeNone, Channel::MessageTypeDefault);
     scrollToBottom();
+    ui->sendText->setFocus();
 
     ui->sendText->setChannel(*newChannel);
 }

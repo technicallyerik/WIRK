@@ -55,6 +55,7 @@ private:
     void highlightMenuItem(QStandardItem *menuItem, ChannelHighlightType highlight);
 
     void closeEvent(QCloseEvent *event);
+    void keyPressEvent(QKeyEvent *event);
 
 private slots:
     void sendMessage();
