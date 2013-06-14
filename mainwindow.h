@@ -63,7 +63,6 @@ private slots:
     void webLoadFinished(bool ok);
     void imageDownloaded(QNetworkReply *networkReply);
     void anchorClicked(QUrl url);
-    void refreshImages();
     void movieChanged(QPixmap pixels, QUrl url);
     void openPreferences();
     void selectItem(QModelIndex index);

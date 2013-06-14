@@ -39,22 +39,22 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     // Setup UI
     ui->setupUi(this);
 
-    // Setup servers
+    // Setup session
     session = new Session(this);
     session->readFromSettings();
     connect(session, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(rowsRemoved(QModelIndex,int,int)));
-
-    // Hook up session messages
     connect(session, SIGNAL(messageReceived(Server*,Channel*,QString,QStringList,Channel::MessageType)), this, SLOT(handleMessage(Server*,Channel*,QString,QStringList,Channel::MessageType)));
     connect(session, SIGNAL(selectItem(QModelIndex)), this, SLOT(selectItem(QModelIndex)));
 
-    // Hook up user interactions
-    connect(ui->sendText, SIGNAL(returnPressed()), this, SLOT(sendMessage()));
+    // Setup tree view
     connect(ui->treeView, SIGNAL(clicked(const QModelIndex&)), this, SLOT(treeItemClicked(const QModelIndex&)));
-
-    // Setup Tree
     ui->treeView->setModel(session);
     ui->treeView->setFocusPolicy(Qt::NoFocus);
+    ui->treeView->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui->treeView, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(generateContextMenu(const QPoint &)));
+
+    // Setup sending text
+    connect(ui->sendText, SIGNAL(returnPressed()), this, SLOT(sendMessage()));
 
     // Setup user list
     ui->userList->setFocusPolicy(Qt::NoFocus);
@@ -65,7 +65,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     document->setDefaultStyleSheet("table{font-family:\"Lucida Console\",Monaco,monospace;font-size:11px;line-height:1.25;margin:0}th,td{padding:2px 5px;vertical-align:top;color:#fff}h1,h2,h3,h4,h5,h6{margin:0}p{margin:0}a{color:#ddd;text-decoration:underline}.user{color:#aaa;font-size:11px;font-weight:bold}.metainfo{color:#999;font-size:8px}.col-name{text-align:right}.col-meta{padding-top:4px}.msg-mentioned{background:#736500}.msg-mentioned .user{color:#ddd}.msg-mentioned .message{color:#ffe100}.msg-mentioned a{color:#d6bd00}.msg-info .message{font-style:italic;color:#999}.msg-topic{background:#555}.msg-topic .user{color:#fff}.msg-topic .message{font-style:italic}.msg-emote{background:#73005e}.msg-emote .message{font-style:italic;color:#ff00d1}.msg-emote a{color:#cc00a7}");
     ui->mainText->setDocument(document);
     connect(ui->mainText, SIGNAL(anchorClicked(QUrl)), this, SLOT(anchorClicked(QUrl)));
-    ui->mainText->setFocusPolicy(Qt::NoFocus);
 
     // Set focus on first server
     QModelIndex modelIndex = session->index(0, 0);
@@ -92,19 +91,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->treeView->setAttribute(Qt::WA_MacShowFocusRect, 0);
     ui->sendText->setAttribute(Qt::WA_MacShowFocusRect, 0);
 
-    // Setup redraw timer
-    timer = new QTimer(this);
-    connect(timer, SIGNAL(timeout()), this, SLOT(refreshImages()));
-    timer->start(150);
-
     // Setup menu items
     connect(ui->actionPreferences, SIGNAL(triggered()), this, SLOT(openPreferences()));
     connect(ui->actionNewServer, SIGNAL(triggered()), this, SLOT(newServerWindow()));
     connect(ui->actionAbout, SIGNAL(triggered()), this, SLOT(showAboutInfo()));
-
-    // Enable right-click on the tree
-    ui->treeView->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(ui->treeView, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(generateContextMenu(const QPoint &)));
 }
 
 MainWindow::~MainWindow()
@@ -415,14 +405,6 @@ void MainWindow::imageDownloaded(QNetworkReply* networkReply)
     document->addResource(QTextDocument::ImageResource, mappedUrl, image);
     document->markContentsDirty(0, document->characterCount());
     scrollToBottom();
-}
-
-void MainWindow::refreshImages()
-{
-    // I think it's more efficient to change the block of the movie
-    // that animated instead of consistently refresh the whole document.
-    // See:  movieChanged()
-    //document->markContentsDirty(0, document->characterCount());
 }
 
 void MainWindow::movieChanged(QPixmap pixels, QUrl url)

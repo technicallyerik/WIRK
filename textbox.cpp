@@ -27,7 +27,8 @@ TextBox::~TextBox()
 
 void TextBox::keyPressEvent(QKeyEvent *event)
 {
-    if (event->key() == Qt::Key_Up || event->key() == Qt::Key_Down)
+    if ((event->key() == Qt::Key_Up || event->key() == Qt::Key_Down) &&
+            !(event->modifiers() & Qt::ShiftModifier))
     {
         bool willCycleUp = event->key() == Qt::Key_Up;
 
