@@ -10,9 +10,13 @@ CommandParser::CommandParser(Server *parent) : QObject(parent)
 
 IrcCommand *CommandParser::parse(QString commandStr)
 {
-    QRegExp commandRX("^/([a-zA-Z]+) (\\S+)( .+)?");
+    QStringList commandBlock = commandStr.split(" ");
+    QString commandFirst = commandBlock.takeFirst();
+
+    QRegExp commandRX("^/([a-zA-Z]+)");
     QRegExp channelRX("([#&][^\\x07\\x2C\\s]{,200})");
-    int pos = commandRX.indexIn(commandStr);
+    int pos = commandRX.indexIn(commandFirst);
+
     if(pos > -1) {
         QString commandString = commandRX.cap(1);
         // /ADMIN
@@ -32,15 +36,15 @@ IrcCommand *CommandParser::parse(QString commandStr)
         // /INVITE
         if (commandString.compare("invite", Qt::CaseInsensitive) == 0)
         {
-            QString nickname = commandRX.cap(2);
-            QString channel = commandRX.cap(3);
+            QString nickname = commandBlock.takeFirst();
+            QString channel = commandBlock.takeFirst();
             return IrcCommand::createInvite(nickname, channel);
         }
         // /JOIN
         else if(commandString.compare("join", Qt::CaseInsensitive) == 0)
         {
-            QString channelStr = commandRX.cap(2);
-            QStringList passwords = commandRX.cap(3).trimmed().split(',');
+            QString channelStr = commandBlock.takeFirst();
+            QStringList passwords = commandBlock.join(" ").split(',');
             QStringList channels;
             int pos = 0;
             while ((pos = channelRX.indexIn(channelStr, pos)) != -1)
@@ -60,15 +64,9 @@ IrcCommand *CommandParser::parse(QString commandStr)
         // /KICK
         else if(commandString.compare("kick", Qt::CaseInsensitive) == 0)
         {
-            QStringList channels = commandRX.cap(2).split(",");
-            QStringList params = commandRX.cap(3).trimmed().split(" ");
-            QStringList users = params[0].split(",");
-            QString reason = "";
-
-            for (int i = 1; i < params.length(); i++)
-            {
-                reason.append(params[i] + " ");
-            }
+            QStringList channels = commandBlock.takeFirst().split(",");
+            QStringList users = commandBlock.takeFirst().split(",");
+            QString reason = commandBlock.join(" ").trimmed();
 
             Server *server = this->getServer();
             int numOfChannels = channels.count();
@@ -101,8 +99,9 @@ IrcCommand *CommandParser::parse(QString commandStr)
         // /MSG
         else if (commandString.compare("msg", Qt::CaseInsensitive) == 0)
         {
-            QString nickname = commandRX.cap(2);
-            QString msg = commandRX.cap(3).trimmed();
+            QString nickname = commandBlock.takeFirst();
+            QString msg = commandBlock.join(" ").trimmed();
+
             Server *server = this->getServer();
             Channel *channel = server->getChannel(nickname);
             if (channel == NULL) {
@@ -126,10 +125,11 @@ IrcCommand *CommandParser::parse(QString commandStr)
         // /PART
         else if (commandString.compare("part", Qt::CaseInsensitive) == 0)
         {
-            QString channelStr = commandRX.cap(2);
+            QString channelStr = commandBlock.takeFirst();
+            QString reason = (!commandBlock.isEmpty())?commandBlock.join(" "):NULL;
             if (channelRX.indexIn(channelStr) > -1) {
-                //TODO: Get Reason
-               return IrcCommand::createPart(channelStr, NULL);
+                // TODO: createPart doesn't seem to work properly
+                return IrcCommand::createPart(channelStr, reason);
             }
         }
 
