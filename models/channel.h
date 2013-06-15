@@ -22,9 +22,6 @@ public:
         ChannelTypeUser
     };
 
-    explicit Channel(QString inName, ChannelType type, QStandardItem *inMenuItem, Server *parent = 0);
-    virtual ~Channel();
-
     enum MessageType
     {
         MessageTypeDefault,
@@ -32,6 +29,9 @@ public:
         MessageTypeEmote,
         MessageTypeInfo
     };
+
+    explicit Channel(QString inName, ChannelType type, QStandardItem *inMenuItem, Server *parent = 0);
+    virtual ~Channel();
     
     QString getName();
     void setName(QString name);
@@ -50,12 +50,14 @@ public:
     QStandardItemModel* getUsers();
     void addUsers(QStringList inUsers);
     User* addUser(QString inUser, QChar prefix);
-    void removeUser(QString inUser);
+    void removeUser(QString inUser, QString reason);
     void sortUsers();
     QStandardItem* getUserMenuItem(QString inUser);
     User* getUser(QString inUser);
 
     QStringList findUsersByPrefix(QString searchStr);
+
+    void sendMessage(QString message);
 
     Server* getServer();
     QStandardItem* getMenuItem();

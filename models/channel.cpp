@@ -3,6 +3,7 @@
 #include "user.h"
 #include "session.h"
 #include "irccommand.h"
+#include "messageparser.h"
 
 Channel::Channel(QString inName, ChannelType type, QStandardItem *inMenuItem, Server *parent) : QObject(parent)
 {
@@ -185,13 +186,19 @@ void Channel::sortUsers()
     users->sort(0);
 }
 
-void Channel::removeUser(QString inUser) {
+void Channel::removeUser(QString inUser, QString reason) {
     User* user = getUser(inUser);
     if(user != NULL) {
         QStandardItem *menuItem = user->getMenuItem();
         int row = menuItem->row();
         users->removeRow(row);
         user->deleteLater();
+        QString partMessage = QString("%1 has left %2").arg(inUser, name);
+        if (!reason.trimmed().isEmpty())
+        {
+            partMessage.append(QString(" (Reason: %3)").arg(reason));
+        }
+        appendText(partMessage);
     }
 }
 
@@ -229,6 +236,26 @@ QStringList Channel::findUsersByPrefix(QString searchStr)
     }
 
     return userList;
+}
+
+void Channel::sendMessage(QString message) {
+    IrcCommand *command;
+    Channel::MessageType type;
+
+    if(message.startsWith("/me ", Qt::CaseInsensitive)) {
+        message = message.mid(4);
+        command = IrcCommand::createCtcpAction(name, message);
+        type = Channel::MessageTypeEmote;
+    } else {
+        command = IrcCommand::createMessage(name, message);
+        type = Channel::MessageTypeDefault;
+    }
+
+    Server *server = getServer();
+    MessageParser *parser = server->getMessageParser();
+    QString styledString = parser->styleString(message);
+    appendText(server->getNickname(), styledString, type);
+    server->sendCommand(command);
 }
 
 Server* Channel::getServer() {

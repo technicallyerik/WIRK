@@ -87,8 +87,8 @@ void MessageParser::parse(IrcMessage *message)
                 targetChannel->appendText(QString("You have been kicked from %1 by %2 (Reason: %3)").arg(channel, user, reason));
             } else {
                 // Someone else got kicked
-                targetChannel->removeUser(user);
-                targetChannel->appendText(QString("%1 has been kicked by %2 (Reason: %3)").arg(user, sender, reason));
+                QString kickNote = QString("Kicked by %1 (Reason: %2)").arg(sender, reason);
+                targetChannel->removeUser(user, kickNote);
             }
             break;
         }
@@ -182,13 +182,7 @@ void MessageParser::parse(IrcMessage *message)
                 channel->appendText(QString("You have left %1").arg(targetChannel));
             } else {
                 // Other user left
-                channel->removeUser(sender);
-                QString partMessage = QString("%1 has left %2").arg(sender, targetChannel);
-                if (!reason.trimmed().isEmpty())
-                {
-                    partMessage.append(QString(" (Reason: %3)").arg(reason));
-                }
-                channel->appendText(partMessage);
+                channel->removeUser(sender, reason);
             }
             break;
         }

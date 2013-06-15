@@ -243,8 +243,7 @@ void MainWindow::sendMessage()
                 server->sendMessage(text);
             } else {
                 // User entered channel message
-                QString channelName = channel->getName();
-                server->sendChannelMessage(channelName, text);
+                channel->sendMessage(text);
             }
         } else if(data.canConvert<Server*>()) {
             Server *server = data.value<Server*>();

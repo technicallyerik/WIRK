@@ -20,6 +20,11 @@ QString User::getName() {
 }
 
 void User::setName(QString inName) {
+    if(name != NULL && inName.compare(name, Qt::CaseInsensitive) != 0) {
+        QString renameMessage = QString("%1 is now known as %2").arg(name, inName);
+        Channel *channel = getChannel();
+        channel->appendText(renameMessage);
+    }
     name = inName;
     QString mode = this->getModeDisplayString();
     menuItem->setText(mode + name);

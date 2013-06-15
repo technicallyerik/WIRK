@@ -175,9 +175,7 @@ void Server::partAllChannels()
         QStandardItem *channelMenuItem = this->menuItem->child(i);
         QVariant data = channelMenuItem->data(Qt::UserRole);
         Channel* channel = data.value<Channel*>();
-        QString channelName = channel->getName();
-        IrcCommand *partCommand = IrcCommand::createPart(channelName, NULL);
-        ircSession->sendCommand(partCommand);
+        channel->part();
     }
 }
 
@@ -215,14 +213,7 @@ void Server::removeUserFromAllChannels(QString username, QString reason)
         Channel* channel = data.value<Channel*>();
         User *user = channel->getUser(username);
         if(user) {
-            channel->removeUser(username);
-            QString channelName = channel->getName();
-            QString partMessage = QString("%1 has left %2").arg(username, channelName);
-            if (!reason.trimmed().isEmpty())
-            {
-                partMessage.append(QString(" (Reason: %3)").arg(reason));
-            }
-            channel->appendText(partMessage);
+            channel->removeUser(username, reason);
         }
     }
 }
@@ -237,8 +228,6 @@ void Server::renameUserInAllChannels(QString oldName, QString newName)
         User *user = channel->getUser(oldName);
         if(user) {
             user->setName(newName);
-            QString renameMessage = QString("%1 is now known as %2").arg(oldName, newName);
-            channel->appendText(renameMessage);
         }
     }
 }
@@ -250,6 +239,11 @@ Session* Server::getSession() {
 QStandardItem* Server::getMenuItem()
 {
     return menuItem;
+}
+
+MessageParser* Server::getMessageParser()
+{
+    return messageParser;
 }
 
 void Server::connecting()
@@ -299,26 +293,6 @@ void Server::closeConnection()
 
 void Server::sendMessage(QString message) {
     IrcCommand *command = commandParser->parse(message);
-    ircSession->sendCommand(command);
-}
-
-void Server::sendChannelMessage(QString channel, QString message) {
-    IrcCommand *command;
-    Channel* sendChannel = this->getChannel(channel);
-    QString nickname = this->getNickname();
-    Channel::MessageType type;
-
-    if(message.startsWith("/me ", Qt::CaseInsensitive)) {
-        message = message.mid(4);
-        command = IrcCommand::createCtcpAction(channel, message);
-        type = Channel::MessageTypeEmote;
-    } else {
-        command = IrcCommand::createMessage(channel, message);
-        type = Channel::MessageTypeDefault;
-    }
-
-    QString styledString = messageParser->styleString(message);
-    sendChannel->appendText(nickname, styledString, type);
     ircSession->sendCommand(command);
 }
 
