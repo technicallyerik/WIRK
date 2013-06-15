@@ -59,17 +59,24 @@ private:
 
 private slots:
     void sendMessage();
-    void treeItemClicked(const QModelIndex& index);
     void handleMessage(Server *server, Channel *channel, QString message, QStringList images, Channel::MessageType type);
+
+    void treeItemClicked(const QModelIndex& index);
+    void selectItem(QModelIndex index);
+
     void webLoadFinished(bool ok);
     void imageDownloaded(QNetworkReply *networkReply);
-    void anchorClicked(QUrl url);
     void movieChanged(QPixmap pixels, QUrl url);
-    void openPreferences();
-    void selectItem(QModelIndex index);
+
     void generateContextMenu(const QPoint &point);
-    void newServerWindow();
+
     void rowsRemoved(const QModelIndex &modelIndex, int start, int end);
+    void rowsInserted(const QModelIndex &modelIndex, int start, int end);
+
+    void anchorClicked(QUrl url);
+
+    void openPreferences();
+    void newServerWindow();
     void showAboutInfo();
 };
 

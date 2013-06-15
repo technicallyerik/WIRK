@@ -30,8 +30,6 @@ IrcCommand *CommandParser::parse(QString commandStr)
 
         // /CAP
 
-        // CtcpAction
-
         // CtcpReply
 
         // CtcpRequest

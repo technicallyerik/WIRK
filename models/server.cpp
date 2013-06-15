@@ -261,11 +261,6 @@ void Server::connected()
 {
     this->appendText("Connected.");
     menuItem->setForeground(QBrush((QColor(255,255,255))));
-
-    Session* session = this->getSession();
-    QModelIndex index = menuItem->index();
-    session->emitSelectItem(index);
-
     for(int c = 0; c < menuItem->rowCount(); c++) {
         QStandardItem *channelMenuItem = getMenuItem()->child(c);
         QVariant channelData = channelMenuItem->data(Qt::UserRole);

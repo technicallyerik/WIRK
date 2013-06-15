@@ -66,9 +66,6 @@ void MessageParser::parse(IrcMessage *message)
                     channel->appendText(QString("You have joined %1").arg(targetChannel));
                 }
                 channel->setIsJoined(true);
-                Session* session = this->getSession();
-                QModelIndex index = channel->getMenuItem()->index();
-                session->emitSelectItem(index);
             } else {
                 // Another user joined
                 Channel *channel = this->getChannel(targetChannel);

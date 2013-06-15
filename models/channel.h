@@ -55,7 +55,7 @@ public:
     QStandardItem* getUserMenuItem(QString inUser);
     User* getUser(QString inUser);
 
-    QStringList findUserName(QString searchStr);
+    QStringList findUsersByPrefix(QString searchStr);
 
     Server* getServer();
     QStandardItem* getMenuItem();

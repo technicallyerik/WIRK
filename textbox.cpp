@@ -88,7 +88,7 @@ void TextBox::getLastArgument()
 
     if(searchingUsernames.isEmpty()) {
         userSearchIndex = 0;
-        QStringList usernames = channel->findUserName(lastWord);
+        QStringList usernames = channel->findUsersByPrefix(lastWord);
         for(QStringList::Iterator iter = usernames.begin(); iter != usernames.end(); iter++) {
             searchingUsernames.append(*iter);
         }

@@ -97,7 +97,7 @@ QString User::getSortString()
     else if (mode == USER_MODE_HALF_OP)
         sortNumberPrefix = 4;
     else if (mode == USER_MODE_VOICED)
-        sortNumberPrefix = 5;\
+        sortNumberPrefix = 5;
     else
         sortNumberPrefix = 6;
 

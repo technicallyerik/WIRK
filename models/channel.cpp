@@ -216,7 +216,7 @@ User* Channel::getUser(QString inUser)
     return NULL;
 }
 
-QStringList Channel::findUserName(QString searchStr)
+QStringList Channel::findUsersByPrefix(QString searchStr)
 {
     QStringList userList = QStringList();
 

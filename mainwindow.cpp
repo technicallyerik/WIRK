@@ -43,8 +43,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     session = new Session(this);
     session->readFromSettings();
     connect(session, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(rowsRemoved(QModelIndex,int,int)));
+    connect(session, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(rowsInserted(QModelIndex, int, int)));
     connect(session, SIGNAL(messageReceived(Server*,Channel*,QString,QStringList,Channel::MessageType)), this, SLOT(handleMessage(Server*,Channel*,QString,QStringList,Channel::MessageType)));
-    connect(session, SIGNAL(selectItem(QModelIndex)), this, SLOT(selectItem(QModelIndex)));
 
     // Setup tree view
     connect(ui->treeView, SIGNAL(clicked(const QModelIndex&)), this, SLOT(treeItemClicked(const QModelIndex&)));
@@ -288,6 +288,12 @@ void MainWindow::rowsRemoved(const QModelIndex &modelIndex, int start, int end)
     this->selectItem(index);
 }
 
+void MainWindow::rowsInserted(const QModelIndex &modelIndex, int start, int end)
+{
+    QModelIndex newItemIndex = modelIndex.child(start, 0);
+    this->selectItem(newItemIndex);
+}
+
 void MainWindow::generateContextMenu(const QPoint &point)
 {
     QModelIndex modelIndex = ui->treeView->indexAt(point);
@@ -364,7 +370,6 @@ void MainWindow::changeToChannel(Channel *newChannel)
     highlightChannel(newChannel, ChannelHighlightTypeNone, Channel::MessageTypeDefault);
     scrollToBottom();
     ui->sendText->setFocus();
-
     ui->sendText->setChannel(*newChannel);
 }
 

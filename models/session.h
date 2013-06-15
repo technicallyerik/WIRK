@@ -34,7 +34,6 @@ private:
 
 signals:
     void messageReceived(Server *server, Channel *channel, QString message, QStringList images, Channel::MessageType type);
-    void selectItem(QModelIndex index);
 
 };
 
