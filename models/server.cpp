@@ -13,7 +13,7 @@ Server::Server(QStandardItem *inMenuItem, Session *parent) : QObject(parent)
     messageParser = new MessageParser(this);
     ircSession = new IrcSession(this);
     menuItem = inMenuItem;
-    text = QStringList();
+    text = QStringList("<span></span>");
     connect(ircSession, SIGNAL(messageReceived(IrcMessage*)), this, SLOT(processMessage(IrcMessage*)));
     connect(ircSession, SIGNAL(socketError(QAbstractSocket::SocketError)), this, SLOT(processError(QAbstractSocket::SocketError)));
     connect(ircSession, SIGNAL(nickNameChanged(const QString&)), this, SLOT(nickNameChanged(const QString&)));

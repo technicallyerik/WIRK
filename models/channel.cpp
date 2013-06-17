@@ -7,7 +7,7 @@
 
 Channel::Channel(QString inName, ChannelType type, QStandardItem *inMenuItem, Server *parent) : QObject(parent)
 {
-    text = QStringList();
+    text = QStringList("<span></span>");
     users = new QStandardItemModel(this);
     menuItem = inMenuItem;
     this->setName(inName);
@@ -64,7 +64,7 @@ void Channel::appendText(QString sender, QString inText, MessageType type) {
         if(!imageUrl.startsWith("http", Qt::CaseInsensitive)) {
             imageUrl = "http://" + imageUrl;
         }
-        postpendedImageTags += QString("<br /><a href=\"%1\"><img src=\"%1\" /></a>").arg(imageUrl);
+        postpendedImageTags += QString("<br /><br /><a href=\"%1\"><img src=\"%1\" /></a>").arg(imageUrl);
         foundLinks.append(imageUrl);
         pos += imageRegex.matchedLength();
     }
