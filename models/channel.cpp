@@ -239,18 +239,8 @@ QStringList Channel::findUsersByPrefix(QString searchStr)
 }
 
 void Channel::sendMessage(QString message) {
-    IrcCommand *command;
-    Channel::MessageType type;
-
-    if(message.startsWith("/me ", Qt::CaseInsensitive)) {
-        message = message.mid(4);
-        command = IrcCommand::createCtcpAction(name, message);
-        type = Channel::MessageTypeEmote;
-    } else {
-        command = IrcCommand::createMessage(name, message);
-        type = Channel::MessageTypeDefault;
-    }
-
+    IrcCommand *command = IrcCommand::createMessage(name, message);
+    Channel::MessageType type = Channel::MessageTypeDefault;
     Server *server = getServer();
     MessageParser *parser = server->getMessageParser();
     QString styledString = parser->styleString(message);

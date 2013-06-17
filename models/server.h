@@ -98,7 +98,6 @@ private:
 
     IrcSession *ircSession;
     MessageParser *messageParser;
-    CommandParser *commandParser;
     QStandardItem *menuItem;
 };
 

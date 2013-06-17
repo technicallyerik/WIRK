@@ -11,7 +11,6 @@
 Server::Server(QStandardItem *inMenuItem, Session *parent) : QObject(parent)
 {
     messageParser = new MessageParser(this);
-    commandParser = new CommandParser(this);
     ircSession = new IrcSession(this);
     menuItem = inMenuItem;
     text = QStringList();
@@ -289,11 +288,6 @@ void Server::openConnection()
 void Server::closeConnection()
 {
     ircSession->close();
-}
-
-void Server::sendMessage(QString message) {
-    IrcCommand *command = commandParser->parse(message);
-    ircSession->sendCommand(command);
 }
 
 void Server::sendCommand(IrcCommand *command)

@@ -31,6 +31,7 @@
 #include <QtWebKit/QWebHistory>
 #include <QtWebKit/QWebHistoryItem>
 #include <QtWebKit/QWebSettings>
+#include "commandparser.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -70,6 +71,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     // Set focus on first server
     QModelIndex modelIndex = session->index(0, 0);
     this->selectItem(modelIndex);
+
+    // Setup command parser
+    commandParser = new CommandParser(this);
 
     // Setup network manager
     networkAccessManager = new QNetworkAccessManager(this);
@@ -238,9 +242,10 @@ void MainWindow::sendMessage()
         if(data.canConvert<Channel*>()) {
             Channel *channel = data.value<Channel*>();
             Server *server = channel->getServer();
-            if(text.at(0) == '/' && !text.startsWith("/me ", Qt::CaseInsensitive)) {
+            if(text.at(0) == '/') {
                 // User entered command
-                server->sendMessage(text);
+                IrcCommand *command = commandParser->parse(text, server, channel);
+                server->sendCommand(command);
             } else {
                 // User entered channel message
                 channel->sendMessage(text);
@@ -249,7 +254,8 @@ void MainWindow::sendMessage()
             Server *server = data.value<Server*>();
             if(text.at(0) == '/') {
                 // User entered command
-                server->sendMessage(text);
+                IrcCommand *command = commandParser->parse(text, server, NULL);
+                server->sendCommand(command);
             } else {
                 // User entered channel message without channel selected
                 // Do nothing

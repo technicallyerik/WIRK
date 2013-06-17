@@ -18,6 +18,7 @@ class QNetworkAccessManager;
 class QNetworkReply;
 class QTextDocument;
 class AnimationViewModel;
+class CommandParser;
 
 class MainWindow : public QMainWindow
 {
@@ -45,6 +46,7 @@ private:
     QList<AnimationViewModel *> animations;
     QTimer *timer;
     QHash<QString, QString> imagePageMap;
+    CommandParser *commandParser;
 
     void changeToServer(Server *newServer);
     void changeToChannel(Channel *newChannel);
