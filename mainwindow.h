@@ -36,6 +36,8 @@ public:
         ChannelHighlightTypeNew,
         ChannelHighlightTypeMention
     };
+
+    void readSettings();
     
 private:
     Ui::MainWindow *ui;

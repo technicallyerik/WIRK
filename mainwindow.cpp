@@ -110,7 +110,28 @@ MainWindow::~MainWindow()
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     session->writeToSettings();
+    QSettings settings("Nerdery", "WIRK");
+    settings.setValue("geometry", saveGeometry());
+    settings.setValue("windowState", saveState());
+    settings.setValue("maximized", isMaximized());
+    if(!isMaximized()) {
+        settings.setValue("pos", pos());
+        settings.setValue("size", size());
+    }
     event->accept();
+}
+
+void MainWindow::readSettings()
+{
+    QSettings settings("Nerdery", "WIRK");
+    restoreGeometry(settings.value("geometry").toByteArray());
+    restoreState(settings.value("windowState").toByteArray());
+    move(settings.value("pos", pos()).toPoint());
+    resize(settings.value("size", size()).toSize());
+
+    if(settings.value("maximized", isMaximized()).toBool()) {
+        showMaximized();
+    }
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
