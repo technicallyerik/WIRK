@@ -6,6 +6,7 @@
 User::User(QString inName, QChar inMode, QStandardItem *inMenuItem, Channel *parent) : QObject(parent)
 {
     menuItem = inMenuItem;
+    modes = QSet<QChar>();
     this->setName(inName);
     this->addMode(inMode);
 }

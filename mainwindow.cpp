@@ -172,6 +172,10 @@ void MainWindow::handleMessage(Server *inServer, Channel *inChannel, QString inM
         ht = ChannelHighlightTypeNew;
     }
 
+    // Determine if we should scroll once the text is appended
+    QScrollBar *verticalBar = ui->mainText->verticalScrollBar();
+    bool saveUserPosition = verticalBar->value() != verticalBar->maximum();
+
     // Determine if the text should be added to the text area or if
     // a tree view item should be highlighted
     QModelIndexList selectedItems = ui->treeView->selectionModel()->selectedIndexes();
@@ -188,7 +192,9 @@ void MainWindow::handleMessage(Server *inServer, Channel *inChannel, QString inM
                selectedChannelName.compare(inChannel->getName(), Qt::CaseInsensitive) == 0) {
                 // Channel message with channel selected
                 ui->mainText->append(inMessage);
-                scrollToBottom();
+                if(!saveUserPosition) {
+                    scrollToBottom();
+                }
             } else {
                 if(inChannel == NULL) {
                     highlightServer(inServer, ht);
@@ -203,7 +209,9 @@ void MainWindow::handleMessage(Server *inServer, Channel *inChannel, QString inM
                inChannel == NULL) {
                 // Server message with server selected
                 ui->mainText->append(inMessage);
-                scrollToBottom();
+                if(!saveUserPosition) {
+                    scrollToBottom();
+                }
             } else {
                 if(inChannel == NULL) {
                     highlightServer(inServer, ht);
@@ -374,12 +382,13 @@ void MainWindow::generateContextMenu(const QPoint &point)
 
 void MainWindow::scrollToBottom()
 {
+    // First move cursor to the bottom because it's a smoother animation
+    QTextCursor c = ui->mainText->textCursor();
+    c.movePosition(QTextCursor::End);
+    ui->mainText->setTextCursor(c);
+    // Set the vertical scroll bar to the max because cursor position doesn't quite get us there
     QScrollBar *verticalBar = ui->mainText->verticalScrollBar();
-    if(verticalBar->value() == verticalBar->maximum()) {
-        QTextCursor c = ui->mainText->textCursor();
-        c.movePosition(QTextCursor::End);
-        ui->mainText->setTextCursor(c);
-    }
+    verticalBar->setValue(verticalBar->maximum());
 }
 
 void MainWindow::changeToServer(Server *newServer)
@@ -447,9 +456,13 @@ void MainWindow::imageDownloaded(QNetworkReply* networkReply)
         animations.append(avm);
     }
 
+    QScrollBar *verticalBar = ui->mainText->verticalScrollBar();
+    bool saveUserPosition = verticalBar->value() != verticalBar->maximum();
     document->addResource(QTextDocument::ImageResource, mappedUrl, image);
     document->markContentsDirty(0, document->characterCount());
-    scrollToBottom();
+    if(!saveUserPosition) {
+        scrollToBottom();
+    }
 }
 
 void MainWindow::movieChanged(QPixmap pixels, QUrl url)
