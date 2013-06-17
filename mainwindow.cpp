@@ -374,9 +374,12 @@ void MainWindow::generateContextMenu(const QPoint &point)
 
 void MainWindow::scrollToBottom()
 {
-    QTextCursor c = ui->mainText->textCursor();
-    c.movePosition(QTextCursor::End);
-    ui->mainText->setTextCursor(c);
+    QScrollBar *verticalBar = ui->mainText->verticalScrollBar();
+    if(verticalBar->value() == verticalBar->maximum()) {
+        QTextCursor c = ui->mainText->textCursor();
+        c.movePosition(QTextCursor::End);
+        ui->mainText->setTextCursor(c);
+    }
 }
 
 void MainWindow::changeToServer(Server *newServer)
