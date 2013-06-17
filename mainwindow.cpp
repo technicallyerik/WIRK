@@ -414,8 +414,10 @@ void MainWindow::webLoadFinished(bool ok)
     foreach (QWebElement metaTag, metaTags)
     {
         QString property = metaTag.attribute("property");
+        QString name = metaTag.attribute("name");
         QString content = metaTag.attribute("content");
-        if (property.compare("og:image", Qt::CaseInsensitive) == 0)
+        if (property.compare("og:image", Qt::CaseInsensitive) == 0 ||
+            name.compare("twitter:image", Qt::CaseInsensitive) == 0)
         {
             imagePageMap.insert(content, requestUrlString);
             QUrl url(content);
