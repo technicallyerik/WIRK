@@ -6,6 +6,7 @@
 #include <QPixmap>
 #include <QtWebKitWidgets/QWebView>
 #include "channel.h"
+#include <QSettings>
 
 namespace Ui {
     class MainWindow;
@@ -37,8 +38,6 @@ public:
         ChannelHighlightTypeMention
     };
 
-    void readSettings();
-    
 private:
     Ui::MainWindow *ui;
     Session *session;
@@ -49,6 +48,10 @@ private:
     QTimer *timer;
     QHash<QString, QString> imagePageMap;
     CommandParser *commandParser;
+    QSettings *settings;
+
+    void saveWindowSettings();
+    void readWindowSettings();
 
     void changeToServer(Server *newServer);
     void changeToChannel(Channel *newChannel);

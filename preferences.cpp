@@ -4,9 +4,10 @@
 #include <QDebug>
 #include <QFileInfo>
 
-Preferences::Preferences(QWidget *parent) : QDialog(parent), ui(new Ui::Preferences)
+Preferences::Preferences(QSettings *settings, QWidget *parent) : QDialog(parent), ui(new Ui::Preferences)
 {
     ui->setupUi(this);
+    this->settings = settings;
 }
 
 Preferences::~Preferences()

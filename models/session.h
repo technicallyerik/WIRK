@@ -12,7 +12,7 @@ class Session : public QStandardItemModel
 {
     Q_OBJECT
 public:
-    explicit Session(QObject *parent = 0);
+    explicit Session(QSettings *settings, QObject *parent = 0);
     virtual ~Session();
     
     Server* addServer(QString host, int port, QString username, QString nickname, QString realname, QString password, bool isSSL);
@@ -29,7 +29,6 @@ public slots:
     void removeServer(QString inServer);
 
 private:
-    static const QString settingsFileName;
     QSettings *settings;
 
 signals:

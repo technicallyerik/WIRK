@@ -4,11 +4,9 @@
 #include <QSettings>
 #include <QStandardItem>
 
-const QString Session::settingsFileName = "session.ini";
-
-Session::Session(QObject *parent) : QStandardItemModel(parent)
+Session::Session(QSettings *settings, QObject *parent) : QStandardItemModel(parent)
 {
-    settings = new QSettings(settingsFileName, QSettings::IniFormat, this);
+    this->settings = settings;
 }
 
 Session::~Session()

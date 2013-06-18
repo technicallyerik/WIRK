@@ -40,8 +40,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     // Setup UI
     ui->setupUi(this);
 
+    // Configure settings
+    settings = new QSettings(QSettings::IniFormat, QSettings::UserScope, "com.flashforwardlabs", "wirk", this);
+    readWindowSettings();
+
     // Setup session
-    session = new Session(this);
+    session = new Session(settings, this);
     session->readFromSettings();
     connect(session, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(rowsRemoved(QModelIndex,int,int)));
     connect(session, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(rowsInserted(QModelIndex, int, int)));
@@ -110,28 +114,34 @@ MainWindow::~MainWindow()
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     session->writeToSettings();
-    QSettings settings("Nerdery", "WIRK");
-    settings.setValue("geometry", saveGeometry());
-    settings.setValue("windowState", saveState());
-    settings.setValue("maximized", isMaximized());
-    if(!isMaximized()) {
-        settings.setValue("pos", pos());
-        settings.setValue("size", size());
-    }
+    saveWindowSettings();
     event->accept();
 }
 
-void MainWindow::readSettings()
+void MainWindow::saveWindowSettings()
 {
-    QSettings settings("Nerdery", "WIRK");
-    restoreGeometry(settings.value("geometry").toByteArray());
-    restoreState(settings.value("windowState").toByteArray());
-    move(settings.value("pos", pos()).toPoint());
-    resize(settings.value("size", size()).toSize());
+    settings->beginGroup("window");
+    settings->setValue("geometry", saveGeometry());
+    settings->setValue("windowState", saveState());
+    settings->setValue("maximized", isMaximized());
+    if(!isMaximized()) {
+        settings->setValue("pos", pos());
+        settings->setValue("size", size());
+    }
+    settings->endGroup();
+}
 
-    if(settings.value("maximized", isMaximized()).toBool()) {
+void MainWindow::readWindowSettings()
+{
+    settings->beginGroup("window");
+    restoreGeometry(settings->value("geometry").toByteArray());
+    restoreState(settings->value("windowState").toByteArray());
+    move(settings->value("pos", pos()).toPoint());
+    resize(settings->value("size", size()).toSize());
+    if(settings->value("maximized", isMaximized()).toBool()) {
         showMaximized();
     }
+    settings->endGroup();
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
@@ -503,7 +513,7 @@ void MainWindow::anchorClicked(QUrl url)
 
 void MainWindow::openPreferences()
 {
-    Preferences dialog(this);
+    Preferences dialog(settings, this);
     dialog.exec();
 }
 
