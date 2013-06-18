@@ -101,12 +101,9 @@ void MessageParser::parse(IrcMessage *message)
 
             Channel *channel = server->getChannel(target);
             if(channel) {
-                if(argument.length() == 0) {
-                    // Flag for a channel
-                    // TODO:  Set flags on the channel object
-                } else  {
+                User *user = channel->getUser(argument);
+                if(user != NULL) {
                     // Flags for a user in a channel
-                    User *user = channel->getUser(argument);
                     if (modeFlag.startsWith('-', Qt::CaseInsensitive))
                     {
                         user->removeMode(modeFlag.at(1));
@@ -115,11 +112,16 @@ void MessageParser::parse(IrcMessage *message)
                     {
                         user->addMode(modeFlag.at(1));
                     }
-                    channel->appendText(QString("%1 sets mode: %2 %3").arg(sender, modeFlag, argument));
+                } else  {
+                    // Flag for a channel
+                    // TODO:  Set flags on the channel object
                 }
+                channel->appendText(QString("%1 sets mode: %2 %3").arg(sender, modeFlag, argument));
             } else if(target.compare(currentNickname) == 0) {
                 // System wide flags about ourself
                 // TODO:  Set flags about ourself on the server
+                Server *server = this->getServer();
+                server->appendText(QString("%1 sets mode: %2 %3 %4").arg(sender, modeFlag, argument, target));
             }
             break;
         }
