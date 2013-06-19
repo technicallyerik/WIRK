@@ -35,6 +35,8 @@
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
+    //qDebug("Main Thread: %d", QThread::currentThreadId());
+
     QApplication::setApplicationVersion(VER);
 
     // Setup UI
@@ -403,7 +405,9 @@ void MainWindow::scrollToBottom()
 
 void MainWindow::changeToServer(Server *newServer)
 {
-    ui->mainText->setHtml(newServer->getLatestText());
+    QString serverText = newServer->getLatestText();
+    setAnimationPlaybacks(serverText);
+    ui->mainText->setHtml(serverText);
     ui->userList->setModel(NULL);
     highlightServer(newServer, ChannelHighlightTypeNone);
     scrollToBottom();
@@ -412,13 +416,33 @@ void MainWindow::changeToServer(Server *newServer)
 
 void MainWindow::changeToChannel(Channel *newChannel)
 {
-    ui->mainText->setHtml(newChannel->getLatestText());
+    QString channelText = newChannel->getLatestText();
+    setAnimationPlaybacks(channelText);
+    ui->mainText->setHtml(channelText);
     QStandardItemModel *users = newChannel->getUsers();
     ui->userList->setModel(users);
     highlightChannel(newChannel, ChannelHighlightTypeNone, Channel::MessageTypeDefault);
     scrollToBottom();
     ui->sendText->setFocus();
     ui->sendText->setChannel(*newChannel);
+}
+
+void MainWindow::setAnimationPlaybacks(QString text)
+{
+    foreach(AnimationViewModel *animation, animations)
+    {
+        QString animationUrl = animation->getUrl();
+        QMovie *animationMovie = animation->getMovie();
+        if(text.contains(animationUrl)) {
+            QMetaObject::invokeMethod(animationMovie, "setPaused",
+                                          Qt::QueuedConnection,
+                                          Q_ARG(bool, false));
+        } else {
+            QMetaObject::invokeMethod(animationMovie, "setPaused",
+                                          Qt::QueuedConnection,
+                                          Q_ARG(bool, true));
+        }
+    }
 }
 
 void MainWindow::webLoadFinished(bool ok)

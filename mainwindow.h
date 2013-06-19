@@ -55,6 +55,7 @@ private:
 
     void changeToServer(Server *newServer);
     void changeToChannel(Channel *newChannel);
+    void setAnimationPlaybacks(QString text);
     void scrollToBottom();
 
     void highlightServer(Server *server, ChannelHighlightType highlight);

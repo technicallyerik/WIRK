@@ -15,6 +15,8 @@ class AnimationViewModel : public QThread
 
 public:
     explicit AnimationViewModel(QByteArray bytes, QUrl url, QTextDocument *document, QObject *parent = 0);
+    QString getUrl();
+    QMovie* getMovie();
 
 private slots:
     void movieAnimated(int frame);

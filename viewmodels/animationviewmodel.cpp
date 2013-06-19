@@ -36,4 +36,16 @@ void AnimationViewModel::movieAnimated(int frame)
 {
     QPixmap map = movie->currentPixmap();
     emit(movieChanged(map, movieUrl));
+
+    //qDebug("Animaiton Thread: %d", QThread::currentThreadId());
+}
+
+QString AnimationViewModel::getUrl()
+{
+    return movieUrl.toString();
+}
+
+QMovie* AnimationViewModel::getMovie()
+{
+    return movie;
 }
