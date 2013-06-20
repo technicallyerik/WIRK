@@ -198,6 +198,18 @@ QStandardItem* Server::getChannelMenuItem(QString inChannel)
     return NULL;
 }
 
+QModelIndex Server::getChannelIndex(QString inChannel)
+{
+    QStandardItem *firstChild = menuItem->child(0);
+    QModelIndex startIndex = firstChild->index();
+    Session *session = this->getSession();
+    QModelIndexList foundChannels = session->match(startIndex, Qt::DisplayRole, inChannel, -1, Qt::MatchExactly);
+
+    return foundChannels.at(0);
+
+}
+
+
 Channel* Server::getChannel(QString inChannel)
 {
     QStandardItem *channel = getChannelMenuItem(inChannel);
