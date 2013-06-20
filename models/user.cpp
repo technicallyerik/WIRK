@@ -1,12 +1,19 @@
 #include "user.h"
 #include "channel.h"
+#include <stdlib.h>
 #include <QSet>
+#include <QBrush>
 #include <QDebug>
 
 User::User(QString inName, QChar inMode, QStandardItem *inMenuItem, Channel *parent) : QObject(parent)
 {
     menuItem = inMenuItem;
     modes = QSet<QChar>();
+
+    //we've got 16 colors to choose from
+    int randomColorNumber = (rand() % 16) + 1;
+    this->classColor = QString::number(randomColorNumber);
+
     this->setName(inName);
     this->addMode(inMode);
 }
@@ -27,10 +34,13 @@ void User::setName(QString inName) {
         channel->appendText(renameMessage);
     }
     name = inName;
-    QString mode = this->getModeDisplayString();
-    menuItem->setText(mode + name);
+
     menuItem->setData(name, UserDataName);
     this->refreshUserDisplay();
+}
+
+void User::setColor(QString classColor) {
+    this->classColor = classColor;
 }
 
 QSet<QChar> User::getModes()
@@ -42,6 +52,9 @@ void User::refreshUserDisplay()
 {
     QString mode = this->getModeDisplayString();
     menuItem->setText(mode + name);
+
+    QBrush brush = getUserColor();
+    menuItem->setForeground(brush);
 
     QString sortString = getSortString();
     menuItem->setData(sortString, UserDataSort);
@@ -117,4 +130,64 @@ Channel* User::getChannel() {
 QStandardItem* User::getMenuItem()
 {
     return menuItem;
+}
+
+QBrush User::getUserColor()
+{
+    QColor colorChoice;
+
+    if (this->classColor == "1") {
+            colorChoice = QColor("#F7977A");
+    }
+    else if (this->classColor == "2") {
+        colorChoice = QColor("#F9AD81");
+    }
+    else if (this->classColor == "3") {
+        colorChoice = QColor("#FDC68A");
+    }
+    else if (this->classColor == "4") {
+        colorChoice = QColor("#FFF79A");
+    }
+    else if (this->classColor == "5") {
+        colorChoice = QColor("#C4DF9B");
+    }
+    else if (this->classColor == "6") {
+        colorChoice = QColor("#A2D39C");
+    }
+    else if (this->classColor == "7") {
+        colorChoice = QColor("#82CA9D");
+    }
+    else if (this->classColor == "8") {
+        colorChoice = QColor("#7BCDC8");
+    }
+    else if (this->classColor == "9") {
+        colorChoice = QColor("#6ECFF6");
+    }
+    else if (this->classColor == "10") {
+        colorChoice = QColor("#7EA7D8");
+    }
+    else if (this->classColor == "11") {
+        colorChoice = QColor("#8493CA");
+    }
+    else if (this->classColor == "12") {
+        colorChoice = QColor("#8882BE");
+    }
+    else if (this->classColor == "13") {
+        colorChoice = QColor("#A187BE");
+    }
+    else if (this->classColor == "14") {
+        colorChoice = QColor("#BC8DBF");
+    }
+    else if (this->classColor == "15") {
+        colorChoice = QColor("#F49AC2");
+    }
+    else if (this->classColor == "16") {
+        colorChoice = QColor("#F6989D");
+    }
+    else {
+        colorChoice = QColor("#FFFFFF");
+    }
+
+    QBrush brush = QBrush(colorChoice);
+    return brush;
 }

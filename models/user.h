@@ -26,6 +26,8 @@ public:
 
     QString getName();
     void setName(QString name);
+    void setColor(QString classColor);
+    QBrush getUserColor();
 
     QSet<QChar> getModes();
     void addMode(QChar mode);
@@ -43,6 +45,7 @@ private:
     QString name;
     QSet<QChar> modes;
     QStandardItem *menuItem;
+    QString classColor;
 };
 
 #endif // USER_H
