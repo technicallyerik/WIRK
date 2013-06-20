@@ -417,7 +417,6 @@ void MainWindow::changeToChannel(Channel *newChannel)
     ui->mainText->setHtml(newChannel->getLatestText());
     QStandardItemModel *users = newChannel->getUsers();
     // Refreshing color names in case the preference changed
-    qDebug() << users->rowCount();
     for (int i = 0; i < users->rowCount(); i++)
     {
         QStandardItem *row = users->item(i);

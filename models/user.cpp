@@ -139,7 +139,7 @@ QBrush User::getUserColor()
     // White is the default color
     if (this->getChannel()->getServer()->getSession()->getColorUserNamesSetting() == false)
     {
-        return "#FFFFFF";
+        return QBrush("#FFFFFF");
     }
     QColor colorChoice;
 
