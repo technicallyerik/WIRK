@@ -6,6 +6,7 @@
 User::User(QString inName, QChar inMode, QStandardItem *inMenuItem, Channel *parent) : QObject(parent)
 {
     menuItem = inMenuItem;
+    modes = QSet<QChar>();
     this->setName(inName);
     this->addMode(inMode);
 }
@@ -20,6 +21,11 @@ QString User::getName() {
 }
 
 void User::setName(QString inName) {
+    if(name != NULL && inName.compare(name, Qt::CaseInsensitive) != 0) {
+        QString renameMessage = QString("%1 is now known as %2").arg(name, inName);
+        Channel *channel = getChannel();
+        channel->appendText(renameMessage);
+    }
     name = inName;
     QString mode = this->getModeDisplayString();
     menuItem->setText(mode + name);
@@ -97,7 +103,7 @@ QString User::getSortString()
     else if (mode == USER_MODE_HALF_OP)
         sortNumberPrefix = 4;
     else if (mode == USER_MODE_VOICED)
-        sortNumberPrefix = 5;\
+        sortNumberPrefix = 5;
     else
         sortNumberPrefix = 6;
 

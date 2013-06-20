@@ -51,7 +51,10 @@ public:
     void setSSL(bool ssl);
 
     QString getText();
+    QString getLatestText();
     void appendText(QString text);
+
+    bool getIsConnected();
 
     Channel* addChannel(QString inChannel, Channel::ChannelType inType);
     void partAllChannels();
@@ -63,11 +66,9 @@ public:
 
     Session* getSession();
     QStandardItem* getMenuItem();
-
-    bool getIsConnected();
+    MessageParser* getMessageParser();
 
     void sendMessage(QString command);
-    void sendChannelMessage(QString channel, QString message);
     void sendCommand(IrcCommand *command);
 
 public slots:
@@ -92,13 +93,11 @@ private:
     QString realname;
     QString password;
     bool ssl;
-    QString text;
-
+    QStringList text;
     bool isConnected;
 
     IrcSession *ircSession;
     MessageParser *messageParser;
-    CommandParser *commandParser;
     QStandardItem *menuItem;
 };
 

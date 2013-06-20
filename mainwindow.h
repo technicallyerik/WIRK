@@ -6,6 +6,7 @@
 #include <QPixmap>
 #include <QtWebKitWidgets/QWebView>
 #include "channel.h"
+#include <QSettings>
 
 namespace Ui {
     class MainWindow;
@@ -18,6 +19,7 @@ class QNetworkAccessManager;
 class QNetworkReply;
 class QTextDocument;
 class AnimationViewModel;
+class CommandParser;
 
 class MainWindow : public QMainWindow
 {
@@ -35,7 +37,7 @@ public:
         ChannelHighlightTypeNew,
         ChannelHighlightTypeMention
     };
-    
+
 private:
     Ui::MainWindow *ui;
     Session *session;
@@ -45,6 +47,11 @@ private:
     QList<AnimationViewModel *> animations;
     QTimer *timer;
     QHash<QString, QString> imagePageMap;
+    CommandParser *commandParser;
+    QSettings *settings;
+
+    void saveWindowSettings();
+    void readWindowSettings();
 
     void changeToServer(Server *newServer);
     void changeToChannel(Channel *newChannel);
@@ -55,21 +62,29 @@ private:
     void highlightMenuItem(QStandardItem *menuItem, ChannelHighlightType highlight);
 
     void closeEvent(QCloseEvent *event);
+    void keyPressEvent(QKeyEvent *event);
 
 private slots:
     void sendMessage();
-    void treeItemClicked(const QModelIndex& index);
     void handleMessage(Server *server, Channel *channel, QString message, QStringList images, Channel::MessageType type);
+
+    void treeItemClicked(const QModelIndex& index);
+    void selectItem(QModelIndex index);
+
     void webLoadFinished(bool ok);
     void imageDownloaded(QNetworkReply *networkReply);
-    void anchorClicked(QUrl url);
-    void refreshImages();
     void movieChanged(QPixmap pixels, QUrl url);
-    void openPreferences();
-    void selectItem(QModelIndex index);
+
     void generateContextMenu(const QPoint &point);
-    void newServerWindow();
+
     void rowsRemoved(const QModelIndex &modelIndex, int start, int end);
+    void rowsInserted(const QModelIndex &modelIndex, int start, int end);
+    Server* getCurrentServer();
+
+    void anchorClicked(QUrl url);
+
+    void openPreferences();
+    void newServerWindow();
     void showAboutInfo();
 };
 

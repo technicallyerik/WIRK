@@ -31,6 +31,8 @@
 #include <QtWebKit/QWebHistory>
 #include <QtWebKit/QWebHistoryItem>
 #include <QtWebKit/QWebSettings>
+#include "commandparser.h"
+#include "irccommand.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -39,22 +41,27 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     // Setup UI
     ui->setupUi(this);
 
-    // Setup servers
-    session = new Session(this);
+    // Configure settings
+    settings = new QSettings(QSettings::IniFormat, QSettings::UserScope, "com.flashforwardlabs", "wirk", this);
+    readWindowSettings();
+
+    // Setup session
+    session = new Session(settings, this);
     session->readFromSettings();
     connect(session, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(rowsRemoved(QModelIndex,int,int)));
-
-    // Hook up session messages
+    connect(session, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(rowsInserted(QModelIndex, int, int)));
     connect(session, SIGNAL(messageReceived(Server*,Channel*,QString,QStringList,Channel::MessageType)), this, SLOT(handleMessage(Server*,Channel*,QString,QStringList,Channel::MessageType)));
-    connect(session, SIGNAL(selectItem(QModelIndex)), this, SLOT(selectItem(QModelIndex)));
 
-    // Hook up user interactions
-    connect(ui->sendText, SIGNAL(returnPressed()), this, SLOT(sendMessage()));
+    // Setup tree view
     connect(ui->treeView, SIGNAL(clicked(const QModelIndex&)), this, SLOT(treeItemClicked(const QModelIndex&)));
-
-    // Setup Tree
     ui->treeView->setModel(session);
     ui->treeView->setFocusPolicy(Qt::NoFocus);
+    ui->treeView->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui->treeView, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(generateContextMenu(const QPoint &)));
+
+    // Setup sending text
+    connect(ui->sendText, SIGNAL(returnPressed()), this, SLOT(sendMessage()));
+    ui->sendText->setFocus();
 
     // Setup user list
     ui->userList->setFocusPolicy(Qt::NoFocus);
@@ -62,15 +69,16 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     // Setup the main text area
     document = new QTextDocument(ui->mainText);
     // TODO: create a function to return this as a string from the actual CSS file instead of putting in a minified string
-    document->setDefaultStyleSheet("body{background:#333;margin:0}table{font-family:\"Lucida Console\",Monaco,monospace;font-size:11px;line-height:1.25;margin:0}th,td{padding:2px 10px;vertical-align:top;color:#fff}h1,h2,h3,h4,h5,h6{margin:0}p{margin:0}a{color:#ddd;text-decoration:underline}.user{color:#aaa;font-size:11px;font-weight:bold}.metainfo{color:#999;font-size:8px}.col-name{text-align:right}.col-meta{padding-top:4px}.msg-mentioned{background:#736500}.msg-mentioned .user{color:#ddd}.msg-mentioned .message{color:#ffe100}.msg-mentioned a{color:#d6bd00}.msg-info .message{font-style:italic;color:#999}.msg-topic{background:#555}.msg-topic .user{color:#fff}.msg-topic .message{font-style:italic}.msg-emote{background:#73005e}.msg-emote .message{font-style:italic;color:#ff00d1}.msg-emote a{color:#cc00a7}");
-    document->setMaximumBlockCount(1000);  // 200 lines.  1 row = 5 blocks.
+    document->setDefaultStyleSheet("table{font-family:\"Lucida Console\",Monaco,monospace;font-size:11px;line-height:1.25;margin:0}th,td{padding:2px 5px;vertical-align:top;color:#fff}h1,h2,h3,h4,h5,h6{margin:0}p{margin:0}a{color:#ddd;text-decoration:underline}.user{color:#aaa;font-size:11px;font-weight:bold}.metainfo{color:#999;font-size:8px}.col-name{text-align:right}.col-meta{padding-top:4px}.msg-mentioned{background:#736500}.msg-mentioned .user{color:#ddd}.msg-mentioned .message{color:#ffe100}.msg-mentioned a{color:#d6bd00}.msg-info .message{font-style:italic;color:#999}.msg-topic{background:#555}.msg-topic .user{color:#fff}.msg-topic .message{font-style:italic}.msg-emote{background:#73005e}.msg-emote .message{font-style:italic;color:#ff00d1}.msg-emote a{color:#cc00a7}");
     ui->mainText->setDocument(document);
     connect(ui->mainText, SIGNAL(anchorClicked(QUrl)), this, SLOT(anchorClicked(QUrl)));
-    ui->mainText->setFocusPolicy(Qt::NoFocus);
 
     // Set focus on first server
     QModelIndex modelIndex = session->index(0, 0);
     this->selectItem(modelIndex);
+
+    // Setup command parser
+    commandParser = new CommandParser(this);
 
     // Setup network manager
     networkAccessManager = new QNetworkAccessManager(this);
@@ -84,7 +92,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(webView, SIGNAL(loadFinished(bool)), this, SLOT(webLoadFinished(bool)));
 
     // Let's get some styles up in here
-    QString controlStyles = "QListView, QTreeView, QLineEdit { background:#333;font-family:\"Lucida Console\",Monaco,monospace;font-size:11px;color:#fff; }";
+    QString controlStyles = "QListView, QTreeView, QLineEdit, QTextBrowser { background:#333;font-family:\"Lucida Console\",Monaco,monospace;font-size:11px;color:#fff; }";
     ui->userList->setStyleSheet(controlStyles);
     ui->treeView->setStyleSheet(controlStyles);
     ui->mainText->setStyleSheet(controlStyles);
@@ -93,19 +101,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->treeView->setAttribute(Qt::WA_MacShowFocusRect, 0);
     ui->sendText->setAttribute(Qt::WA_MacShowFocusRect, 0);
 
-    // Setup redraw timer
-    timer = new QTimer(this);
-    connect(timer, SIGNAL(timeout()), this, SLOT(refreshImages()));
-    timer->start(150);
-
     // Setup menu items
     connect(ui->actionPreferences, SIGNAL(triggered()), this, SLOT(openPreferences()));
     connect(ui->actionNewServer, SIGNAL(triggered()), this, SLOT(newServerWindow()));
     connect(ui->actionAbout, SIGNAL(triggered()), this, SLOT(showAboutInfo()));
-
-    // Enable right-click on the tree
-    ui->treeView->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(ui->treeView, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(generateContextMenu(const QPoint &)));
 }
 
 MainWindow::~MainWindow()
@@ -116,7 +115,40 @@ MainWindow::~MainWindow()
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     session->writeToSettings();
+    saveWindowSettings();
     event->accept();
+}
+
+void MainWindow::saveWindowSettings()
+{
+    settings->beginGroup("window");
+    settings->setValue("geometry", saveGeometry());
+    settings->setValue("windowState", saveState());
+    settings->setValue("maximized", isMaximized());
+    if(!isMaximized()) {
+        settings->setValue("pos", pos());
+        settings->setValue("size", size());
+    }
+    settings->endGroup();
+}
+
+void MainWindow::readWindowSettings()
+{
+    settings->beginGroup("window");
+    restoreGeometry(settings->value("geometry").toByteArray());
+    restoreState(settings->value("windowState").toByteArray());
+    move(settings->value("pos", pos()).toPoint());
+    resize(settings->value("size", size()).toSize());
+    if(settings->value("maximized", isMaximized()).toBool()) {
+        showMaximized();
+    }
+    settings->endGroup();
+}
+
+void MainWindow::keyPressEvent(QKeyEvent *event)
+{
+    ui->sendText->setFocus();
+    QMainWindow::keyPressEvent(event);
 }
 
 void MainWindow::handleMessage(Server *inServer, Channel *inChannel, QString inMessage, QStringList images, Channel::MessageType type)
@@ -151,6 +183,10 @@ void MainWindow::handleMessage(Server *inServer, Channel *inChannel, QString inM
         ht = ChannelHighlightTypeNew;
     }
 
+    // Determine if we should scroll once the text is appended
+    QScrollBar *verticalBar = ui->mainText->verticalScrollBar();
+    bool saveUserPosition = verticalBar->value() != verticalBar->maximum();
+
     // Determine if the text should be added to the text area or if
     // a tree view item should be highlighted
     QModelIndexList selectedItems = ui->treeView->selectionModel()->selectedIndexes();
@@ -167,7 +203,9 @@ void MainWindow::handleMessage(Server *inServer, Channel *inChannel, QString inM
                selectedChannelName.compare(inChannel->getName(), Qt::CaseInsensitive) == 0) {
                 // Channel message with channel selected
                 ui->mainText->append(inMessage);
-                scrollToBottom();
+                if(!saveUserPosition) {
+                    scrollToBottom();
+                }
             } else {
                 if(inChannel == NULL) {
                     highlightServer(inServer, ht);
@@ -182,7 +220,9 @@ void MainWindow::handleMessage(Server *inServer, Channel *inChannel, QString inM
                inChannel == NULL) {
                 // Server message with server selected
                 ui->mainText->append(inMessage);
-                scrollToBottom();
+                if(!saveUserPosition) {
+                    scrollToBottom();
+                }
             } else {
                 if(inChannel == NULL) {
                     highlightServer(inServer, ht);
@@ -202,7 +242,7 @@ void MainWindow::highlightServer(Server *server, ChannelHighlightType highlight)
 
 void MainWindow::highlightChannel(Channel *channel, ChannelHighlightType highlight, Channel::MessageType type)
 {
-    if(type != Channel::Info) {
+    if(type != Channel::MessageTypeInfo) {
         QStandardItem* menuItem = channel->getMenuItem();
         highlightMenuItem(menuItem, highlight);
     }
@@ -244,17 +284,18 @@ void MainWindow::sendMessage()
             Server *server = channel->getServer();
             if(text.at(0) == '/') {
                 // User entered command
-                server->sendMessage(text);
+                IrcCommand *command = commandParser->parse(text, server, channel);
+                server->sendCommand(command);
             } else {
                 // User entered channel message
-                QString channelName = channel->getName();
-                server->sendChannelMessage(channelName, text);
+                channel->sendMessage(text);
             }
         } else if(data.canConvert<Server*>()) {
             Server *server = data.value<Server*>();
             if(text.at(0) == '/') {
                 // User entered command
-                server->sendMessage(text);
+                IrcCommand *command = commandParser->parse(text, server, NULL);
+                server->sendCommand(command);
             } else {
                 // User entered channel message without channel selected
                 // Do nothing
@@ -290,6 +331,12 @@ void MainWindow::rowsRemoved(const QModelIndex &modelIndex, int start, int end)
 {
     QModelIndex index = ui->treeView->selectionModel()->currentIndex();
     this->selectItem(index);
+}
+
+void MainWindow::rowsInserted(const QModelIndex &modelIndex, int start, int end)
+{
+    QModelIndex newItemIndex = modelIndex.child(start, 0);
+    this->selectItem(newItemIndex);
 }
 
 void MainWindow::generateContextMenu(const QPoint &point)
@@ -346,27 +393,32 @@ void MainWindow::generateContextMenu(const QPoint &point)
 
 void MainWindow::scrollToBottom()
 {
+    // First move cursor to the bottom because it's a smoother animation
     QTextCursor c = ui->mainText->textCursor();
     c.movePosition(QTextCursor::End);
     ui->mainText->setTextCursor(c);
+    // Set the vertical scroll bar to the max because cursor position doesn't quite get us there
+    QScrollBar *verticalBar = ui->mainText->verticalScrollBar();
+    verticalBar->setValue(verticalBar->maximum());
 }
 
 void MainWindow::changeToServer(Server *newServer)
 {
-    ui->mainText->setHtml(newServer->getText());
+    ui->mainText->setHtml(newServer->getLatestText());
     ui->userList->setModel(NULL);
     highlightServer(newServer, ChannelHighlightTypeNone);
     scrollToBottom();
+    ui->sendText->setFocus();
 }
 
 void MainWindow::changeToChannel(Channel *newChannel)
 {
-    ui->mainText->setHtml(newChannel->getText());
+    ui->mainText->setHtml(newChannel->getLatestText());
     QStandardItemModel *users = newChannel->getUsers();
     ui->userList->setModel(users);
-    highlightChannel(newChannel, ChannelHighlightTypeNone, Channel::Default);
+    highlightChannel(newChannel, ChannelHighlightTypeNone, Channel::MessageTypeDefault);
     scrollToBottom();
-
+    ui->sendText->setFocus();
     ui->sendText->setChannel(*newChannel);
 }
 
@@ -385,8 +437,10 @@ void MainWindow::webLoadFinished(bool ok)
     foreach (QWebElement metaTag, metaTags)
     {
         QString property = metaTag.attribute("property");
+        QString name = metaTag.attribute("name");
         QString content = metaTag.attribute("content");
-        if (property.compare("og:image", Qt::CaseInsensitive) == 0)
+        if (property.compare("og:image", Qt::CaseInsensitive) == 0 ||
+            name.compare("twitter:image", Qt::CaseInsensitive) == 0)
         {
             imagePageMap.insert(content, requestUrlString);
             QUrl url(content);
@@ -413,17 +467,13 @@ void MainWindow::imageDownloaded(QNetworkReply* networkReply)
         animations.append(avm);
     }
 
+    QScrollBar *verticalBar = ui->mainText->verticalScrollBar();
+    bool saveUserPosition = verticalBar->value() != verticalBar->maximum();
     document->addResource(QTextDocument::ImageResource, mappedUrl, image);
     document->markContentsDirty(0, document->characterCount());
-    scrollToBottom();
-}
-
-void MainWindow::refreshImages()
-{
-    // I think it's more efficient to change the block of the movie
-    // that animated instead of consistently refresh the whole document.
-    // See:  movieChanged()
-    //document->markContentsDirty(0, document->characterCount());
+    if(!saveUserPosition) {
+        scrollToBottom();
+    }
 }
 
 void MainWindow::movieChanged(QPixmap pixels, QUrl url)
@@ -456,15 +506,32 @@ void MainWindow::movieChanged(QPixmap pixels, QUrl url)
 
 void MainWindow::anchorClicked(QUrl url)
 {
-    if(!url.toString().startsWith("http", Qt::CaseInsensitive)) {
-        url.setUrl("http://" + url.toString());
+    if(url.toString().startsWith("channel:")) {
+        QRegExp channelNameRegExp("channel:(.*)");
+        int pos = channelNameRegExp.indexIn(url.toString());
+        if(pos != -1) {
+            Server *server = getCurrentServer();
+            QString channelName = channelNameRegExp.cap(1);
+            Channel* channel = server->getChannel(channelName);
+            if(channel == NULL) {
+                IrcCommand *command = IrcCommand::createJoin(channelName, NULL);
+                server->sendCommand(command);
+            } else {
+                this->changeToChannel(channel);
+            }
+
+        }
+    } else {
+        if(!url.toString().startsWith("http", Qt::CaseInsensitive)) {
+            url.setUrl("http://" + url.toString());
+        }
+        QDesktopServices::openUrl(url);
     }
-    QDesktopServices::openUrl(url);
 }
 
 void MainWindow::openPreferences()
 {
-    Preferences dialog(this);
+    Preferences dialog(settings, this);
     dialog.exec();
 }
 
@@ -481,4 +548,21 @@ void MainWindow::showAboutInfo()
     msgBox.setInformativeText(QString("Version: %1").arg(QApplication::applicationVersion()));
     msgBox.setStandardButtons(QMessageBox::Ok);
     msgBox.exec();
+}
+
+Server* MainWindow::getCurrentServer()
+{
+    QModelIndexList selectedItems = ui->treeView->selectionModel()->selectedIndexes();
+    if(selectedItems.count() == 1) {
+        QModelIndex selectedItem = selectedItems[0];
+        QVariant data = selectedItem.data(Qt::UserRole);
+        if(data.canConvert<Channel*>()) {
+            Channel *selectedChannel = data.value<Channel*>();
+            QString selectedChannelName = selectedChannel->getName();
+            return selectedChannel->getServer();
+        } else if(data.canConvert<Server*>()) {
+            return data.value<Server*>();
+        }
+    }
+    return NULL;
 }

@@ -3,10 +3,11 @@
 #include "user.h"
 #include "session.h"
 #include "irccommand.h"
+#include "messageparser.h"
 
 Channel::Channel(QString inName, ChannelType type, QStandardItem *inMenuItem, Server *parent) : QObject(parent)
 {
-    text = "<body>";
+    text = QStringList("<span></span>");
     users = new QStandardItemModel(this);
     menuItem = inMenuItem;
     this->setName(inName);
@@ -33,11 +34,23 @@ void Channel::setName(QString inName) {
 }
 
 QString Channel::getText() {
-    return text;
+    return text.join("");
 }
 
-void Channel::appendText(QString inText) {
-    this->appendText("", inText, Channel::Info);
+QString Channel::getLatestText()
+{
+    int latestTextCount = 100;
+    if(text.length() > latestTextCount) {
+        QStringList latestItems = QStringList(text.mid(text.length() - latestTextCount));
+        return latestItems.join("");
+    } else {
+        return getText();
+    }
+}
+
+void Channel::appendText(QString inText)
+{
+    this->appendText("", inText, Channel::MessageTypeInfo);
 }
 
 void Channel::appendText(QString sender, QString inText, MessageType type) {
@@ -65,15 +78,15 @@ void Channel::appendText(QString sender, QString inText, MessageType type) {
     QString currentTimeStr = currentTime.toString("h:mmap");
 
     QString tableRow = "";
-    if (type == Channel::Emote)
+    if (type == Channel::MessageTypeEmote)
     {
         tableRow = "<table class=\"msg-emote\" width=\"100%\"><tr>";
     }
-    else if (type == Channel::Topic)
+    else if (type == Channel::MessageTypeTopic)
     {
         tableRow = "<table class=\"msg-topic\" width=\"100%\"><tr>";
     }
-    else if (type == Channel::Info)
+    else if (type == Channel::MessageTypeInfo)
     {
         tableRow = "<table class=\"msg-info\" width=\"100%\"><tr>";
     }
@@ -85,11 +98,11 @@ void Channel::appendText(QString sender, QString inText, MessageType type) {
     {
         tableRow = "<table width=\"100%\"><tr>";
     }
-        tableRow += "<th class=\"col-name\" width=\"140\" align=\"right\"><span class=\"user\">" + sender + "</span></th>";
+        tableRow += "<th class=\"col-name\" width=\"115\" align=\"right\"><span class=\"user\">" + sender + "</span></th>";
         tableRow += "<td class=\"col-message\"><p class=\"message\">" + inText + "</p></td>";
         tableRow += "<td class=\"col-meta\" width=\"50\"><h6 class=\"metainfo\">" + currentTimeStr +"</h6></td>";
         tableRow += "</tr></table>";
-    text += tableRow;
+    text.append(tableRow);
     Session *session = server->getSession();
     session->emitMessageReceived(server, this, tableRow, foundLinks, type);
 }
@@ -173,13 +186,19 @@ void Channel::sortUsers()
     users->sort(0);
 }
 
-void Channel::removeUser(QString inUser) {
+void Channel::removeUser(QString inUser, QString reason) {
     User* user = getUser(inUser);
     if(user != NULL) {
         QStandardItem *menuItem = user->getMenuItem();
         int row = menuItem->row();
         users->removeRow(row);
         user->deleteLater();
+        QString partMessage = QString("%1 has left %2").arg(inUser, name);
+        if (!reason.trimmed().isEmpty())
+        {
+            partMessage.append(QString(" (Reason: %3)").arg(reason));
+        }
+        appendText(partMessage);
     }
 }
 
@@ -204,7 +223,7 @@ User* Channel::getUser(QString inUser)
     return NULL;
 }
 
-QStringList Channel::findUserName(QString searchStr)
+QStringList Channel::findUsersByPrefix(QString searchStr)
 {
     QStringList userList = QStringList();
 
@@ -217,6 +236,16 @@ QStringList Channel::findUserName(QString searchStr)
     }
 
     return userList;
+}
+
+void Channel::sendMessage(QString message) {
+    IrcCommand *command = IrcCommand::createMessage(name, message);
+    Channel::MessageType type = Channel::MessageTypeDefault;
+    Server *server = getServer();
+    MessageParser *parser = server->getMessageParser();
+    QString styledString = parser->styleString(message);
+    appendText(server->getNickname(), styledString, type);
+    server->sendCommand(command);
 }
 
 Server* Channel::getServer() {

@@ -11,10 +11,9 @@
 Server::Server(QStandardItem *inMenuItem, Session *parent) : QObject(parent)
 {
     messageParser = new MessageParser(this);
-    commandParser = new CommandParser(this);
     ircSession = new IrcSession(this);
     menuItem = inMenuItem;
-    text = "<body>";
+    text = QStringList("<span></span>");
     connect(ircSession, SIGNAL(messageReceived(IrcMessage*)), this, SLOT(processMessage(IrcMessage*)));
     connect(ircSession, SIGNAL(socketError(QAbstractSocket::SocketError)), this, SLOT(processError(QAbstractSocket::SocketError)));
     connect(ircSession, SIGNAL(nickNameChanged(const QString&)), this, SLOT(nickNameChanged(const QString&)));
@@ -116,7 +115,18 @@ void Server::setSSL(bool inSsl)
 
 QString Server::getText()
 {
-    return text;
+    return text.join("");
+}
+
+QString Server::getLatestText()
+{
+    int latestTextCount = 100;
+    if(text.length() > latestTextCount) {
+        QStringList latestItems = QStringList(text.mid(text.length() - latestTextCount));
+        return latestItems.join("");
+    } else {
+        return getText();
+    }
 }
 
 void Server::appendText(QString inText)
@@ -129,11 +139,16 @@ void Server::appendText(QString inText)
     tableRow += "<td class=\"col-message\"><p class=\"message\">" + inText + "</p></td>";
     tableRow += "<td class=\"col-meta\" width=\"50\"><h6 class=\"metainfo\">" + currentTimeStr +"</h6></td>";
     tableRow += "</tr></table>";
-    text += tableRow;
+    text.append(tableRow);
     Session *session = this->getSession();
     QStringList emptyList;
     session->emitMessageReceived(this, NULL, tableRow, emptyList);
 }
+
+/*void Server::highlightChannel(Channel *channel, QString channelName)
+{
+
+}*/
 
 Channel* Server::addChannel(QString inChannel, Channel::ChannelType inType)
 {
@@ -164,9 +179,7 @@ void Server::partAllChannels()
         QStandardItem *channelMenuItem = this->menuItem->child(i);
         QVariant data = channelMenuItem->data(Qt::UserRole);
         Channel* channel = data.value<Channel*>();
-        QString channelName = channel->getName();
-        IrcCommand *partCommand = IrcCommand::createPart(channelName, NULL);
-        ircSession->sendCommand(partCommand);
+        channel->part();
     }
 }
 
@@ -204,14 +217,7 @@ void Server::removeUserFromAllChannels(QString username, QString reason)
         Channel* channel = data.value<Channel*>();
         User *user = channel->getUser(username);
         if(user) {
-            channel->removeUser(username);
-            QString channelName = channel->getName();
-            QString partMessage = QString("%1 has left %2").arg(username, channelName);
-            if (!reason.trimmed().isEmpty())
-            {
-                partMessage.append(QString(" (Reason: %3)").arg(reason));
-            }
-            channel->appendText(partMessage);
+            channel->removeUser(username, reason);
         }
     }
 }
@@ -226,8 +232,6 @@ void Server::renameUserInAllChannels(QString oldName, QString newName)
         User *user = channel->getUser(oldName);
         if(user) {
             user->setName(newName);
-            QString renameMessage = QString("%1 is now known as %2").arg(oldName, newName);
-            channel->appendText(renameMessage);
         }
     }
 }
@@ -241,6 +245,11 @@ QStandardItem* Server::getMenuItem()
     return menuItem;
 }
 
+MessageParser* Server::getMessageParser()
+{
+    return messageParser;
+}
+
 void Server::connecting()
 {
     this->appendText("Connecting...");
@@ -250,11 +259,6 @@ void Server::connected()
 {
     this->appendText("Connected.");
     menuItem->setForeground(QBrush((QColor(255,255,255))));
-
-    Session* session = this->getSession();
-    QModelIndex index = menuItem->index();
-    session->emitSelectItem(index);
-
     for(int c = 0; c < menuItem->rowCount(); c++) {
         QStandardItem *channelMenuItem = getMenuItem()->child(c);
         QVariant channelData = channelMenuItem->data(Qt::UserRole);
@@ -289,20 +293,6 @@ void Server::openConnection()
 void Server::closeConnection()
 {
     ircSession->close();
-}
-
-void Server::sendMessage(QString message) {
-    IrcCommand *command = commandParser->parse(message);
-    ircSession->sendCommand(command);
-}
-
-void Server::sendChannelMessage(QString channel, QString message) {
-    IrcCommand *command = IrcCommand::createMessage(channel, message);
-    Channel* sendChannel = this->getChannel(channel);
-    QString nickname = this->getNickname();
-    QString styledString = messageParser->styleString(message);
-    sendChannel->appendText(nickname, styledString);
-    ircSession->sendCommand(command);
 }
 
 void Server::sendCommand(IrcCommand *command)

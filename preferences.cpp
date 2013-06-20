@@ -7,10 +7,10 @@
 const QString Preferences::settingsFileName = "preferences.ini";
 const QString Preferences::userPrefsName = "user preferences";
 
-Preferences::Preferences(QWidget *parent) : QDialog(parent), ui(new Ui::Preferences)
+Preferences::Preferences(QSettings *settings, QWidget *parent) : QDialog(parent), ui(new Ui::Preferences)
 {
     ui->setupUi(this);
-    settings = new QSettings(settingsFileName, QSettings::IniFormat, this);
+    this->settings = settings;
 
     settings->beginGroup(userPrefsName);
     bool colorUserNames = settings->value("colorusernames", true).toBool();
@@ -26,6 +26,7 @@ Preferences::~Preferences()
 
 void Preferences::accept()
 {
+
     bool colorUserNames = this->ui->colorUserNames->isChecked();
     settings->beginGroup(userPrefsName);
     settings->setValue("colorusernames", colorUserNames);

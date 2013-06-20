@@ -66,9 +66,6 @@ void MessageParser::parse(IrcMessage *message)
                     channel->appendText(QString("You have joined %1").arg(targetChannel));
                 }
                 channel->setIsJoined(true);
-                Session* session = this->getSession();
-                QModelIndex index = channel->getMenuItem()->index();
-                session->emitSelectItem(index);
             } else {
                 // Another user joined
                 Channel *channel = this->getChannel(targetChannel);
@@ -90,8 +87,8 @@ void MessageParser::parse(IrcMessage *message)
                 targetChannel->appendText(QString("You have been kicked from %1 by %2 (Reason: %3)").arg(channel, user, reason));
             } else {
                 // Someone else got kicked
-                targetChannel->removeUser(user);
-                targetChannel->appendText(QString("%1 has been kicked by %2 (Reason: %3)").arg(user, sender, reason));
+                QString kickNote = QString("Kicked by %1 (Reason: %2)").arg(sender, reason);
+                targetChannel->removeUser(user, kickNote);
             }
             break;
         }
@@ -104,12 +101,9 @@ void MessageParser::parse(IrcMessage *message)
 
             Channel *channel = server->getChannel(target);
             if(channel) {
-                if(argument.length() == 0) {
-                    // Flag for a channel
-                    // TODO:  Set flags on the channel object
-                } else  {
+                User *user = channel->getUser(argument);
+                if(user != NULL) {
                     // Flags for a user in a channel
-                    User *user = channel->getUser(argument);
                     if (modeFlag.startsWith('-', Qt::CaseInsensitive))
                     {
                         user->removeMode(modeFlag.at(1));
@@ -118,11 +112,16 @@ void MessageParser::parse(IrcMessage *message)
                     {
                         user->addMode(modeFlag.at(1));
                     }
-                    channel->appendText(QString("%1 sets mode: %2 %3").arg(sender, modeFlag, argument));
+                } else  {
+                    // Flag for a channel
+                    // TODO:  Set flags on the channel object
                 }
+                channel->appendText(QString("%1 sets mode: %2 %3").arg(sender, modeFlag, argument));
             } else if(target.compare(currentNickname) == 0) {
                 // System wide flags about ourself
                 // TODO:  Set flags about ourself on the server
+                Server *server = this->getServer();
+                server->appendText(QString("%1 sets mode: %2 %3 %4").arg(sender, modeFlag, argument, target));
             }
             break;
         }
@@ -185,13 +184,7 @@ void MessageParser::parse(IrcMessage *message)
                 channel->appendText(QString("You have left %1").arg(targetChannel));
             } else {
                 // Other user left
-                channel->removeUser(sender);
-                QString partMessage = QString("%1 has left %2").arg(sender, targetChannel);
-                if (!reason.trimmed().isEmpty())
-                {
-                    partMessage.append(QString(" (Reason: %3)").arg(reason));
-                }
-                channel->appendText(partMessage);
+                channel->removeUser(sender, reason);
             }
             break;
         }
@@ -221,7 +214,7 @@ void MessageParser::parse(IrcMessage *message)
                     channel = server->addChannel(sender, Channel::ChannelTypeUser);
                 }
             }
-            Channel::MessageType messageType = pm->isAction() ? Channel::Emote : Channel::Default;
+            Channel::MessageType messageType = pm->isAction() ? Channel::MessageTypeEmote : Channel::MessageTypeDefault;
             channel->appendText(sender, styledMessage, messageType);
             break;
         }
@@ -248,7 +241,7 @@ void MessageParser::parse(IrcMessage *message)
             QString targetChannel = topic->channel();
             QString topicMsg = topic->topic();
             Channel *channel = this->getChannel(targetChannel);
-            channel->appendText("Channel Topic", topicMsg, Channel::Topic);
+            channel->appendText("Channel Topic", topicMsg, Channel::MessageTypeTopic);
             break;
         }
 
@@ -299,7 +292,7 @@ QString MessageParser::parseNumeric(IrcNumericMessage *message)
             QString channel = p.value(1);
             QString topic = p.value(2);
             QString styledString = styleString(topic);
-            this->getChannel(channel)->appendText("Channel Topic", styledString, Channel::Topic);
+            this->getChannel(channel)->appendText("Channel Topic", styledString, Channel::MessageTypeTopic);
             break;
         }
         case Irc::RPL_TOPICWHOTIME: {
@@ -703,6 +696,8 @@ QString MessageParser::styleString(QString fullMessage) {
     QRegExp urlRegex("((?:[a-z][\\w-]+:(?:/{1,3}|[a-z0-9%])|www\\d{0,3}[.]|[a-z0-9.\\-]+[.][a-z]{2,4}/)(?:[^\\s()<>]+|\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\))+(?:\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\)|[^\\s`!()\\[\\]{};:'\".,<>?«»“”‘’]))");
     fullMessage.replace(urlRegex, "<a href=\"\\1\">\\1</a>");
 
+    QRegExp channelRegex("([#&][^\\x07\\x2C\\s]{0,200})");
+    fullMessage.replace(channelRegex, "<a href=\"channel:\\1\">\\1</a>");
     // Bold instances of your name
     Server *server = this->getServer();
     QString username = server->getUsername();
