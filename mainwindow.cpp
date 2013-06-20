@@ -32,6 +32,7 @@
 #include <QtWebKit/QWebHistoryItem>
 #include <QtWebKit/QWebSettings>
 #include "commandparser.h"
+#include "irccommand.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -505,10 +506,27 @@ void MainWindow::movieChanged(QPixmap pixels, QUrl url)
 
 void MainWindow::anchorClicked(QUrl url)
 {
-    if(!url.toString().startsWith("http", Qt::CaseInsensitive)) {
-        url.setUrl("http://" + url.toString());
+    if(url.toString().startsWith("channel:")) {
+        QRegExp channelNameRegExp("channel:(.*)");
+        int pos = channelNameRegExp.indexIn(url.toString());
+        if(pos != -1) {
+            Server *server = getCurrentServer();
+            QString channelName = channelNameRegExp.cap(1);
+            Channel* channel = server->getChannel(channelName);
+            if(channel == NULL) {
+                IrcCommand *command = IrcCommand::createJoin(channelName, NULL);
+                server->sendCommand(command);
+            } else {
+                this->changeToChannel(channel);
+            }
+
+        }
+    } else {
+        if(!url.toString().startsWith("http", Qt::CaseInsensitive)) {
+            url.setUrl("http://" + url.toString());
+        }
+        QDesktopServices::openUrl(url);
     }
-    QDesktopServices::openUrl(url);
 }
 
 void MainWindow::openPreferences()
@@ -530,4 +548,21 @@ void MainWindow::showAboutInfo()
     msgBox.setInformativeText(QString("Version: %1").arg(QApplication::applicationVersion()));
     msgBox.setStandardButtons(QMessageBox::Ok);
     msgBox.exec();
+}
+
+Server* MainWindow::getCurrentServer()
+{
+    QModelIndexList selectedItems = ui->treeView->selectionModel()->selectedIndexes();
+    if(selectedItems.count() == 1) {
+        QModelIndex selectedItem = selectedItems[0];
+        QVariant data = selectedItem.data(Qt::UserRole);
+        if(data.canConvert<Channel*>()) {
+            Channel *selectedChannel = data.value<Channel*>();
+            QString selectedChannelName = selectedChannel->getName();
+            return selectedChannel->getServer();
+        } else if(data.canConvert<Server*>()) {
+            return data.value<Server*>();
+        }
+    }
+    return NULL;
 }
