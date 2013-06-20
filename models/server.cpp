@@ -145,6 +145,11 @@ void Server::appendText(QString inText)
     session->emitMessageReceived(this, NULL, tableRow, emptyList);
 }
 
+/*void Server::highlightChannel(Channel *channel, QString channelName)
+{
+
+}*/
+
 Channel* Server::addChannel(QString inChannel, Channel::ChannelType inType)
 {
     QStandardItem *newMenuItem = new QStandardItem();

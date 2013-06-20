@@ -80,6 +80,7 @@ private slots:
 
     void rowsRemoved(const QModelIndex &modelIndex, int start, int end);
     void rowsInserted(const QModelIndex &modelIndex, int start, int end);
+    Server* getCurrentServer();
 
     void anchorClicked(QUrl url);
 
