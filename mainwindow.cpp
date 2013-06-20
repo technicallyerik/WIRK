@@ -518,6 +518,8 @@ void MainWindow::anchorClicked(QUrl url)
                 server->sendCommand(command);
             } else {
                 this->changeToChannel(channel);
+                QModelIndex channelIndex = server->getChannelIndex(channelName);
+                this->selectItem(channelIndex);
             }
 
         }
