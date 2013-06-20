@@ -79,7 +79,6 @@ void Channel::appendText(QString sender, QString inText, MessageType type) {
     QRegExp usernameRX("(\\s|^)" + currentUser + "[^\\w]");
     bool textContainsUser = inText.contains(usernameRX);
 
-
     QDateTime currentTime = QDateTime::currentDateTime();
     QString currentTimeStr = currentTime.toString("h:mmap");
 

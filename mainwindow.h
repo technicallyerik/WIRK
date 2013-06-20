@@ -53,6 +53,8 @@ private:
     void saveWindowSettings();
     void readWindowSettings();
 
+    Server* getCurrentServer();
+
     void changeToServer(Server *newServer);
     void changeToChannel(Channel *newChannel);
     void scrollToBottom();
@@ -79,7 +81,6 @@ private slots:
 
     void rowsRemoved(const QModelIndex &modelIndex, int start, int end);
     void rowsInserted(const QModelIndex &modelIndex, int start, int end);
-    Server* getCurrentServer();
 
     void anchorClicked(QUrl url);
 

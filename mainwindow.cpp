@@ -529,11 +529,10 @@ void MainWindow::anchorClicked(QUrl url)
                 IrcCommand *command = IrcCommand::createJoin(channelName, NULL);
                 server->sendCommand(command);
             } else {
-                this->changeToChannel(channel);
-                QModelIndex channelIndex = server->getChannelIndex(channelName);
+                QStandardItem *channelMenuItem = channel->getMenuItem();
+                QModelIndex channelIndex = channelMenuItem->index();
                 this->selectItem(channelIndex);
             }
-
         }
     } else {
         if(!url.toString().startsWith("http", Qt::CaseInsensitive)) {

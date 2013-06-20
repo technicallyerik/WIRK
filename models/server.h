@@ -59,7 +59,6 @@ public:
     Channel* addChannel(QString inChannel, Channel::ChannelType inType);
     void partAllChannels();
     QStandardItem* getChannelMenuItem(QString inChannel);
-    QModelIndex getChannelIndex(QString inChannel);
     Channel* getChannel(QString inChannel);
 
     void removeUserFromAllChannels(QString username, QString reason);

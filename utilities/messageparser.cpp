@@ -696,9 +696,10 @@ QString MessageParser::styleString(QString fullMessage) {
     QRegExp urlRegex("((?:[a-z][\\w-]+:(?:/{1,3}|[a-z0-9%])|www\\d{0,3}[.]|[a-z0-9.\\-]+[.][a-z]{2,4}/)(?:[^\\s()<>]+|\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\))+(?:\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\)|[^\\s`!()\\[\\]{};:'\".,<>?«»“”‘’]))");
     fullMessage.replace(urlRegex, "<a href=\"\\1\">\\1</a>");
 
+    // Surround channel mentions with special anchor type
     QRegExp channelRegex("(\\s|^)((?:&amp;|#)[^\x07\x2C\\s]{0,200})");
-
     fullMessage.replace(channelRegex, "\\1<a href=\"channel:\\2\">\\2</a>");
+
     return fullMessage;
 }
 
