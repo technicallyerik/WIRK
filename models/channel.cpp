@@ -5,6 +5,7 @@
 #include "irccommand.h"
 #include "messageparser.h"
 #include <QBrush>
+#include <QSettings>
 
 Channel::Channel(QString inName, ChannelType type, QStandardItem *inMenuItem, Server *parent) : QObject(parent)
 {
@@ -110,8 +111,10 @@ void Channel::appendText(QString sender, QString inText, MessageType type) {
 
 QString Channel::getStyledUserString(QString user)
 {
+    bool colorUserNames = this->getServer()->getSession()->getColorUserNamesSetting();
+
     User *channelUser = this->getUser(user);
-    if (channelUser != NULL)
+    if (colorUserNames && channelUser != NULL)
     {
         QString userColor = channelUser->getUserColor().color().name();
         return QString("<span class=\"user\" style=\"color:%1;\">%2</span>").arg(userColor,user);

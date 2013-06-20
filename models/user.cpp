@@ -1,5 +1,7 @@
 #include "user.h"
 #include "channel.h"
+#include "server.h"
+#include "session.h"
 #include <stdlib.h>
 #include <QSet>
 #include <QBrush>
@@ -134,6 +136,11 @@ QStandardItem* User::getMenuItem()
 
 QBrush User::getUserColor()
 {
+    // White is the default color
+    if (this->getChannel()->getServer()->getSession()->getColorUserNamesSetting() == false)
+    {
+        return "#FFFFFF";
+    }
     QColor colorChoice;
 
     if (this->classColor == "1") {

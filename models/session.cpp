@@ -1,6 +1,7 @@
 #include "session.h"
 #include "server.h"
 #include "channel.h"
+#include "../preferences.h"
 #include <QSettings>
 #include <QStandardItem>
 
@@ -132,6 +133,15 @@ void Session::writeToSettings()
         settings->endGroup();
     }
     settings->endArray();
+}
+
+bool Session::getColorUserNamesSetting()
+{
+    settings->beginGroup(Preferences::userPrefsName);
+    bool colorUserNames = settings->value("colorusernames", true).toBool();
+    settings->endGroup();
+
+    return colorUserNames;
 }
 
 void Session::emitMessageReceived(Server *server, Channel *channel, QString message, QStringList images, Channel::MessageType type) {

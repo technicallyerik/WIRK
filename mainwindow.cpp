@@ -3,6 +3,7 @@
 #include "session.h"
 #include "server.h"
 #include "channel.h"
+#include "user.h"
 #include "animationviewmodel.h"
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
@@ -415,6 +416,18 @@ void MainWindow::changeToChannel(Channel *newChannel)
 {
     ui->mainText->setHtml(newChannel->getLatestText());
     QStandardItemModel *users = newChannel->getUsers();
+    // Refreshing color names in case the preference changed
+    qDebug() << users->rowCount();
+    for (int i = 0; i < users->rowCount(); i++)
+    {
+        QStandardItem *row = users->item(i);
+        QVariant data = row->data(Qt::UserRole);
+        if (data.canConvert<User*>())
+        {
+            User *userItem = data.value<User*>();
+            userItem->refreshUserDisplay();
+        }
+    }
     ui->userList->setModel(users);
     highlightChannel(newChannel, ChannelHighlightTypeNone, Channel::MessageTypeDefault);
     scrollToBottom();

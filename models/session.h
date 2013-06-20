@@ -25,6 +25,8 @@ public:
     void readFromSettings();
     void writeToSettings();
 
+    bool getColorUserNamesSetting();
+
 public slots:
     void removeServer(QString inServer);
 
