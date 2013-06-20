@@ -699,12 +699,6 @@ QString MessageParser::styleString(QString fullMessage) {
     QRegExp channelRegex("(\\s|^)((?:&amp;|#)[^\x07\x2C\\s]{0,200})");
 
     fullMessage.replace(channelRegex, "\\1<a href=\"channel:\\2\">\\2</a>");
-    // Bold instances of your name
-    Server *server = this->getServer();
-    QString username = server->getUsername();
-    QRegExp usernameRX("(" + username + ")");
-    fullMessage.replace(usernameRX, "<b>\\1</b>");
-
     return fullMessage;
 }
 
