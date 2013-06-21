@@ -1,12 +1,13 @@
 #include "session.h"
 #include "server.h"
 #include "channel.h"
+#include "preferenceshelper.h"
 #include <QSettings>
 #include <QStandardItem>
 
-Session::Session(QSettings *settings, QObject *parent) : QStandardItemModel(parent)
+Session::Session(QObject *parent) : QStandardItemModel(parent)
 {
-    this->settings = settings;
+
 }
 
 Session::~Session()
@@ -32,9 +33,9 @@ Server* Session::addServer(QString host, int port, QString username, QString nic
     return server;
 }
 
-void Session::removeServer(QString inServer)
+void Session::removeServer(QObject *inServer)
 {
-    Server *server = getServer(inServer);
+    Server *server = qobject_cast<Server*>(inServer);
     if(server != NULL) {
         QStandardItem *servMeuItem = server->getMenuItem();
         int row = servMeuItem->row();
@@ -43,28 +44,9 @@ void Session::removeServer(QString inServer)
     }
 }
 
-QStandardItem* Session::getServerMenuItem(QString inServer)
-{
-    QList<QStandardItem*> foundServers = this->findItems(inServer, Qt::MatchExactly);
-    if(foundServers.count() == 1) {
-        QStandardItem *server = foundServers[0];
-        return server;
-    }
-    return NULL;
-}
-
-Server* Session::getServer(QString inServer)
-{
-    QStandardItem *server = getServerMenuItem(inServer);
-    if(server != NULL) {
-        QVariant data = server->data(Qt::UserRole);
-        return data.value<Server*>();
-    }
-    return NULL;
-}
-
 void Session::readFromSettings()
 {
+    QSettings *settings = PreferencesHelper::sharedInstance()->getSettings();
     int serverSize = settings->beginReadArray("servers");
     for (int s = 0; s < serverSize; s++) {
          settings->setArrayIndex(s);
@@ -100,6 +82,7 @@ void Session::readFromSettings()
 
 void Session::writeToSettings()
 {
+    QSettings *settings = PreferencesHelper::sharedInstance()->getSettings();
     settings->beginWriteArray("servers");
     for (int s = 0; s < this->rowCount(); s++) {
         settings->setArrayIndex(s);
@@ -132,6 +115,7 @@ void Session::writeToSettings()
         settings->endGroup();
     }
     settings->endArray();
+    settings->sync();
 }
 
 void Session::emitMessageReceived(Server *server, Channel *channel, QString message, QStringList images, Channel::MessageType type) {

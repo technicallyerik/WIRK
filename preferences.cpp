@@ -3,11 +3,17 @@
 #include <QSettings>
 #include <QDebug>
 #include <QFileInfo>
+#include "preferenceshelper.h"
 
-Preferences::Preferences(QSettings *settings, QWidget *parent) : QDialog(parent), ui(new Ui::Preferences)
+Preferences::Preferences(QWidget *parent) : QDialog(parent), ui(new Ui::Preferences)
 {
     ui->setupUi(this);
-    this->settings = settings;
+
+    QSettings *settings = PreferencesHelper::sharedInstance()->getSettings();
+
+    // Get 'Should use user colors' Preference
+    bool useColorUsernamesPreference = PreferencesHelper::sharedInstance()->getShouldUseColorUsernames();
+    this->ui->colorUserNames->setChecked(useColorUsernamesPreference);
 }
 
 Preferences::~Preferences()
@@ -17,6 +23,15 @@ Preferences::~Preferences()
 
 void Preferences::accept()
 {
+    QSettings *settings = PreferencesHelper::sharedInstance()->getSettings();
 
+    // Set 'Should user user colors' Preference
+    bool useColorUsernamesPreference = this->ui->colorUserNames->isChecked();
+    settings->beginGroup(PreferencesHelper::displayPreferencesGroupKey);
+    settings->setValue("colorusernames", useColorUsernamesPreference);
+    settings->endGroup();
+
+    settings->sync();
+    this->close();
 }
 

@@ -75,6 +75,8 @@ private:
     QStandardItemModel *users;
     QStandardItem *menuItem;
     bool isJoined;
+
+    QString getStyledUserString(QString user);
 };
 
 #endif // CHANNEL_H

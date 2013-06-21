@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Preferences</string>
   </property>
-  <widget class="QDialogButtonBox" name="buttonBox">
+  <widget class="QDialogButtonBox" name="acceptButtonBox">
    <property name="geometry">
     <rect>
      <x>320</x>
@@ -45,17 +45,33 @@
     <attribute name="title">
      <string>Display</string>
     </attribute>
+    <widget class="QCheckBox" name="colorUserNames">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>20</y>
+       <width>111</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Color User Names</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
    </widget>
   </widget>
  </widget>
  <tabstops>
-  <tabstop>buttonBox</tabstop>
+  <tabstop>acceptButtonBox</tabstop>
   <tabstop>tabWidget</tabstop>
  </tabstops>
  <resources/>
  <connections>
   <connection>
-   <sender>buttonBox</sender>
+   <sender>acceptButtonBox</sender>
    <signal>accepted()</signal>
    <receiver>Preferences</receiver>
    <slot>accept()</slot>
@@ -71,7 +87,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>buttonBox</sender>
+   <sender>acceptButtonBox</sender>
    <signal>rejected()</signal>
    <receiver>Preferences</receiver>
    <slot>reject()</slot>

@@ -18,19 +18,13 @@ NewServer::~NewServer()
 void NewServer::accept()
 {
     QString address = ui->server->text();
-    if(session->getServer(address) == NULL) {
-        int port = ui->port->text().toInt();
-        QString realName = ui->realName->text();
-        QString nickname = ui->nickname->text();
-        QString username = ui->username->text();
-        QString password = ui->password->text();
-        bool useSSL = ui->useSSL->isChecked();
-        Server *newServer = session->addServer(address, port, username, nickname, realName, password, useSSL);
-        newServer->openConnection();
-        this->close();
-    } else {
-        QMessageBox msgBox;
-        msgBox.setText("A server with this host already exists.");
-        msgBox.exec();
-    }
+    int port = ui->port->text().toInt();
+    QString realName = ui->realName->text();
+    QString nickname = ui->nickname->text();
+    QString username = ui->username->text();
+    QString password = ui->password->text();
+    bool useSSL = ui->useSSL->isChecked();
+    Server *newServer = session->addServer(address, port, username, nickname, realName, password, useSSL);
+    newServer->openConnection();
+    this->close();
 }

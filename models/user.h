@@ -32,7 +32,8 @@ public:
     void removeMode(QChar mode);
     void refreshUserDisplay();
     QChar getModeDisplayString();
-    char convertFlagToDisplayMode(QChar flag);
+
+    QBrush getUserColor();
 
     QString getSortString();
 
@@ -43,6 +44,8 @@ private:
     QString name;
     QSet<QChar> modes;
     QStandardItem *menuItem;
+    QBrush userColor;
+
 };
 
 #endif // USER_H

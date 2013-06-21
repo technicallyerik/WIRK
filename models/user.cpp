@@ -1,12 +1,21 @@
 #include "user.h"
 #include "channel.h"
+#include <stdlib.h>
 #include <QSet>
+#include <QBrush>
 #include <QDebug>
+#include "preferenceshelper.h"
 
 User::User(QString inName, QChar inMode, QStandardItem *inMenuItem, Channel *parent) : QObject(parent)
 {
     menuItem = inMenuItem;
     modes = QSet<QChar>();
+
+    QStringList userColors = PreferencesHelper::sharedInstance()->getUserColors();
+    int randomColorNumber = (rand() % userColors.count()) + 1;
+    QString userColor = userColors.at(randomColorNumber);
+    this->userColor = QBrush(QColor(userColor));
+
     this->setName(inName);
     this->addMode(inMode);
 }
@@ -27,8 +36,7 @@ void User::setName(QString inName) {
         channel->appendText(renameMessage);
     }
     name = inName;
-    QString mode = this->getModeDisplayString();
-    menuItem->setText(mode + name);
+
     menuItem->setData(name, UserDataName);
     this->refreshUserDisplay();
 }
@@ -42,6 +50,14 @@ void User::refreshUserDisplay()
 {
     QString mode = this->getModeDisplayString();
     menuItem->setText(mode + name);
+
+    bool shouldUseColorUsernames = PreferencesHelper::sharedInstance()->getShouldUseColorUsernames();
+    if(shouldUseColorUsernames) {
+        menuItem->setForeground(userColor);
+    } else {
+        // Completely clear the brush from the data so the list item falls back to it's style sheet
+        menuItem->setData(false, Qt::ForegroundRole);
+    }
 
     QString sortString = getSortString();
     menuItem->setData(sortString, UserDataSort);
@@ -87,6 +103,11 @@ void User::removeMode(QChar mode)
 {
     modes.remove(mode);
     this->refreshUserDisplay();
+}
+
+QBrush User::getUserColor()
+{
+    return userColor;
 }
 
 QString User::getSortString()

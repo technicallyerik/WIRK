@@ -4,6 +4,9 @@
 #include "session.h"
 #include "irccommand.h"
 #include "messageparser.h"
+#include "preferenceshelper.h"
+#include <QBrush>
+#include <QSettings>
 
 Channel::Channel(QString inName, ChannelType type, QStandardItem *inMenuItem, Server *parent) : QObject(parent)
 {
@@ -72,8 +75,9 @@ void Channel::appendText(QString sender, QString inText, MessageType type) {
 
     // Build HTML wrapper for message
     Server *server = this->getServer();
-    QString currentUser = server->getNickname();
-    bool textContainsUser = inText.contains(currentUser, Qt::CaseInsensitive);
+    QRegExp usernameRX = server->getNicknameRegex();
+    bool textContainsUser = inText.contains(usernameRX);
+
     QDateTime currentTime = QDateTime::currentDateTime();
     QString currentTimeStr = currentTime.toString("h:mmap");
 
@@ -98,13 +102,27 @@ void Channel::appendText(QString sender, QString inText, MessageType type) {
     {
         tableRow = "<table width=\"100%\"><tr>";
     }
-        tableRow += "<th class=\"col-name\" width=\"115\" align=\"right\"><span class=\"user\">" + sender + "</span></th>";
+        tableRow += "<th class=\"col-name\" width=\"115\" align=\"right\">" + getStyledUserString(sender) + "</th>";
         tableRow += "<td class=\"col-message\"><p class=\"message\">" + inText + "</p></td>";
         tableRow += "<td class=\"col-meta\" width=\"50\"><h6 class=\"metainfo\">" + currentTimeStr +"</h6></td>";
         tableRow += "</tr></table>";
     text.append(tableRow);
     Session *session = server->getSession();
     session->emitMessageReceived(server, this, tableRow, foundLinks, type);
+}
+
+QString Channel::getStyledUserString(QString user)
+{
+    bool useColorUserNames = PreferencesHelper::sharedInstance()->getShouldUseColorUsernames();
+
+    User *channelUser = this->getUser(user);
+    if (useColorUserNames && channelUser != NULL)
+    {
+        QString userColor = channelUser->getUserColor().color().name();
+        return QString("<span class=\"user\" style=\"color:%1;\">%2</span>").arg(userColor,user);
+    }
+
+    return QString("<span class=\"user\">%1</span>").arg(user);
 }
 
 Channel::ChannelType Channel::getType()

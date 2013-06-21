@@ -3,6 +3,7 @@
 #include "session.h"
 #include "server.h"
 #include "channel.h"
+#include "user.h"
 #include "animationviewmodel.h"
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
@@ -33,6 +34,7 @@
 #include <QtWebKit/QWebSettings>
 #include "commandparser.h"
 #include "irccommand.h"
+#include "preferenceshelper.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -44,11 +46,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->setupUi(this);
 
     // Configure settings
-    settings = new QSettings(QSettings::IniFormat, QSettings::UserScope, "com.flashforwardlabs", "wirk", this);
     readWindowSettings();
 
     // Setup session
-    session = new Session(settings, this);
+    session = new Session(this);
     session->readFromSettings();
     connect(session, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(rowsRemoved(QModelIndex,int,int)));
     connect(session, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(rowsInserted(QModelIndex, int, int)));
@@ -123,6 +124,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::saveWindowSettings()
 {
+    QSettings *settings = PreferencesHelper::sharedInstance()->getSettings();
     settings->beginGroup("window");
     settings->setValue("geometry", saveGeometry());
     settings->setValue("windowState", saveState());
@@ -132,10 +134,12 @@ void MainWindow::saveWindowSettings()
         settings->setValue("size", size());
     }
     settings->endGroup();
+    settings->sync();
 }
 
 void MainWindow::readWindowSettings()
 {
+    QSettings *settings = PreferencesHelper::sharedInstance()->getSettings();
     settings->beginGroup("window");
     restoreGeometry(settings->value("geometry").toByteArray());
     restoreState(settings->value("windowState").toByteArray());
@@ -179,7 +183,8 @@ void MainWindow::handleMessage(Server *inServer, Channel *inChannel, QString inM
 
     // Determine highlight type if this server/channel isn't enabled
     ChannelHighlightType ht;
-    if(inMessage.contains(inServer->getUsername(), Qt::CaseInsensitive)) {
+    QRegExp usernameRX = inServer->getNicknameRegex();
+    if(inMessage.contains(usernameRX)) {
         ht = ChannelHighlightTypeMention;
     } else {
         ht = ChannelHighlightTypeNew;
@@ -197,12 +202,9 @@ void MainWindow::handleMessage(Server *inServer, Channel *inChannel, QString inM
         QVariant data = selectedItem.data(Qt::UserRole);
         if(data.canConvert<Channel*>()) {
             Channel *selectedChannel = data.value<Channel*>();
-            QString selectedChannelName = selectedChannel->getName();
             Server *selectedServer = selectedChannel->getServer();
-            QString selectedServerName = selectedServer->getHost();
-            if(selectedServerName.compare(inServer->getHost(), Qt::CaseInsensitive) == 0 &&
-               inChannel != NULL &&
-               selectedChannelName.compare(inChannel->getName(), Qt::CaseInsensitive) == 0) {
+            if(selectedServer == inServer &&
+               inChannel != NULL && selectedChannel == inChannel) {
                 // Channel message with channel selected
                 ui->mainText->append(inMessage);
                 if(!saveUserPosition) {
@@ -217,9 +219,7 @@ void MainWindow::handleMessage(Server *inServer, Channel *inChannel, QString inM
             }
         } else if(data.canConvert<Server*>()) {
             Server *selectedServer = data.value<Server*>();
-            QString selectedServerName = selectedServer->getHost();
-            if(selectedServerName.compare(inServer->getHost(), Qt::CaseInsensitive) == 0 &&
-               inChannel == NULL) {
+            if(selectedServer == inServer && inChannel == NULL) {
                 // Server message with server selected
                 ui->mainText->append(inMessage);
                 if(!saveUserPosition) {
@@ -379,9 +379,9 @@ void MainWindow::generateContextMenu(const QPoint &point)
 
             QAction *removeAction = menu.addAction("Remove");
             QSignalMapper *removeMapper = new QSignalMapper(this);
-            removeMapper->setMapping(removeAction, server->getHost());
+            removeMapper->setMapping(removeAction, server);
             connect(removeAction, SIGNAL(triggered()), removeMapper, SLOT(map()));
-            connect(removeMapper, SIGNAL(mapped(const QString &)), session, SLOT(removeServer(const QString &)));
+            connect(removeMapper, SIGNAL(mapped(QObject *)), session, SLOT(removeServer(QObject *)));
         }
 
     } else {
@@ -421,6 +421,19 @@ void MainWindow::changeToChannel(Channel *newChannel)
     setAnimationPlaybacks(channelText);
     ui->mainText->setHtml(channelText);
     QStandardItemModel *users = newChannel->getUsers();
+
+    // Refreshing name colors in case the preference changed
+    for (int i = 0; i < users->rowCount(); i++)
+    {
+        QStandardItem *row = users->item(i);
+        QVariant data = row->data(Qt::UserRole);
+        if (data.canConvert<User*>())
+        {
+            User *userItem = data.value<User*>();
+            userItem->refreshUserDisplay();
+        }
+    }
+
     ui->userList->setModel(users);
     highlightChannel(newChannel, ChannelHighlightTypeNone, Channel::MessageTypeDefault);
     scrollToBottom();
@@ -541,9 +554,10 @@ void MainWindow::anchorClicked(QUrl url)
                 IrcCommand *command = IrcCommand::createJoin(channelName, NULL);
                 server->sendCommand(command);
             } else {
-                this->changeToChannel(channel);
+                QStandardItem *channelMenuItem = channel->getMenuItem();
+                QModelIndex channelIndex = channelMenuItem->index();
+                this->selectItem(channelIndex);
             }
-
         }
     } else {
         if(!url.toString().startsWith("http", Qt::CaseInsensitive)) {
@@ -555,7 +569,7 @@ void MainWindow::anchorClicked(QUrl url)
 
 void MainWindow::openPreferences()
 {
-    Preferences dialog(settings, this);
+    Preferences dialog(this);
     dialog.exec();
 }
 
