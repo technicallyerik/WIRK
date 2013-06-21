@@ -423,16 +423,17 @@ void MainWindow::changeToChannel(Channel *newChannel)
     QStandardItemModel *users = newChannel->getUsers();
 
     // Refreshing name colors in case the preference changed
-    for (int i = 0; i < users->rowCount(); i++)
-    {
-        QStandardItem *row = users->item(i);
-        QVariant data = row->data(Qt::UserRole);
-        if (data.canConvert<User*>())
-        {
-            User *userItem = data.value<User*>();
-            userItem->refreshUserDisplay();
-        }
-    }
+    // ***Do not add back until performance problems are addressed
+    //    for (int i = 0; i < users->rowCount(); i++)
+    //    {
+    //        QStandardItem *row = users->item(i);
+    //        QVariant data = row->data(Qt::UserRole);
+    //        if (data.canConvert<User*>())
+    //        {
+    //            User *userItem = data.value<User*>();
+    //            userItem->refreshUserDisplay();
+    //        }
+    //    }
 
     ui->userList->setModel(users);
     highlightChannel(newChannel, ChannelHighlightTypeNone, Channel::MessageTypeDefault);
