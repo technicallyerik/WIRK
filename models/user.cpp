@@ -56,8 +56,7 @@ void User::refreshUserDisplay()
         menuItem->setForeground(userColor);
     } else {
         // Completely clear the brush from the data so the list item falls back to it's style sheet
-        QVariant nullVariant(QBrush);
-        menuItem->setData(&nullVariant, Qt::ForegroundRole);
+        menuItem->setData(false, Qt::ForegroundRole);
     }
 
     QString sortString = getSortString();
