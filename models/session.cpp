@@ -1,13 +1,13 @@
 #include "session.h"
 #include "server.h"
 #include "channel.h"
-#include "../preferences.h"
+#include "preferenceshelper.h"
 #include <QSettings>
 #include <QStandardItem>
 
-Session::Session(QSettings *settings, QObject *parent) : QStandardItemModel(parent)
+Session::Session(QObject *parent) : QStandardItemModel(parent)
 {
-    this->settings = settings;
+
 }
 
 Session::~Session()
@@ -66,6 +66,7 @@ Server* Session::getServer(QString inServer)
 
 void Session::readFromSettings()
 {
+    QSettings *settings = PreferencesHelper::sharedInstance()->getSettings();
     int serverSize = settings->beginReadArray("servers");
     for (int s = 0; s < serverSize; s++) {
          settings->setArrayIndex(s);
@@ -101,6 +102,7 @@ void Session::readFromSettings()
 
 void Session::writeToSettings()
 {
+    QSettings *settings = PreferencesHelper::sharedInstance()->getSettings();
     settings->beginWriteArray("servers");
     for (int s = 0; s < this->rowCount(); s++) {
         settings->setArrayIndex(s);
@@ -133,15 +135,6 @@ void Session::writeToSettings()
         settings->endGroup();
     }
     settings->endArray();
-}
-
-bool Session::getColorUserNamesSetting()
-{
-    settings->beginGroup(Preferences::userPrefsName);
-    bool colorUserNames = settings->value("colorusernames", true).toBool();
-    settings->endGroup();
-
-    return colorUserNames;
 }
 
 void Session::emitMessageReceived(Server *server, Channel *channel, QString message, QStringList images, Channel::MessageType type) {

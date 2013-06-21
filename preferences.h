@@ -13,17 +13,15 @@ class Preferences : public QDialog
     Q_OBJECT
     
 public:
-    explicit Preferences(QSettings *settings, QWidget *parent = 0);
+    explicit Preferences(QWidget *parent = 0);
     ~Preferences();
-    static const QString userPrefsName;
 
 private slots:
     void accept();
     
 private:
     Ui::Preferences *ui;
-    QSettings *settings;
-    static const QString settingsFileName;
+
 };
 
 #endif // PREFERENCES_H

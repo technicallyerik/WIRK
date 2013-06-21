@@ -4,6 +4,7 @@
 #include "session.h"
 #include "irccommand.h"
 #include "messageparser.h"
+#include "preferenceshelper.h"
 #include <QBrush>
 #include <QSettings>
 
@@ -114,10 +115,10 @@ void Channel::appendText(QString sender, QString inText, MessageType type) {
 
 QString Channel::getStyledUserString(QString user)
 {
-    bool colorUserNames = this->getServer()->getSession()->getColorUserNamesSetting();
+    bool useColorUserNames = PreferencesHelper::sharedInstance()->getShouldUseColorUsernames();
 
     User *channelUser = this->getUser(user);
-    if (colorUserNames && channelUser != NULL)
+    if (useColorUserNames && channelUser != NULL)
     {
         QString userColor = channelUser->getUserColor().color().name();
         return QString("<span class=\"user\" style=\"color:%1;\">%2</span>").arg(userColor,user);

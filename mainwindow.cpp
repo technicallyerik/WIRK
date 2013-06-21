@@ -34,6 +34,7 @@
 #include <QtWebKit/QWebSettings>
 #include "commandparser.h"
 #include "irccommand.h"
+#include "preferenceshelper.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -43,11 +44,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->setupUi(this);
 
     // Configure settings
-    settings = new QSettings(QSettings::IniFormat, QSettings::UserScope, "com.flashforwardlabs", "wirk", this);
     readWindowSettings();
 
     // Setup session
-    session = new Session(settings, this);
+    session = new Session(this);
     session->readFromSettings();
     connect(session, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(rowsRemoved(QModelIndex,int,int)));
     connect(session, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(rowsInserted(QModelIndex, int, int)));
@@ -122,6 +122,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::saveWindowSettings()
 {
+    QSettings *settings = PreferencesHelper::sharedInstance()->getSettings();
     settings->beginGroup("window");
     settings->setValue("geometry", saveGeometry());
     settings->setValue("windowState", saveState());
@@ -135,6 +136,7 @@ void MainWindow::saveWindowSettings()
 
 void MainWindow::readWindowSettings()
 {
+    QSettings *settings = PreferencesHelper::sharedInstance()->getSettings();
     settings->beginGroup("window");
     restoreGeometry(settings->value("geometry").toByteArray());
     restoreState(settings->value("windowState").toByteArray());
@@ -416,7 +418,8 @@ void MainWindow::changeToChannel(Channel *newChannel)
 {
     ui->mainText->setHtml(newChannel->getLatestText());
     QStandardItemModel *users = newChannel->getUsers();
-    // Refreshing color names in case the preference changed
+
+    // Refreshing name colors in case the preference changed
     for (int i = 0; i < users->rowCount(); i++)
     {
         QStandardItem *row = users->item(i);
@@ -427,6 +430,7 @@ void MainWindow::changeToChannel(Channel *newChannel)
             userItem->refreshUserDisplay();
         }
     }
+
     ui->userList->setModel(users);
     highlightChannel(newChannel, ChannelHighlightTypeNone, Channel::MessageTypeDefault);
     scrollToBottom();
@@ -544,7 +548,7 @@ void MainWindow::anchorClicked(QUrl url)
 
 void MainWindow::openPreferences()
 {
-    Preferences dialog(settings, this);
+    Preferences dialog(this);
     dialog.exec();
 }
 

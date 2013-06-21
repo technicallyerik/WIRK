@@ -62,7 +62,8 @@ SOURCES += main.cpp\
     preferences.cpp \
     models/messagehistory.cpp \
     textbox.cpp \
-    newserver.cpp
+    newserver.cpp \
+    utilities/preferenceshelper.cpp
 
 HEADERS  += mainwindow.h \
     ext_lib/communi/irctextformat.h \
@@ -109,7 +110,8 @@ HEADERS  += mainwindow.h \
     preferences.h \
     models/messagehistory.h \
     textbox.h \
-    newserver.h
+    newserver.h \
+    utilities/preferenceshelper.h
 
 FORMS    += mainwindow.ui \
     preferences.ui \

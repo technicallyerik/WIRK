@@ -48,7 +48,6 @@ private:
     QTimer *timer;
     QHash<QString, QString> imagePageMap;
     CommandParser *commandParser;
-    QSettings *settings;
 
     void saveWindowSettings();
     void readWindowSettings();
