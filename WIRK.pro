@@ -145,6 +145,6 @@ RESOURCES += \
 
 RC_FILE = assets/icon.rc
 
-VERSION = 0.1.1
+VERSION = 0.2.0
 
 DEFINES += VER=\\\"$${VERSION}.$$system(git rev-parse --short HEAD)\\\"
