@@ -117,7 +117,7 @@ void MessageParser::parse(IrcMessage *message)
                     // TODO:  Set flags on the channel object
                 }
                 channel->appendText(QString("%1 sets mode: %2 %3").arg(sender, modeFlag, argument));
-            } else if(target.compare(currentNickname) == 0) {
+            } else if(target.compare(currentNickname, Qt::CaseInsensitive) == 0) {
                 // System wide flags about ourself
                 // TODO:  Set flags about ourself on the server
                 Server *server = this->getServer();
@@ -225,9 +225,7 @@ void MessageParser::parse(IrcMessage *message)
             if (senderIsSelf) {
                 // We quit
                 Server *server = getServer();
-                QString serverName = server->getHost();
-                Session *session = server->getSession();
-                session->removeServer(serverName);
+                server->disconnected();
             }
             else {
                 // Other user quit

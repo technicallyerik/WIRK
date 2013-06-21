@@ -31,6 +31,7 @@ void Preferences::accept()
     settings->setValue("colorusernames", useColorUsernamesPreference);
     settings->endGroup();
 
+    settings->sync();
     this->close();
 }
 

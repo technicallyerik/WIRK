@@ -75,9 +75,7 @@ void Channel::appendText(QString sender, QString inText, MessageType type) {
 
     // Build HTML wrapper for message
     Server *server = this->getServer();
-    QString currentUser = server->getNickname();
-
-    QRegExp usernameRX("(\\s|^)" + currentUser + "[^\\w]");
+    QRegExp usernameRX = server->getNicknameRegex();
     bool textContainsUser = inText.contains(usernameRX);
 
     QDateTime currentTime = QDateTime::currentDateTime();

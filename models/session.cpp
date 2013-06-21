@@ -33,35 +33,15 @@ Server* Session::addServer(QString host, int port, QString username, QString nic
     return server;
 }
 
-void Session::removeServer(QString inServer)
+void Session::removeServer(QObject *inServer)
 {
-    Server *server = getServer(inServer);
+    Server *server = qobject_cast<Server*>(inServer);
     if(server != NULL) {
         QStandardItem *servMeuItem = server->getMenuItem();
         int row = servMeuItem->row();
         this->removeRow(row);
         server->deleteLater();
     }
-}
-
-QStandardItem* Session::getServerMenuItem(QString inServer)
-{
-    QList<QStandardItem*> foundServers = this->findItems(inServer, Qt::MatchExactly);
-    if(foundServers.count() == 1) {
-        QStandardItem *server = foundServers[0];
-        return server;
-    }
-    return NULL;
-}
-
-Server* Session::getServer(QString inServer)
-{
-    QStandardItem *server = getServerMenuItem(inServer);
-    if(server != NULL) {
-        QVariant data = server->data(Qt::UserRole);
-        return data.value<Server*>();
-    }
-    return NULL;
 }
 
 void Session::readFromSettings()
@@ -135,6 +115,7 @@ void Session::writeToSettings()
         settings->endGroup();
     }
     settings->endArray();
+    settings->sync();
 }
 
 void Session::emitMessageReceived(Server *server, Channel *channel, QString message, QStringList images, Channel::MessageType type) {

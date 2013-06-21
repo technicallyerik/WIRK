@@ -40,6 +40,7 @@ public:
 
     QString getNickname();
     void setNickname(QString nickname);
+    QRegExp getNicknameRegex();
 
     QString getRealname();
     void setRealname(QString realname);
@@ -73,13 +74,13 @@ public:
 
 public slots:
     void removeChannel(QString inChannel);
+    void disconnected();
     void openConnection();
     void closeConnection();
 
 private slots:
     void connecting();
     void connected();
-    void disconnected();
     void processMessage(IrcMessage *message);
     void processError(QAbstractSocket::SocketError error);
     void nickNameChanged(const QString &name);

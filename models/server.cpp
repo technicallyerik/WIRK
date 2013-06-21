@@ -74,6 +74,11 @@ void Server::setNickname(QString inNickname)
     ircSession->setNickName(nickname);
 }
 
+QRegExp Server::getNicknameRegex()
+{
+    return QRegExp("([^\\w]|^)" + nickname + "([^\\w]|$)");
+}
+
 QString Server::getRealname()
 {
     return realname;

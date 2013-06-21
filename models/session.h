@@ -26,7 +26,7 @@ public:
     void writeToSettings();
 
 public slots:
-    void removeServer(QString inServer);
+    void removeServer(QObject *inServer);
 
 signals:
     void messageReceived(Server *server, Channel *channel, QString message, QStringList images, Channel::MessageType type);

@@ -132,6 +132,7 @@ void MainWindow::saveWindowSettings()
         settings->setValue("size", size());
     }
     settings->endGroup();
+    settings->sync();
 }
 
 void MainWindow::readWindowSettings()
@@ -180,7 +181,8 @@ void MainWindow::handleMessage(Server *inServer, Channel *inChannel, QString inM
 
     // Determine highlight type if this server/channel isn't enabled
     ChannelHighlightType ht;
-    if(inMessage.contains(inServer->getUsername(), Qt::CaseInsensitive)) {
+    QRegExp usernameRX = inServer->getNicknameRegex();
+    if(inMessage.contains(usernameRX)) {
         ht = ChannelHighlightTypeMention;
     } else {
         ht = ChannelHighlightTypeNew;
@@ -198,12 +200,9 @@ void MainWindow::handleMessage(Server *inServer, Channel *inChannel, QString inM
         QVariant data = selectedItem.data(Qt::UserRole);
         if(data.canConvert<Channel*>()) {
             Channel *selectedChannel = data.value<Channel*>();
-            QString selectedChannelName = selectedChannel->getName();
             Server *selectedServer = selectedChannel->getServer();
-            QString selectedServerName = selectedServer->getHost();
-            if(selectedServerName.compare(inServer->getHost(), Qt::CaseInsensitive) == 0 &&
-               inChannel != NULL &&
-               selectedChannelName.compare(inChannel->getName(), Qt::CaseInsensitive) == 0) {
+            if(selectedServer == inServer &&
+               inChannel != NULL && selectedChannel == inChannel) {
                 // Channel message with channel selected
                 ui->mainText->append(inMessage);
                 if(!saveUserPosition) {
@@ -218,9 +217,7 @@ void MainWindow::handleMessage(Server *inServer, Channel *inChannel, QString inM
             }
         } else if(data.canConvert<Server*>()) {
             Server *selectedServer = data.value<Server*>();
-            QString selectedServerName = selectedServer->getHost();
-            if(selectedServerName.compare(inServer->getHost(), Qt::CaseInsensitive) == 0 &&
-               inChannel == NULL) {
+            if(selectedServer == inServer && inChannel == NULL) {
                 // Server message with server selected
                 ui->mainText->append(inMessage);
                 if(!saveUserPosition) {
@@ -380,9 +377,9 @@ void MainWindow::generateContextMenu(const QPoint &point)
 
             QAction *removeAction = menu.addAction("Remove");
             QSignalMapper *removeMapper = new QSignalMapper(this);
-            removeMapper->setMapping(removeAction, server->getHost());
+            removeMapper->setMapping(removeAction, server);
             connect(removeAction, SIGNAL(triggered()), removeMapper, SLOT(map()));
-            connect(removeMapper, SIGNAL(mapped(const QString &)), session, SLOT(removeServer(const QString &)));
+            connect(removeMapper, SIGNAL(mapped(QObject *)), session, SLOT(removeServer(QObject *)));
         }
 
     } else {
