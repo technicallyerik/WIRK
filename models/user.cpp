@@ -12,7 +12,7 @@ User::User(QString inName, QChar inMode, QStandardItem *inMenuItem, Channel *par
     modes = QSet<QChar>();
 
     QStringList userColors = PreferencesHelper::sharedInstance()->getUserColors();
-    int randomColorNumber = (rand() % userColors.count()) + 1;
+    int randomColorNumber = (rand() % userColors.count());
     QString userColor = userColors.at(randomColorNumber);
     this->userColor = QBrush(QColor(userColor));
 
