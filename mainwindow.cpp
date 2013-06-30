@@ -472,7 +472,19 @@ void MainWindow::imageDownloaded(QNetworkReply* networkReply)
     QUrl mappedUrl = QUrl(imagePageMap.value(url.toString()));
     QImage image;
     image.loadFromData(bytes);
-    image = image.scaledToHeight(150, Qt::SmoothTransformation);
+
+    int imageWidth = image.width();
+    int imageHeight = image.height();
+    qDebug() << "image width: " << imageWidth << " height: " << imageHeight;
+    int maxWidth = 400;
+    double resizeRatio = 150.0 / (double) imageHeight;
+    double newHeight = 150;
+    if((resizeRatio * imageWidth) > maxWidth) {
+        newHeight = ((double) maxWidth / (double) imageWidth) * (double) imageHeight;
+    }
+
+    qDebug() << "New height: " << newHeight;
+    image = image.scaledToHeight(newHeight, Qt::SmoothTransformation);
 
     if(url.toString().endsWith(".gif")) {
         AnimationViewModel *avm = new AnimationViewModel(bytes, mappedUrl, document, this);
