@@ -475,15 +475,12 @@ void MainWindow::imageDownloaded(QNetworkReply* networkReply)
 
     int imageWidth = image.width();
     int imageHeight = image.height();
-    qDebug() << "image width: " << imageWidth << " height: " << imageHeight;
     int maxWidth = 400;
-    double resizeRatio = 150.0 / (double) imageHeight;
-    double newHeight = 150;
+    int newHeight = qMin(150, imageHeight);
+    double resizeRatio = (double)newHeight / (double)imageHeight;
     if((resizeRatio * imageWidth) > maxWidth) {
-        newHeight = ((double) maxWidth / (double) imageWidth) * (double) imageHeight;
+        newHeight = ((double)maxWidth / (double)imageWidth) * (double)imageHeight;
     }
-
-    qDebug() << "New height: " << newHeight;
     image = image.scaledToHeight(newHeight, Qt::SmoothTransformation);
 
     if(url.toString().endsWith(".gif")) {
