@@ -184,6 +184,7 @@ void MainWindow::handleMessage(Server *inServer, Channel *inChannel, QString inM
     QRegExp usernameRX = inServer->getNicknameRegex();
     if(inMessage.contains(usernameRX)) {
         ht = ChannelHighlightTypeMention;
+        QApplication::alert(this);
     } else {
         ht = ChannelHighlightTypeNew;
     }
