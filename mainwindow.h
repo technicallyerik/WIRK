@@ -30,6 +30,9 @@ public:
     ~MainWindow();
 
     static const int HighlightType = 64;
+    // Max message length is technically 510 but then there's host info and prepended text as well
+    // so we're picking this much smaller number
+    static const int MaxMessageLength = 420;
 
     enum ChannelHighlightType
     {
@@ -63,7 +66,7 @@ private:
     void highlightMenuItem(QStandardItem *menuItem, ChannelHighlightType highlight);
 
     void closeEvent(QCloseEvent *event);
-    void keyPressEvent(QKeyEvent *event);
+    void keyPressEvent(QKeyEvent *event);    
 
 private slots:
     void sendMessage();

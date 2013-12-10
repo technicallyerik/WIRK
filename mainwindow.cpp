@@ -331,7 +331,14 @@ void MainWindow::sendMessage()
                 server->sendCommand(command);
             } else {
                 // User entered channel message
-                channel->sendMessage(text);
+                QString channelName = channel->getName();
+                do
+                {
+                    QString messageChunk = text.left(MaxMessageLength);
+                    channel->sendMessage(messageChunk);
+                    text = text.mid(messageChunk.length());
+                } while (text != NULL);
+
             }
         } else if(data.canConvert<Server*>()) {
             Server *server = data.value<Server*>();
