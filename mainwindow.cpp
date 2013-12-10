@@ -151,6 +151,48 @@ void MainWindow::readWindowSettings()
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
+    if (event->modifiers() & Qt::ControlModifier &&
+            (event->key() == Qt::Key_Tab || event->key() == Qt::Key_Backtab))
+    {
+        QModelIndex selectedChannelIndex = ui->treeView->selectionModel()->currentIndex();
+        // going to assume if it's not selected, they're at the first one
+        if (!selectedChannelIndex.isValid())
+        {
+            selectedChannelIndex = ui->treeView->model()->index(0,0);
+        }
+        QModelIndex nextChannel;
+
+        if (event->key() == Qt::Key_Tab)
+        {
+            nextChannel = ui->treeView->indexBelow(selectedChannelIndex);
+            if (!nextChannel.isValid())
+            {
+                nextChannel = ui->treeView->model()->index(0,0);
+            }
+        }
+        else if (event->key() == Qt::Key_Backtab)
+        {
+            nextChannel = ui->treeView->indexAbove(selectedChannelIndex);
+            if (!nextChannel.isValid())
+            {
+                int lastRowIndex = ui->treeView->model()->rowCount() - 1;
+                QModelIndex lastServer = ui->treeView->model()->index(lastRowIndex,0);
+                if (lastServer.model()->hasChildren())
+                {
+                    int lastChildRowIndex = lastServer.model()->rowCount(lastServer) - 1;
+                    nextChannel = lastServer.child(lastChildRowIndex, 0);
+                }
+                else
+                {
+                    nextChannel = lastServer;
+                }
+            }
+        }
+
+        this->selectItem(nextChannel);
+        ui->treeView->setCurrentIndex(nextChannel);
+    }
+
     ui->sendText->setFocus();
     QMainWindow::keyPressEvent(event);
 }

@@ -51,7 +51,8 @@ bool TextBox::event(QEvent *e)
         QKeyEvent *ke = static_cast<QKeyEvent *>(e);
         // We listen to the tab press here because
         // it's not sent all the way to keyPressEvent
-        if(ke->key() == Qt::Key_Tab) {
+        // Also don't want to fight with the ctrl + tab event in the main window
+        if(ke->key() == Qt::Key_Tab && !(ke->modifiers() & Qt::ControlModifier)) {
             getLastArgument();
             return true;
         } else {
