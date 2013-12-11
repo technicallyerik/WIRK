@@ -45,6 +45,7 @@ private:
     Ui::MainWindow *ui;
     Session *session;
     QNetworkAccessManager *networkAccessManager;
+    QNetworkAccessManager *updateCheckerNetworkAccessManager;
     QWebView *webView;
     QTextDocument *document;
     QList<AnimationViewModel *> animations;
@@ -54,6 +55,7 @@ private:
 
     void saveWindowSettings();
     void readWindowSettings();
+    void checkForUpdates();
 
     Server* getCurrentServer();
 
@@ -77,6 +79,7 @@ private slots:
 
     void webLoadFinished(bool ok);
     void imageDownloaded(QNetworkReply *networkReply);
+    void versionFileDownloaded(QNetworkReply *networkReply);
     void movieChanged(QPixmap pixels, QUrl url);
 
     void generateContextMenu(const QPoint &point);

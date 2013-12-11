@@ -84,6 +84,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     // Setup network manager
     networkAccessManager = new QNetworkAccessManager(this);
     connect(networkAccessManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(imageDownloaded(QNetworkReply*)));
+    updateCheckerNetworkAccessManager = new QNetworkAccessManager(this);
+    connect(updateCheckerNetworkAccessManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(versionFileDownloaded(QNetworkReply*)));
 
     // Setup web view for checking oembed
     webView = new QWebView(this);
@@ -106,6 +108,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(ui->actionPreferences, SIGNAL(triggered()), this, SLOT(openPreferences()));
     connect(ui->actionNewServer, SIGNAL(triggered()), this, SLOT(newServerWindow()));
     connect(ui->actionAbout, SIGNAL(triggered()), this, SLOT(showAboutInfo()));
+
+    //Check For Updates
+    checkForUpdates();
 }
 
 MainWindow::~MainWindow()
@@ -533,7 +538,7 @@ void MainWindow::imageDownloaded(QNetworkReply* networkReply)
     }
     image = image.scaledToHeight(newHeight, Qt::SmoothTransformation);
 
-    if(url.toString().endsWith(".gif")) {
+    if(image.format() == QImage::Format_ARGB32_Premultiplied) {
         AnimationViewModel *avm = new AnimationViewModel(bytes, mappedUrl, document, this);
         connect(avm, SIGNAL(movieChanged(QPixmap, QUrl)), this, SLOT(movieChanged(QPixmap, QUrl)), Qt::QueuedConnection);
         avm->start();
@@ -639,4 +644,76 @@ Server* MainWindow::getCurrentServer()
         }
     }
     return NULL;
+}
+
+void MainWindow::checkForUpdates()
+{
+    QUrl versionFileUrl(QString("http://technicallyerik.github.io/WIRK/version.txt"));
+    QNetworkRequest request(versionFileUrl);
+
+    updateCheckerNetworkAccessManager->get(request);
+}
+
+void MainWindow::versionFileDownloaded(QNetworkReply *networkReply)
+{
+    // now use pMyReply to get the data, which is a subclass of IODevice!
+    // don't know if the device is already open, if not, use ->open()
+    // then read
+    QByteArray byteData = networkReply->readAll();
+    // and convert to string!
+    // be careful, take care of encoding here:
+    QTextStream versionFile(byteData);
+    QString latestVersionNumber = versionFile.readLine();
+
+    QString versionPrefix("WIRK");
+    // This verifies we're getting the actual number and not some sort of 404 page
+    if (!latestVersionNumber.startsWith(versionPrefix))
+    {
+        return;
+    }
+    latestVersionNumber = latestVersionNumber.mid(versionPrefix.length());
+
+    bool updateAvailable = false;
+
+    //compare version numbers
+    if (latestVersionNumber != QApplication::applicationVersion())
+    {
+        QStringList latestVersionList(latestVersionNumber.split('.'));
+        QStringList applicationVersionList(QApplication::applicationVersion().split('.'));
+        for (int i = 0; i < latestVersionList.length(); i++)
+        {
+            bool *versionNumberIsNumber = new bool;
+            bool *applicationNumberIsNumber = new bool;
+
+            int latestNumber = latestVersionList[i].toInt(versionNumberIsNumber);
+            int applicationNumber = applicationVersionList[i].toInt(applicationNumberIsNumber);
+
+            if (versionNumberIsNumber && applicationNumberIsNumber)
+            {
+                if (latestNumber > applicationNumber)
+                {
+                    updateAvailable = true;
+                    delete versionNumberIsNumber;
+                    delete applicationNumberIsNumber;
+                    break;
+                }
+            }
+            delete versionNumberIsNumber;
+            delete applicationNumberIsNumber;
+        }
+    }
+
+    //show updateBox
+    if (updateAvailable)
+    {
+        QMessageBox msgBox(this);
+        msgBox.setWindowTitle("Update Available");
+        msgBox.setTextFormat(Qt::RichText);
+        msgBox.setText("A new version is available.<br><a href=\"http://technicallyerik.github.io/WIRK/\">Update Here</a>");
+        msgBox.setStandardButtons(QMessageBox::Ok);
+        msgBox.exec();
+    }
+
+    // and clean up
+    delete networkReply;
 }
