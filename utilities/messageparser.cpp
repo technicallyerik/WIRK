@@ -198,6 +198,7 @@ void MessageParser::parse(IrcMessage *message)
         case IrcMessage::Ping: {
             IrcPingMessage *pong = static_cast<IrcPingMessage*>(message);
             QString argument = pong->argument();
+            getServer()->resetTimer();
             break;
         }
 

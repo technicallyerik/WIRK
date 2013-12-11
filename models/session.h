@@ -21,6 +21,7 @@ public:
 
     void emitMessageReceived(Server *server, Channel *channel, QString message, QStringList images, Channel::MessageType type = Channel::MessageTypeDefault);
     void emitSelectItem(QModelIndex index);
+    void emitServerDisconnected(Server *server);
 
     void readFromSettings();
     void writeToSettings();
@@ -30,6 +31,7 @@ public slots:
 
 signals:
     void messageReceived(Server *server, Channel *channel, QString message, QStringList images, Channel::MessageType type);
+    void serverDisconnected(Server *server);
 
 };
 

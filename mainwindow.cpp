@@ -52,6 +52,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(session, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(rowsRemoved(QModelIndex,int,int)));
     connect(session, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(rowsInserted(QModelIndex, int, int)));
     connect(session, SIGNAL(messageReceived(Server*,Channel*,QString,QStringList,Channel::MessageType)), this, SLOT(handleMessage(Server*,Channel*,QString,QStringList,Channel::MessageType)));
+    connect(session, SIGNAL(serverDisconnected(Server*)), this, SLOT(showDisconnectedMessage(Server*)));
 
     // Setup tree view
     connect(ui->treeView, SIGNAL(clicked(const QModelIndex&)), this, SLOT(treeItemClicked(const QModelIndex&)));
@@ -644,6 +645,15 @@ Server* MainWindow::getCurrentServer()
         }
     }
     return NULL;
+}
+
+void MainWindow::showDisconnectedMessage(Server *server)
+{
+    QMessageBox msgBox(this);
+    msgBox.setWindowTitle("Connection Timeout");
+    msgBox.setText(QString("%1 has timed out.").arg(server->getHost()));
+    msgBox.setStandardButtons(QMessageBox::Ok);
+    msgBox.exec();
 }
 
 void MainWindow::checkForUpdates()

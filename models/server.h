@@ -3,6 +3,7 @@
 
 #include <QStandardItem>
 #include <QSslSocket>
+#include <QTimer>
 #include "channel.h"
 
 class Session;
@@ -71,6 +72,7 @@ public:
 
     void sendMessage(QString command);
     void sendCommand(IrcCommand *command);
+    void resetTimer();
 
 public slots:
     void removeChannel(QString inChannel);
@@ -85,8 +87,10 @@ private slots:
     void processError(QAbstractSocket::SocketError error);
     void nickNameChanged(const QString &name);
     void passwordRequested(QString *outPassword);
+    void serverTimeout();
     
 private:
+    static const int MaxTimeoutLength = 300000;
     QString host;
     int port;
     QString username;
@@ -100,6 +104,7 @@ private:
     IrcSession *ircSession;
     MessageParser *messageParser;
     QStandardItem *menuItem;
+    QTimer *timeoutTimer;
 };
 
 #endif // SERVER_H

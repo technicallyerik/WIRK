@@ -6,6 +6,7 @@
 #include "commandparser.h"
 #include "ircsession.h"
 #include "user.h"
+#include "timeouttimer.h"
 #include <QMessageBox>
 
 Server::Server(QStandardItem *inMenuItem, Session *parent) : QObject(parent)
@@ -13,6 +14,7 @@ Server::Server(QStandardItem *inMenuItem, Session *parent) : QObject(parent)
     messageParser = new MessageParser(this);
     ircSession = new IrcSession(this);
     menuItem = inMenuItem;
+    timeoutTimer = new QTimer(this);
     text = QStringList("<span></span>");
     connect(ircSession, SIGNAL(messageReceived(IrcMessage*)), this, SLOT(processMessage(IrcMessage*)));
     connect(ircSession, SIGNAL(socketError(QAbstractSocket::SocketError)), this, SLOT(processError(QAbstractSocket::SocketError)));
@@ -21,6 +23,7 @@ Server::Server(QStandardItem *inMenuItem, Session *parent) : QObject(parent)
     connect(ircSession, SIGNAL(connecting()), this, SLOT(connecting()));
     connect(ircSession, SIGNAL(connected()), this, SLOT(connected()));
     connect(ircSession, SIGNAL(disconnected()), this, SLOT(disconnected()));
+    connect(timeoutTimer, SIGNAL(timeout()), this, SLOT(serverTimeout()));
     this->disconnected();
 }
 
@@ -265,6 +268,8 @@ void Server::connected()
         Channel *channel = channelData.value<Channel*>();
         channel->join();
     }
+
+    resetTimer();
 }
 
 void Server::disconnected()
@@ -293,6 +298,18 @@ void Server::openConnection()
 void Server::closeConnection()
 {
     ircSession->close();
+}
+
+void Server::serverTimeout()
+{
+    closeConnection();
+    timeoutTimer->stop();
+    getSession()->emitServerDisconnected(this);
+}
+
+void Server::resetTimer()
+{
+    timeoutTimer->start(MaxTimeoutLength);
 }
 
 void Server::sendCommand(IrcCommand *command)
