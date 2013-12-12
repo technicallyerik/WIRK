@@ -6,7 +6,6 @@
 #include "commandparser.h"
 #include "ircsession.h"
 #include "user.h"
-#include "timeouttimer.h"
 #include <QMessageBox>
 
 Server::Server(QStandardItem *inMenuItem, Session *parent) : QObject(parent)
