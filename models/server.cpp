@@ -297,12 +297,12 @@ void Server::openConnection()
 void Server::closeConnection()
 {
     ircSession->close();
+    timeoutTimer->stop();
 }
 
 void Server::serverTimeout()
 {
     closeConnection();
-    timeoutTimer->stop();
     getSession()->emitServerDisconnected(this);
 }
 
@@ -313,7 +313,11 @@ void Server::resetTimer()
 
 void Server::sendCommand(IrcCommand *command)
 {
-    ircSession->sendCommand(command);
+    if (this->getIsConnected())
+    {
+        ircSession->sendCommand(command);
+        this->resetTimer();
+    }
 }
 
 void Server::processMessage(IrcMessage *message) {
