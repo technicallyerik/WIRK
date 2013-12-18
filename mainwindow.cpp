@@ -341,13 +341,16 @@ void MainWindow::sendMessage()
             } else {
                 // User entered channel message
                 QString channelName = channel->getName();
-                do
+                QStringList messages = text.split("\n", QString::SkipEmptyParts);
+                foreach (QString message, messages)
                 {
-                    QString messageChunk = text.left(MaxMessageLength);
-                    channel->sendMessage(messageChunk);
-                    text = text.mid(messageChunk.length());
-                } while (text != NULL);
-
+                    do
+                    {
+                        QString messageChunk = message.left(MaxMessageLength);
+                        channel->sendMessage(messageChunk);
+                        message = message.mid(messageChunk.length());
+                    } while (message != NULL);
+                }
             }
         } else if(data.canConvert<Server*>()) {
             Server *server = data.value<Server*>();
