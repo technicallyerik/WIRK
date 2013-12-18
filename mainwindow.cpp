@@ -205,6 +205,8 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 
 void MainWindow::handleMessage(Server *inServer, Channel *inChannel, QString inMessage, QStringList images, Channel::MessageType type)
 {
+    QRegExp imageUrlRegex("https?:\/\/.*\.(?:jpe?g|gif|png)((?=\\?)\\S*)?");
+
     // Get images for the links
     foreach(QString image, images)
     {
@@ -215,7 +217,8 @@ void MainWindow::handleMessage(Server *inServer, Channel *inChannel, QString inM
             document->addResource(QTextDocument::ImageResource, image, emptyImage); // placeholder
             QUrl url(image);
             QNetworkRequest request(url);
-            if(image.endsWith(".gif") || image.endsWith(".jpg") || image.endsWith(".png"))
+            int imageRegexPosition = imageUrlRegex.indexIn(image);
+            if(imageRegexPosition != -1)
             {
                 // Start downloading the image
                 imagePageMap.insert(image, image);
