@@ -1,10 +1,10 @@
 #include "textbox.h"
 #include <QKeyEvent>
 #include <QDebug>
-#include <QLineEdit>
+#include <QPlainTextEdit>
 #include "messagehistory.h"
 
-TextBox::TextBox(QWidget *parent) : QLineEdit(parent)
+TextBox::TextBox(QWidget *parent) : QPlainTextEdit(parent)
 {
     messageHistory = new MessageHistory(this);
     searchingUsernames = QStringList();
@@ -33,15 +33,18 @@ void TextBox::keyPressEvent(QKeyEvent *event)
         bool willCycleUp = event->key() == Qt::Key_Up;
 
         QString lastSent = messageHistory->getLastSentMessage(willCycleUp);
-        this->setText(lastSent);
+        this->setPlainText(lastSent);
     }
     else {
-        if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return)
+        if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return
+                 && !(event->modifiers() & Qt::ShiftModifier))
         {
-            messageHistory->insertNewMessage(this->text());
+            messageHistory->insertNewMessage(this->toPlainText());
+            emit(returnPressed());
+            return;
         }
 
-        QLineEdit::keyPressEvent(event);
+        QPlainTextEdit::keyPressEvent(event);
     }
 }
 
@@ -61,12 +64,12 @@ bool TextBox::event(QEvent *e)
 
     }
 
-    return QLineEdit::event(e);
+    return QPlainTextEdit::event(e);
 }
 
 void TextBox::getLastArgument()
 {
-    QStringList messageList = this->text().split(QRegExp("\\s+"));
+    QStringList messageList = this->toPlainText().split(QRegExp("\\s+"));
 
 
     if(!messageList.isEmpty() && lastWord == "") {
@@ -125,5 +128,10 @@ void TextBox::getLastArgument()
         }
     }
 
-    this->setText(fullMessage);
+    this->setPlainText(fullMessage);
+
+    // have to move the cursor to the end, else it's at the beginning
+    QTextCursor cursor = this->textCursor();
+    cursor.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
+    this->setTextCursor(cursor);
 }

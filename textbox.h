@@ -1,12 +1,12 @@
 #ifndef TEXTBOX_H
 #define TEXTBOX_H
 
-#include <QLineEdit>
+#include <QPlainTextEdit>
 #include "channel.h"
 
 class MessageHistory;
 
-class TextBox : public QLineEdit
+class TextBox : public QPlainTextEdit
 {
     Q_OBJECT
 public:
@@ -19,6 +19,7 @@ protected:
     bool event(QEvent *e);
     
 signals:
+    void returnPressed();
     
 public slots:
 

@@ -96,11 +96,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(webView, SIGNAL(loadFinished(bool)), this, SLOT(webLoadFinished(bool)));
 
     // Let's get some styles up in here
-    QString controlStyles = "QListView, QTreeView, QLineEdit, QTextBrowser { background:#333;font-family:\"Lucida Console\",Monaco,monospace;font-size:11px;color:#fff; }";
+    QString controlStyles = "QListView, QTreeView, QLineEdit, QPlainTextEdit, QTextBrowser { background:#333;font-family:\"Lucida Console\",Monaco,monospace;font-size:11px;color:#fff; }";
     ui->userList->setStyleSheet(controlStyles);
     ui->treeView->setStyleSheet(controlStyles);
     ui->mainText->setStyleSheet(controlStyles);
-    ui->sendText->setStyleSheet(controlStyles + "QLineEdit { padding:5px; }");
+    ui->sendText->setStyleSheet(controlStyles + "QLineEdit { padding:5px; }, QPlainTextEdit { padding:2px; }");
     ui->userList->setAttribute(Qt::WA_MacShowFocusRect, 0);
     ui->treeView->setAttribute(Qt::WA_MacShowFocusRect, 0);
     ui->sendText->setAttribute(Qt::WA_MacShowFocusRect, 0);
@@ -327,7 +327,7 @@ void MainWindow::highlightMenuItem(QStandardItem *menuItem, ChannelHighlightType
 void MainWindow::sendMessage()
 {
     QModelIndexList selectedItems = ui->treeView->selectionModel()->selectedIndexes();
-    QString text = ui->sendText->text();
+    QString text = ui->sendText->toPlainText();
     if(selectedItems.count() == 1 && text.length() > 0) {
         QModelIndex selectedItem = selectedItems[0];
         QVariant data = selectedItem.data(Qt::UserRole);
@@ -363,7 +363,7 @@ void MainWindow::sendMessage()
                 // Do nothing
             }
         }
-        ui->sendText->setText("");
+        ui->sendText->setPlainText("");
     }
 }
 

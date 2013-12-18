@@ -116,7 +116,20 @@
      </widget>
     </item>
     <item row="2" column="0">
-     <widget class="TextBox" name="sendText"/>
+     <widget class="TextBox" name="sendText">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>27</height>
+       </size>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>
@@ -126,7 +139,7 @@
      <x>0</x>
      <y>0</y>
      <width>640</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -165,7 +178,7 @@
  <customwidgets>
   <customwidget>
    <class>TextBox</class>
-   <extends>QLineEdit</extends>
+   <extends>QTextEdit</extends>
    <header>textbox.h</header>
   </customwidget>
  </customwidgets>
