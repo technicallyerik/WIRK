@@ -63,7 +63,8 @@ void Channel::appendText(QString sender, QString inText, MessageType type) {
     QRegExp imageRegex(".*(href=\"(([^>]+)\\.*)\").*");
     int pos = 0;
     while ((pos = imageRegex.indexIn(inText, pos)) != -1) {
-        QString imageUrl = imageRegex.cap(2);
+        // Undoing previous html encoding for ampersands
+        QString imageUrl = imageRegex.cap(2).replace("&amp;","&");
         if(!imageUrl.startsWith("http", Qt::CaseInsensitive)) {
             imageUrl = "http://" + imageUrl;
         }
