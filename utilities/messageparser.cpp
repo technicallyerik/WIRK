@@ -79,12 +79,13 @@ void MessageParser::parse(IrcMessage *message)
             IrcKickMessage *kick = static_cast<IrcKickMessage*>(message);
             QString channel = kick->channel();
             QString user = kick->user();
+            QString sender = kick->sender().name();
             QString reason = kick->reason();
             Channel *targetChannel = server->getChannel(channel);
             if(user.compare(currentNickname, Qt::CaseInsensitive) == 0) {
                 // We got kicked
                 targetChannel->setIsJoined(false);
-                targetChannel->appendText(QString("You have been kicked from %1 by %2 (Reason: %3)").arg(channel, user, reason));
+                targetChannel->appendText(QString("You have been kicked from %1 by %2 (Reason: %3)").arg(channel, sender, reason));
             } else {
                 // Someone else got kicked
                 QString kickNote = QString("Kicked by %1 (Reason: %2)").arg(sender, reason);
