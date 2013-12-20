@@ -138,6 +138,20 @@ IrcCommand *CommandParser::parse(QString commandStr, Server* currentServer, Chan
     }
 
     // /MODE
+    else if(commandString.compare("mode", Qt::CaseInsensitive) == 0)
+    {
+        if (commandBlock.count() > 2) {
+            return IrcCommand::createMode(commandBlock.at(0), commandBlock.at(1), commandBlock.at(2));
+        }
+        else if (commandBlock.count() > 1)
+        {
+            return IrcCommand::createMode(commandBlock.at(0), commandBlock.at(1));
+        }
+        else if (commandBlock.count() == 1)
+        {
+            return IrcCommand::createMode(commandBlock.at(0));
+        }
+    }
 
     // /MOTD
 
