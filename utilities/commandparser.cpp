@@ -198,6 +198,17 @@ IrcCommand *CommandParser::parse(QString commandStr, Server* currentServer, Chan
     // /STATS
 
     // /TIME
+    else if (commandString.compare("time", Qt::CaseInsensitive) == 0)
+    {
+        if (commandBlock.count() > 0)
+        {
+            return IrcCommand::createTime(commandBlock.at(0));
+        }
+        else
+        {
+            return IrcCommand::createTime();
+        }
+    }
 
     // /TOPIC
 
