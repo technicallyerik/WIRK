@@ -532,8 +532,13 @@ void MainWindow::imageDownloaded(QNetworkReply* networkReply)
     QByteArray bytes = networkReply->readAll();
     QUrl url = networkReply->url();
     QUrl mappedUrl = QUrl(imagePageMap.value(url.toString()));
-    QImage image;
-    image.loadFromData(bytes);
+
+    QBuffer buffer(&bytes);
+    buffer.open(QIODevice::ReadOnly);
+    QImageReader reader(&buffer);
+    bool imageIsAnimated = reader.supportsAnimation() && reader.imageCount() > 1;
+
+    QImage image = reader.read();
 
     int imageWidth = image.width();
     int imageHeight = image.height();
@@ -545,7 +550,7 @@ void MainWindow::imageDownloaded(QNetworkReply* networkReply)
     }
     image = image.scaledToHeight(newHeight, Qt::SmoothTransformation);
 
-    if(image.format() == QImage::Format_ARGB32_Premultiplied) {
+    if(imageIsAnimated) {
         AnimationViewModel *avm = new AnimationViewModel(bytes, mappedUrl, document, this);
         connect(avm, SIGNAL(movieChanged(QPixmap, QUrl)), this, SLOT(movieChanged(QPixmap, QUrl)), Qt::QueuedConnection);
         avm->start();
