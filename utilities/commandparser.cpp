@@ -10,7 +10,7 @@ CommandParser::CommandParser(QObject *parent) : QObject(parent)
 
 IrcCommand *CommandParser::parse(QString commandStr, Server* currentServer, Channel* currentChannel)
 {
-    QStringList commandBlock = commandStr.split(" ");
+    QStringList commandBlock = commandStr.trimmed().split(" ");
     QString commandString = commandBlock.takeFirst().mid(1);
 
     // /ADMIN
