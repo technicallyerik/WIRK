@@ -32,7 +32,7 @@ private:
     QString lastWord;
 
     void getLastArgument();
-
+    void moveCursorToEnd();
     
 };
 

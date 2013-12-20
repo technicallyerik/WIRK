@@ -34,6 +34,7 @@ void TextBox::keyPressEvent(QKeyEvent *event)
 
         QString lastSent = messageHistory->getLastSentMessage(willCycleUp);
         this->setPlainText(lastSent);
+        moveCursorToEnd();
     }
     else {
         if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return
@@ -131,6 +132,11 @@ void TextBox::getLastArgument()
     this->setPlainText(fullMessage);
 
     // have to move the cursor to the end, else it's at the beginning
+    moveCursorToEnd();
+}
+
+void TextBox::moveCursorToEnd()
+{
     QTextCursor cursor = this->textCursor();
     cursor.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
     this->setTextCursor(cursor);
