@@ -211,6 +211,17 @@ IrcCommand *CommandParser::parse(QString commandStr, Server* currentServer, Chan
     }
 
     // /TOPIC
+    else if (commandString.compare("topic", Qt::CaseInsensitive) == 0)
+    {
+        if (commandBlock.count() > 1)
+        {
+            return IrcCommand::createTopic(commandBlock.at(0), commandBlock.at(1));
+        }
+        else if (commandBlock.count() == 1)
+        {
+            return IrcCommand::createTopic(commandBlock.at(0));
+        }
+    }
 
     // /TRACE
 
