@@ -14,9 +14,14 @@ IrcCommand *CommandParser::parse(QString commandStr, Server* currentServer, Chan
     QString commandString = commandBlock.takeFirst().mid(1);
 
     // /ADMIN
+    if (commandString.compare("admin", Qt::CaseInsensitive) == 0)
+    {
+        QString server = (!commandBlock.isEmpty()) ? commandBlock.at(0) : NULL;
+        return IrcCommand::createAdmin(server);
+    }
 
     // /AWAY
-    if (commandString.compare("away", Qt::CaseInsensitive) == 0)
+    else if (commandString.compare("away", Qt::CaseInsensitive) == 0)
     {
         QString mesg = (!commandBlock.isEmpty()) ? commandBlock.join(" ") : NULL;
         return IrcCommand::createAway(mesg);
