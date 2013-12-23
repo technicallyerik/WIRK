@@ -244,8 +244,37 @@ IrcCommand *CommandParser::parse(QString commandStr, Server* currentServer, Chan
     }
 
     // /WHOIS
+    else if (commandString.compare("whois", Qt::CaseInsensitive) == 0)
+    {
+        if (commandBlock.count() > 0)
+        {
+            return IrcCommand::createWhois(commandBlock.at(0));
+        }
+    }
 
     // /WHOWAS
+    else if (commandString.compare("whowas", Qt::CaseInsensitive) == 0)
+    {
+        if (commandBlock.count() > 1)
+        {
+            bool *isInt;
+            int count = commandBlock.at(1).toInt(isInt);
+            if (isInt)
+            {
+                delete isInt;
+                return IrcCommand::createWhowas(commandBlock.at(0), count);
+            }
+            else
+            {
+                delete isInt;
+                return IrcCommand::createWhowas(commandBlock.at(0));
+            }
+        }
+        else if (commandBlock.count() == 1)
+        {
+            return IrcCommand::createWhowas(commandBlock.at(0));
+        }
+    }
 
     return NULL;
 }
