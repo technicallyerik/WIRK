@@ -230,6 +230,18 @@ IrcCommand *CommandParser::parse(QString commandStr, Server* currentServer, Chan
     // /VERSION
 
     // /WHO
+    else if (commandString.compare("who", Qt::CaseInsensitive) == 0)
+    {
+        if (commandBlock.count() > 1)
+        {
+            bool operators = commandBlock.at(1).trimmed().toLower() == "o";
+            return IrcCommand::createWho(commandBlock.at(0), operators);
+        }
+        else if (commandBlock.count() == 1)
+        {
+            return IrcCommand::createWho(commandBlock.at(0));
+        }
+    }
 
     // /WHOIS
 
