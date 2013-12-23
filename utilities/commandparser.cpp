@@ -192,6 +192,11 @@ IrcCommand *CommandParser::parse(QString commandStr, Server* currentServer, Chan
     }
 
     // /QUIT
+    else if (commandString.compare("quit", Qt::CaseInsensitive) == 0)
+    {
+        QString reason = (!commandBlock.isEmpty()) ? commandBlock.join(" ") : NULL;
+        return IrcCommand::createQuit(reason);
+    }
 
     // /QUOTE
     else if (commandString.compare("quote", Qt::CaseInsensitive) == 0)
