@@ -306,6 +306,11 @@ IrcCommand *CommandParser::parse(QString commandStr, Server* currentServer, Chan
     }
 
     // /USERS
+    else if (commandString.compare("users", Qt::CaseInsensitive) == 0)
+    {
+        QString server = (!commandBlock.isEmpty()) ? commandBlock.at(0) : NULL;
+        return IrcCommand::createUsers(server);
+    }
 
     // /VERSION
     else if (commandString.compare("version", Qt::CaseInsensitive) == 0)
