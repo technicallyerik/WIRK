@@ -156,7 +156,7 @@ void MessageParser::parse(IrcMessage *message)
                 senderChannel->appendText(sender, styledMessage);
             } else if(target.compare(currentNickname, Qt::CaseInsensitive) == 0) {
                 // Notice to self
-                server->appendText(QString("Notice: %1").arg(styledMessage));
+                server->appendText(QString("%1: %2").arg(sender, styledMessage));
             } else {
                 // Some other notice
                 server->appendText(QString("%1 Notice: %2").arg(target, styledMessage));

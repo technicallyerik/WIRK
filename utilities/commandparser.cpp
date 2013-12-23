@@ -180,6 +180,14 @@ IrcCommand *CommandParser::parse(QString commandStr, Server* currentServer, Chan
     // /NICK
 
     // /NOTICE
+    else if (commandString.compare("notice", Qt::CaseInsensitive) == 0)
+    {
+        if(commandBlock.count() > 1) {
+            QString target = commandBlock.takeFirst();
+            QString msg = commandBlock.join(" ").trimmed();
+            return IrcCommand::createNotice(target, msg);
+        }
+    }
 
     // /PART
     else if (commandString.compare("part", Qt::CaseInsensitive) == 0)
