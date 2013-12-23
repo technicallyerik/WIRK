@@ -698,7 +698,7 @@ QString MessageParser::styleString(QString fullMessage) {
     fullMessage.replace(urlRegex, "<a href=\"\\1\">\\1</a>");
 
     // Surround channel mentions with special anchor type
-    QRegExp channelRegex("(\\s|^)((?:&amp;|#)[^\x07\x2C\\s]{0,200})");
+    QRegExp channelRegex("(\\s|^)((?:&amp;|#)[^\x07\x2C\\s]{1,200})");
     fullMessage.replace(channelRegex, "\\1<a href=\"channel:\\2\">\\2</a>");
 
     return fullMessage;
