@@ -63,6 +63,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     // Setup sending text
     connect(ui->sendText, SIGNAL(returnPressed()), this, SLOT(sendMessage()));
+    connect(ui->sendText, SIGNAL(channelCycle(bool)), this, SLOT(cycleChannel(bool)));
     ui->sendText->setFocus();
 
     // Setup user list
@@ -160,47 +161,53 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     if (event->modifiers() & Qt::ControlModifier &&
             (event->key() == Qt::Key_Tab || event->key() == Qt::Key_Backtab))
     {
-        QModelIndex selectedChannelIndex = ui->treeView->selectionModel()->currentIndex();
-        // going to assume if it's not selected, they're at the first one
-        if (!selectedChannelIndex.isValid())
-        {
-            selectedChannelIndex = ui->treeView->model()->index(0,0);
-        }
-        QModelIndex nextChannel;
-
-        if (event->key() == Qt::Key_Tab)
-        {
-            nextChannel = ui->treeView->indexBelow(selectedChannelIndex);
-            if (!nextChannel.isValid())
-            {
-                nextChannel = ui->treeView->model()->index(0,0);
-            }
-        }
-        else if (event->key() == Qt::Key_Backtab)
-        {
-            nextChannel = ui->treeView->indexAbove(selectedChannelIndex);
-            if (!nextChannel.isValid())
-            {
-                int lastRowIndex = ui->treeView->model()->rowCount() - 1;
-                QModelIndex lastServer = ui->treeView->model()->index(lastRowIndex,0);
-                if (lastServer.model()->hasChildren())
-                {
-                    int lastChildRowIndex = lastServer.model()->rowCount(lastServer) - 1;
-                    nextChannel = lastServer.child(lastChildRowIndex, 0);
-                }
-                else
-                {
-                    nextChannel = lastServer;
-                }
-            }
-        }
-
-        this->selectItem(nextChannel);
-        ui->treeView->setCurrentIndex(nextChannel);
+        bool cycleDown = event->key() == Qt::Key_Tab;
+        cycleChannel(cycleDown);
     }
 
     ui->sendText->setFocus();
     QMainWindow::keyPressEvent(event);
+}
+
+void MainWindow::cycleChannel(bool cycleDown)
+{
+    QModelIndex selectedChannelIndex = ui->treeView->selectionModel()->currentIndex();
+    // going to assume if it's not selected, they're at the first one
+    if (!selectedChannelIndex.isValid())
+    {
+        selectedChannelIndex = ui->treeView->model()->index(0,0);
+    }
+    QModelIndex nextChannel;
+
+    if (cycleDown)
+    {
+        nextChannel = ui->treeView->indexBelow(selectedChannelIndex);
+        if (!nextChannel.isValid())
+        {
+            nextChannel = ui->treeView->model()->index(0,0);
+        }
+    }
+    else
+    {
+        nextChannel = ui->treeView->indexAbove(selectedChannelIndex);
+        if (!nextChannel.isValid())
+        {
+            int lastRowIndex = ui->treeView->model()->rowCount() - 1;
+            QModelIndex lastServer = ui->treeView->model()->index(lastRowIndex,0);
+            if (lastServer.model()->hasChildren())
+            {
+                int lastChildRowIndex = lastServer.model()->rowCount(lastServer) - 1;
+                nextChannel = lastServer.child(lastChildRowIndex, 0);
+            }
+            else
+            {
+                nextChannel = lastServer;
+            }
+        }
+    }
+
+    this->selectItem(nextChannel);
+    ui->treeView->setCurrentIndex(nextChannel);
 }
 
 void MainWindow::handleMessage(Server *inServer, Channel *inChannel, QString inMessage, QStringList images, Channel::MessageType type)

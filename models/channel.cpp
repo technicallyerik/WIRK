@@ -246,12 +246,16 @@ QStringList Channel::findUsersByPrefix(QString searchStr)
 {
     QStringList userList = QStringList();
 
-    QModelIndex startIndex = users->index(0, 0);
-    QModelIndexList foundUsers = users->match(startIndex, User::UserDataName, searchStr, -1, Qt::MatchStartsWith);
-    for(QModelIndexList::Iterator iter = foundUsers.begin(); iter != foundUsers.end(); iter++) {
-        QStandardItem *user = users->itemFromIndex(*iter);
-        QString username = user->data(User::UserDataName).value<QString>();
-        userList.append(username);
+    // prevents bug when trying to tab before connected to a channel
+    if (this != NULL)
+    {
+        QModelIndex startIndex = users->index(0, 0);
+        QModelIndexList foundUsers = users->match(startIndex, User::UserDataName, searchStr, -1, Qt::MatchStartsWith);
+        for(QModelIndexList::Iterator iter = foundUsers.begin(); iter != foundUsers.end(); iter++) {
+            QStandardItem *user = users->itemFromIndex(*iter);
+            QString username = user->data(User::UserDataName).value<QString>();
+            userList.append(username);
+        }
     }
 
     return userList;

@@ -74,6 +74,7 @@ private slots:
     void sendMessage();
     void handleMessage(Server *server, Channel *channel, QString message, QStringList images, Channel::MessageType type);
     void showDisconnectedMessage(Server *server);
+    void cycleChannel(bool cycleDown);
 
     void treeItemClicked(const QModelIndex& index);
     void selectItem(QModelIndex index);

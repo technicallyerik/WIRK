@@ -45,6 +45,16 @@ void TextBox::keyPressEvent(QKeyEvent *event)
             return;
         }
 
+        // With a TextEdit box, this would normally insert a tab in the box
+        // instead of doing the channel switch command we've implemented
+        if (event->modifiers() & Qt::ControlModifier &&
+                (event->key() == Qt::Key_Tab || event->key() == Qt::Key_Backtab))
+        {
+            bool cycleDown = event->key() == Qt::Key_Tab;
+            emit(channelCycle(cycleDown));
+            return;
+        }
+
         QPlainTextEdit::keyPressEvent(event);
     }
 }

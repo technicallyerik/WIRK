@@ -20,6 +20,7 @@ protected:
     
 signals:
     void returnPressed();
+    void channelCycle(bool cycleDown);
     
 public slots:
 
