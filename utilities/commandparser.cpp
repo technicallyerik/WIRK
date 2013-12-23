@@ -228,6 +228,17 @@ IrcCommand *CommandParser::parse(QString commandStr, Server* currentServer, Chan
     // /USERS
 
     // /VERSION
+    else if (commandString.compare("version", Qt::CaseInsensitive) == 0)
+    {
+        if (commandBlock.count() > 0)
+        {
+            return IrcCommand::createVersion(commandBlock.at(0));
+        }
+        else
+        {
+            return IrcCommand::createVersion();
+        }
+    }
 
     // /WHO
     else if (commandString.compare("who", Qt::CaseInsensitive) == 0)
@@ -257,7 +268,7 @@ IrcCommand *CommandParser::parse(QString commandStr, Server* currentServer, Chan
     {
         if (commandBlock.count() > 1)
         {
-            bool *isInt;
+            bool *isInt = new bool;
             int count = commandBlock.at(1).toInt(isInt);
             if (isInt)
             {
