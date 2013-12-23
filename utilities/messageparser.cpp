@@ -130,14 +130,13 @@ void MessageParser::parse(IrcMessage *message)
         case IrcMessage::Nick: {
             IrcNickMessage *nick = static_cast<IrcNickMessage*>(message);
             QString newNick = nick->nick();
-            if(senderIsSelf) {
-                // We changed nicks
-                // This is handled by nickNameChanged signal
-            } else {
-                // Someone else changed nicks
-                Server *server = this->getServer();
-                server->renameUserInAllChannels(sender, newNick);
+            if (senderIsSelf)
+            {
+                server->setNickname(newNick);
             }
+
+            Server *server = this->getServer();
+            server->renameUserInAllChannels(sender, newNick);
             break;
         }
 

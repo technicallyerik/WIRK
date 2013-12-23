@@ -178,6 +178,10 @@ IrcCommand *CommandParser::parse(QString commandStr, Server* currentServer, Chan
     // /NAMES
 
     // /NICK
+    else if (commandString.compare("nick", Qt::CaseInsensitive) == 0)
+    {
+        return IrcCommand::createNick(commandBlock.join(" ").trimmed());
+    }
 
     // /NOTICE
     else if (commandString.compare("notice", Qt::CaseInsensitive) == 0)
