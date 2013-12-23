@@ -299,6 +299,11 @@ IrcCommand *CommandParser::parse(QString commandStr, Server* currentServer, Chan
     }
 
     // /TRACE
+    else if (commandString.compare("trace", Qt::CaseInsensitive) == 0)
+    {
+        QString server = (!commandBlock.isEmpty()) ? commandBlock.at(0) : NULL;
+        return IrcCommand::createTrace(server);
+    }
 
     // /USERS
 
