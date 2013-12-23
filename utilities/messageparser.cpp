@@ -282,7 +282,17 @@ QString MessageParser::parseNumeric(IrcNumericMessage *message)
             QString targetChannel = p.value(2);
             QStringList users = p.value(3).split(" ");
             Channel *channel = this->getChannel(targetChannel);
-            channel->addUsers(users);
+
+            if (channel != NULL)
+            {
+                channel->addUsers(users);
+            }
+            else
+            {
+                // This is probably the response from the /names command if the channel is null
+                this->getServer()->appendText(QString("%1 %2").arg(targetChannel, p.value(3)));
+            }
+
             break;
         }
         case Irc::RPL_ENDOFNAMES: {

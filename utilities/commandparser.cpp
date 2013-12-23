@@ -176,6 +176,22 @@ IrcCommand *CommandParser::parse(QString commandStr, Server* currentServer, Chan
     }
 
     // /NAMES
+    else if (commandString.compare("names", Qt::CaseInsensitive) == 0)
+    {
+        // TODO: After playing around with this, we have to figure out how to diffentiate between this command
+        // and a user actually joining the channel, due to weirdness with the client thinking a user
+        // actually joined the channel. Commenting this out for now.
+        /*if (commandBlock.count() > 0)
+        {
+            QStringList channels = commandBlock.at(0).split(",", QString::SkipEmptyParts);
+            QString server = commandBlock.count() > 1 ? commandBlock.at(1) : NULL;
+            return IrcCommand::createNames(channels, server);
+        }
+        else
+        {
+            return IrcCommand::createNames();
+        }*/
+    }
 
     // /NICK
     else if (commandString.compare("nick", Qt::CaseInsensitive) == 0)
