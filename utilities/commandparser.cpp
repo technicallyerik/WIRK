@@ -154,6 +154,11 @@ IrcCommand *CommandParser::parse(QString commandStr, Server* currentServer, Chan
     }
 
     // /MOTD
+    else if (commandString.compare("motd", Qt::CaseInsensitive) == 0)
+    {
+        QString server = commandBlock.count() > 0 ? commandBlock.at(0) : NULL;
+        return IrcCommand::createMotd(server);
+    }
 
     // /MSG
     else if (commandString.compare("msg", Qt::CaseInsensitive) == 0)
