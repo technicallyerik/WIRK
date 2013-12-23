@@ -118,6 +118,19 @@ IrcCommand *CommandParser::parse(QString commandStr, Server* currentServer, Chan
     }
 
     // /KNOCK
+    else if (commandString.compare("knock", Qt::CaseInsensitive) == 0)
+    {
+        if (commandBlock.count() > 1)
+        {
+            QString channel = commandBlock.takeFirst();
+            QString msg = commandBlock.join(" ").trimmed();
+            return IrcCommand::createKnock(channel, msg);
+        }
+        else if (commandBlock.count() == 1)
+        {
+            return IrcCommand::createKnock(commandBlock.at(0));
+        }
+    }
 
     // /LIST
     else if (commandString.compare("list", Qt::CaseInsensitive) == 0)
