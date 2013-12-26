@@ -61,6 +61,22 @@
       <bool>false</bool>
      </property>
     </widget>
+    <widget class="QCheckBox" name="joinOnConnect">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>50</y>
+       <width>101</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Join On Connect</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
    </widget>
   </widget>
  </widget>

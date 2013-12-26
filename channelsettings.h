@@ -16,6 +16,7 @@ public:
     explicit ChannelSettings(QString channelName, QString serverName, QWidget *parent = 0);
     ~ChannelSettings();
     bool shouldHideJoinNotifications();
+    bool shouldJoinOnConnect();
 
 private slots:
     void accept();
@@ -23,6 +24,8 @@ private slots:
 
 private:
     static const QString suppressJoinNotificationsKey;
+    static const QString joinOnConnectKey;
+
     Ui::ChannelSettings *ui;
     QString channelName;
     QString serverName;

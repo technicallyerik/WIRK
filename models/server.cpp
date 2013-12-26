@@ -7,6 +7,7 @@
 #include "ircsession.h"
 #include "user.h"
 #include <QMessageBox>
+#include "../channelsettings.h"
 
 Server::Server(QStandardItem *inMenuItem, Session *parent) : QObject(parent)
 {
@@ -265,7 +266,11 @@ void Server::connected()
         QStandardItem *channelMenuItem = getMenuItem()->child(c);
         QVariant channelData = channelMenuItem->data(Qt::UserRole);
         Channel *channel = channelData.value<Channel*>();
-        channel->join();
+        ChannelSettings *settings = new ChannelSettings(channel->getName(), this->getHost());
+        if (settings->shouldJoinOnConnect())
+        {
+            channel->join();
+        }
     }
 
     resetTimer();
