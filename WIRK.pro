@@ -63,7 +63,8 @@ SOURCES += main.cpp\
     models/messagehistory.cpp \
     textbox.cpp \
     newserver.cpp \
-    utilities/preferenceshelper.cpp
+    utilities/preferenceshelper.cpp \
+    channelsettings.cpp
 
 HEADERS  += mainwindow.h \
     ext_lib/communi/irctextformat.h \
@@ -111,11 +112,13 @@ HEADERS  += mainwindow.h \
     models/messagehistory.h \
     textbox.h \
     newserver.h \
-    utilities/preferenceshelper.h
+    utilities/preferenceshelper.h \
+    channelsettings.h
 
 FORMS    += mainwindow.ui \
     preferences.ui \
-    newserver.ui
+    newserver.ui \
+    channelsettings.ui
 
 OTHER_FILES += \
     ext_lib/uchardet/JISFreq.tab \

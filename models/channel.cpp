@@ -7,6 +7,7 @@
 #include "preferenceshelper.h"
 #include <QBrush>
 #include <QSettings>
+#include "../channelsettings.h"
 
 Channel::Channel(QString inName, ChannelType type, QStandardItem *inMenuItem, Server *parent) : QObject(parent)
 {
@@ -212,12 +213,17 @@ void Channel::removeUser(QString inUser, QString reason) {
         int row = menuItem->row();
         users->removeRow(row);
         user->deleteLater();
-        QString partMessage = QString("%1 has left %2").arg(inUser, name);
-        if (!reason.trimmed().isEmpty())
+        ChannelSettings *settings = new ChannelSettings(this->name, this->getServer()->getHost());
+        if (!settings->shouldHideJoinNotifications())
         {
-            partMessage.append(QString(" (Reason: %3)").arg(reason));
+            QString partMessage = QString("%1 has left %2").arg(inUser, name);
+            if (!reason.trimmed().isEmpty())
+            {
+                partMessage.append(QString(" (Reason: %3)").arg(reason));
+            }
+            appendText(partMessage);
         }
-        appendText(partMessage);
+        delete settings;
     }
 }
 

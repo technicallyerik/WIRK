@@ -35,6 +35,7 @@
 #include "commandparser.h"
 #include "irccommand.h"
 #include "preferenceshelper.h"
+#include "channelsettings.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -435,6 +436,12 @@ void MainWindow::generateContextMenu(const QPoint &point)
             connect(removeMapper, SIGNAL(mapped(const QString &)), server, SLOT(removeChannel(const QString &)));
         }
 
+        QSignalMapper *channelMapper = new QSignalMapper(this);
+        QAction *editChannelSettingsAction = menu.addAction("Settings");
+        channelMapper->setMapping(editChannelSettingsAction, QString("%1/%2").arg(channel->getServer()->getHost(),channel->getName()));
+        connect(editChannelSettingsAction, SIGNAL(triggered()), channelMapper, SLOT(map()));
+        connect(channelMapper, SIGNAL(mapped(const QString &)), this, SLOT(openChannelSettings(const QString &)));
+
     } else if(data.canConvert<Server*>()) {
 
         Server *server = data.value<Server*>();
@@ -630,6 +637,19 @@ void MainWindow::anchorClicked(QUrl url)
 void MainWindow::openPreferences()
 {
     Preferences dialog(this);
+    dialog.exec();
+}
+
+///
+/// \brief MainWindow::openChannelSettings
+/// \param serverChannel expecting format "server/channel"
+///
+void MainWindow::openChannelSettings(QString serverChannel)
+{
+    QStringList settingParts = serverChannel.split("/");
+    QString channel = settingParts.at(1);
+    QString server = settingParts.at(0);
+    ChannelSettings dialog(channel, server, this);
     dialog.exec();
 }
 

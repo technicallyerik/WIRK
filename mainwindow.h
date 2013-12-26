@@ -94,6 +94,7 @@ private slots:
     void openPreferences();
     void newServerWindow();
     void showAboutInfo();
+    void openChannelSettings(QString serverChannel);
 };
 
 #endif // MAINWINDOW_H

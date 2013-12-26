@@ -6,6 +6,7 @@
 #include "irccommand.h"
 #include "session.h"
 #include "user.h"
+#include "../channelsettings.h"
 
 #include <QMessageBox>
 
@@ -70,7 +71,12 @@ void MessageParser::parse(IrcMessage *message)
                 // Another user joined
                 Channel *channel = this->getChannel(targetChannel);
                 channel->addUser(sender, QChar::Null);
-                channel->appendText(QString("%1 has joined %2").arg(sender, targetChannel));
+                ChannelSettings *settings = new ChannelSettings(targetChannel, channel->getServer()->getHost());
+                if (!settings->shouldHideJoinNotifications())
+                {
+                    channel->appendText(QString("%1 has joined %2").arg(sender, targetChannel));
+                }
+                delete settings;
             }
             break;
         }
