@@ -43,13 +43,13 @@
    </property>
    <widget class="QWidget" name="channelTabName">
     <attribute name="title">
-     <string>Display</string>
+     <string>#channel</string>
     </attribute>
     <widget class="QCheckBox" name="suppressEnterLeaveNotifications">
      <property name="geometry">
       <rect>
        <x>30</x>
-       <y>20</y>
+       <y>45</y>
        <width>161</width>
        <height>17</height>
       </rect>
@@ -65,7 +65,7 @@
      <property name="geometry">
       <rect>
        <x>30</x>
-       <y>50</y>
+       <y>70</y>
        <width>101</width>
        <height>17</height>
       </rect>
@@ -75,6 +75,32 @@
      </property>
      <property name="checked">
       <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="colorUserNames">
+     <property name="geometry">
+      <rect>
+       <x>130</x>
+       <y>20</y>
+       <width>69</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="currentText">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="colorUserNamesLabel">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>20</y>
+       <width>91</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Color User Names</string>
      </property>
     </widget>
    </widget>
