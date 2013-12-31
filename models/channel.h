@@ -6,6 +6,7 @@
 
 class Server;
 class User;
+class ChannelSettings;
 
 class Channel : public QObject
 {
@@ -75,6 +76,7 @@ private:
     QStandardItemModel *users;
     QStandardItem *menuItem;
     bool isJoined;
+    ChannelSettings *channelSettings;
 
     QString getStyledUserString(QString user);
 };

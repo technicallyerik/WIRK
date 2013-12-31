@@ -46,10 +46,25 @@ QStringList PreferencesHelper::getUserColors()
     return defaultUserColors;
 }
 
-bool PreferencesHelper::getShouldUseColorUsernames()
+bool PreferencesHelper::getBooleanProperty(QString propertyKey, bool defaultValue)
 {
     settings->beginGroup(PreferencesHelper::displayPreferencesGroupKey);
-    bool colorUserNames = settings->value("colorusernames", true).toBool();
+    bool propertyValue = settings->value(propertyKey, defaultValue).toBool();
     settings->endGroup();
-    return colorUserNames;
+    return propertyValue;
+}
+
+bool PreferencesHelper::getShouldUseColorUsernames()
+{
+    return getBooleanProperty("colorusernames", true);
+}
+
+bool PreferencesHelper::getShouldJoinOnConnect()
+{
+    return getBooleanProperty("joinOnConnect", true);
+}
+
+bool PreferencesHelper::getShouldHideJoinNotifications()
+{
+    return getBooleanProperty("suppressjoinnotification", false);
 }

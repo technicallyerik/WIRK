@@ -19,6 +19,8 @@ public:
     QSettings* getSettings();
     QStringList getUserColors();
     bool getShouldUseColorUsernames();
+    bool getShouldJoinOnConnect();
+    bool getShouldHideJoinNotifications();
 
 private:
     PreferencesHelper();  // Hide constructor
@@ -30,6 +32,7 @@ private:
     QSettings *settings;
     QStringList defaultUserColors;
     
+    bool getBooleanProperty(QString propertyKey, bool defaultValue);
 };
 
 #endif // PREFERENCESHELPER_H

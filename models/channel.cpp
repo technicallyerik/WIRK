@@ -21,6 +21,7 @@ Channel::Channel(QString inName, ChannelType type, QStandardItem *inMenuItem, Se
     } else {
         this->setIsJoined(true);
     }
+    channelSettings = new ChannelSettings(inName, this->getServer()->getHost());
 }
 
 Channel::~Channel()
@@ -115,7 +116,7 @@ void Channel::appendText(QString sender, QString inText, MessageType type) {
 
 QString Channel::getStyledUserString(QString user)
 {
-    bool useColorUserNames = PreferencesHelper::sharedInstance()->getShouldUseColorUsernames();
+    bool useColorUserNames = this->channelSettings->shouldColorUserNames();
 
     User *channelUser = this->getUser(user);
     if (useColorUserNames && channelUser != NULL)

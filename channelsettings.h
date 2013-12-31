@@ -18,7 +18,7 @@ public:
     ~ChannelSettings();
     bool shouldHideJoinNotifications();
     bool shouldJoinOnConnect();
-    int shouldColorUserNames();
+    bool shouldColorUserNames();
 
     enum DropdownOptions { Default_Option = -1, No_Option = 0, Yes_Option = 1 };
 

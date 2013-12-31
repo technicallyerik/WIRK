@@ -1,10 +1,12 @@
 #include "user.h"
 #include "channel.h"
+#include "server.h"
 #include <stdlib.h>
 #include <QSet>
 #include <QBrush>
 #include <QDebug>
 #include "preferenceshelper.h"
+#include "../channelsettings.h"
 
 User::User(QString inName, QChar inMode, QStandardItem *inMenuItem, Channel *parent) : QObject(parent)
 {
@@ -50,8 +52,10 @@ void User::refreshUserDisplay()
 {
     QString mode = this->getModeDisplayString();
     menuItem->setText(mode + name);
+    Channel *channel = this->getChannel();
 
-    bool shouldUseColorUsernames = PreferencesHelper::sharedInstance()->getShouldUseColorUsernames();
+    ChannelSettings *settings = new ChannelSettings(channel->getName(), channel->getServer()->getHost());
+    bool shouldUseColorUsernames = settings->shouldColorUserNames();
     if(shouldUseColorUsernames) {
         menuItem->setForeground(userColor);
     } else {
@@ -61,7 +65,7 @@ void User::refreshUserDisplay()
 
     QString sortString = getSortString();
     menuItem->setData(sortString, UserDataSort);
-    Channel *channel = this->getChannel();
+
     channel->sortUsers();
 }
 

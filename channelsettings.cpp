@@ -1,5 +1,6 @@
 #include "channelsettings.h"
 #include "ui_channelsettings.h"
+#include "preferenceshelper.h"
 
 const QString ChannelSettings::suppressJoinNotificationsKey = QString("suppressjoinnotification");
 const QString ChannelSettings::joinOnConnectKey = QString("joinOnConnect");
@@ -14,8 +15,8 @@ ChannelSettings::ChannelSettings(QString channelName, QString serverName, QWidge
     settings = new QSettings(QSettings::IniFormat, QSettings::UserScope, "com.flashforwardlabs", "wirk", this);
 
     this->populateDropdown(ui->colorUserNames, colorUsernamesKey);
-    ui->suppressEnterLeaveNotifications->setChecked(this->shouldHideJoinNotifications());
-    ui->joinOnConnect->setChecked(this->shouldJoinOnConnect());
+    this->populateDropdown(ui->suppressEnterLeaveNotifications, suppressJoinNotificationsKey);
+    this->populateDropdown(ui->joinOnConnect, joinOnConnectKey);
 }
 
 ChannelSettings::~ChannelSettings()
@@ -26,8 +27,8 @@ ChannelSettings::~ChannelSettings()
 void ChannelSettings::accept()
 {
     int colorUserNames = this->ui->colorUserNames->itemData(this->ui->colorUserNames->currentIndex()).toInt();
-    bool suppressJoinNotificationPreference = this->ui->suppressEnterLeaveNotifications->isChecked();
-    bool joinOnConnect = this->ui->joinOnConnect->isChecked();
+    int suppressJoinNotificationPreference = this->ui->suppressEnterLeaveNotifications->itemData(this->ui->suppressEnterLeaveNotifications->currentIndex()).toInt();
+    int joinOnConnect = this->ui->joinOnConnect->itemData(this->ui->joinOnConnect->currentIndex()).toInt();
 
     settings->beginGroup(getGroupKey());
     settings->setValue(colorUsernamesKey, colorUserNames);
@@ -46,23 +47,62 @@ QString ChannelSettings::getGroupKey()
 
 bool ChannelSettings::shouldHideJoinNotifications()
 {
-    settings->beginGroup(getGroupKey());
-    bool hideNotifications = settings->value(suppressJoinNotificationsKey, false).toBool();
-    settings->endGroup();
-    return hideNotifications;
+    int hideJoinNotificationsSetting = getPropertyValue(suppressJoinNotificationsKey);
+    switch (hideJoinNotificationsSetting)
+    {
+        case Default_Option:
+            return PreferencesHelper::sharedInstance()->getShouldHideJoinNotifications();
+            break;
+        case Yes_Option:
+            return true;
+            break;
+        case No_Option:
+            return false;
+            break;
+        default:
+            return PreferencesHelper::sharedInstance()->getShouldHideJoinNotifications();
+            break;
+    }
 }
 
 bool ChannelSettings::shouldJoinOnConnect()
 {
-    settings->beginGroup(getGroupKey());
-    bool joinOnConnect = settings->value(joinOnConnectKey, true).toBool();
-    settings->endGroup();
-    return joinOnConnect;
+    int joinOnConnectSetting = getPropertyValue(joinOnConnectKey);
+    switch (joinOnConnectSetting)
+    {
+        case Default_Option:
+            return PreferencesHelper::sharedInstance()->getShouldJoinOnConnect();
+            break;
+        case Yes_Option:
+            return true;
+            break;
+        case No_Option:
+            return false;
+            break;
+        default:
+            return PreferencesHelper::sharedInstance()->getShouldJoinOnConnect();
+            break;
+    }
 }
 
-int ChannelSettings::shouldColorUserNames()
+bool ChannelSettings::shouldColorUserNames()
 {
-    return getPropertyValue(colorUsernamesKey);
+    int channelSetting = getPropertyValue(colorUsernamesKey);
+    switch (channelSetting)
+    {
+        case Default_Option:
+            return PreferencesHelper::sharedInstance()->getShouldUseColorUsernames();
+            break;
+        case Yes_Option:
+            return true;
+            break;
+        case No_Option:
+            return false;
+            break;
+        default:
+            return PreferencesHelper::sharedInstance()->getShouldUseColorUsernames();
+            break;
+    }
 }
 
 int ChannelSettings::getPropertyValue(QString propertyKey)
