@@ -48,9 +48,9 @@
     <widget class="QComboBox" name="colorUserNames">
      <property name="geometry">
       <rect>
-       <x>180</x>
+       <x>250</x>
        <y>20</y>
-       <width>69</width>
+       <width>101</width>
        <height>22</height>
       </rect>
      </property>
@@ -61,22 +61,25 @@
     <widget class="QLabel" name="colorUserNamesLabel">
      <property name="geometry">
       <rect>
-       <x>76</x>
+       <x>10</x>
        <y>20</y>
-       <width>85</width>
+       <width>231</width>
        <height>22</height>
       </rect>
      </property>
      <property name="text">
       <string>Color User Names</string>
      </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
     </widget>
     <widget class="QComboBox" name="suppressEnterLeaveNotifications">
      <property name="geometry">
       <rect>
-       <x>180</x>
+       <x>250</x>
        <y>50</y>
-       <width>69</width>
+       <width>101</width>
        <height>22</height>
       </rect>
      </property>
@@ -84,22 +87,25 @@
     <widget class="QLabel" name="suppressEnterLeaveNotificationsLabel">
      <property name="geometry">
       <rect>
-       <x>30</x>
+       <x>10</x>
        <y>50</y>
-       <width>135</width>
+       <width>231</width>
        <height>22</height>
       </rect>
      </property>
      <property name="text">
       <string>Hide Enter/Leave Messages</string>
      </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
     </widget>
     <widget class="QComboBox" name="joinOnConnect">
      <property name="geometry">
       <rect>
-       <x>180</x>
+       <x>250</x>
        <y>80</y>
-       <width>69</width>
+       <width>101</width>
        <height>22</height>
       </rect>
      </property>
@@ -107,14 +113,17 @@
     <widget class="QLabel" name="joinOnConnectLabel">
      <property name="geometry">
       <rect>
-       <x>85</x>
+       <x>20</x>
        <y>80</y>
-       <width>80</width>
+       <width>221</width>
        <height>22</height>
       </rect>
      </property>
      <property name="text">
       <string>Join On Connect</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
      </property>
     </widget>
    </widget>
