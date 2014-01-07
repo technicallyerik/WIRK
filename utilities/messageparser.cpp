@@ -7,7 +7,7 @@
 #include "session.h"
 #include "user.h"
 #include "../channelsettings.h"
-
+#include "../utilities/preferenceshelper.h"
 #include <QMessageBox>
 
 MessageParser::MessageParser(Server *parent) : QObject(parent)
@@ -71,12 +71,11 @@ void MessageParser::parse(IrcMessage *message)
                 // Another user joined
                 Channel *channel = this->getChannel(targetChannel);
                 channel->addUser(sender, QChar::Null);
-                ChannelSettings *settings = new ChannelSettings(targetChannel, channel->getServer()->getHost());
-                if (!settings->shouldHideJoinNotifications())
+                bool hideJoinNotifications = PreferencesHelper::sharedInstance()->getShouldHideJoinNotifications(targetChannel, channel->getServer()->getHost());
+                if (!hideJoinNotifications)
                 {
                     channel->appendText(QString("%1 has joined %2").arg(sender, targetChannel));
                 }
-                delete settings;
             }
             break;
         }

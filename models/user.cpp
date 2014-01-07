@@ -54,8 +54,7 @@ void User::refreshUserDisplay()
     menuItem->setText(mode + name);
     Channel *channel = this->getChannel();
 
-    ChannelSettings *settings = new ChannelSettings(channel->getName(), channel->getServer()->getHost());
-    bool shouldUseColorUsernames = settings->shouldColorUserNames();
+    bool shouldUseColorUsernames = PreferencesHelper::sharedInstance()->getShouldUseColorUsernames(channel->getName(), channel->getServer()->getHost());
     if(shouldUseColorUsernames) {
         menuItem->setForeground(userColor);
     } else {

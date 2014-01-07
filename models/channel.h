@@ -76,7 +76,6 @@ private:
     QStandardItemModel *users;
     QStandardItem *menuItem;
     bool isJoined;
-    ChannelSettings *channelSettings;
 
     QString getStyledUserString(QString user);
 };

@@ -7,15 +7,15 @@
 
 Preferences::Preferences(QWidget *parent) : QDialog(parent), ui(new Ui::Preferences)
 {
+    // Setup Window
     ui->setupUi(this);
 
-    QSettings *settings = PreferencesHelper::sharedInstance()->getSettings();
+    // Get preferences
+    bool useColorUsernamesPreference = PreferencesHelper::sharedInstance()->getPropertyDefault(PreferencesHelper::colorUsernamesKey, true);
+    bool joinOnConnectPreference = PreferencesHelper::sharedInstance()->getPropertyDefault(PreferencesHelper::joinOnConnectKey, true);
+    bool hideJoinNotificationsPreference = PreferencesHelper::sharedInstance()->getPropertyDefault(PreferencesHelper::suppressJoinNotificationsKey, false);
 
-    // Get 'Should use user colors' Preference
-    bool useColorUsernamesPreference = PreferencesHelper::sharedInstance()->getShouldUseColorUsernames();
-    bool joinOnConnectPreference = PreferencesHelper::sharedInstance()->getShouldJoinOnConnect();
-    bool hideJoinNotificationsPreference = PreferencesHelper::sharedInstance()->getShouldHideJoinNotifications();
-
+    // Update UI
     this->ui->colorUserNames->setChecked(useColorUsernamesPreference);
     this->ui->joinOnConnect->setChecked(joinOnConnectPreference);
     this->ui->suppressEnterLeaveNotifications->setChecked(hideJoinNotificationsPreference);
@@ -30,18 +30,20 @@ void Preferences::accept()
 {
     QSettings *settings = PreferencesHelper::sharedInstance()->getSettings();
 
-    // Set 'Should user user colors' Preference
+    // Set preferences
     bool useColorUsernamesPreference = this->ui->colorUserNames->isChecked();
     bool joinOnConnectPreference = this->ui->joinOnConnect->isChecked();
     bool hideJoinNotificationsPreference = this->ui->suppressEnterLeaveNotifications->isChecked();
 
+    // Persist
     settings->beginGroup(PreferencesHelper::displayPreferencesGroupKey);
-    settings->setValue("colorusernames", useColorUsernamesPreference);
-    settings->setValue("joinOnConnect", joinOnConnectPreference);
-    settings->setValue("suppressjoinnotification", hideJoinNotificationsPreference);
+    settings->setValue(PreferencesHelper::colorUsernamesKey, useColorUsernamesPreference);
+    settings->setValue(PreferencesHelper::joinOnConnectKey, joinOnConnectPreference);
+    settings->setValue(PreferencesHelper::suppressJoinNotificationsKey, hideJoinNotificationsPreference);
     settings->endGroup();
-
     settings->sync();
+
+    // Close Window
     this->close();
 }
 

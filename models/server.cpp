@@ -8,6 +8,7 @@
 #include "user.h"
 #include <QMessageBox>
 #include "../channelsettings.h"
+#include "../utilities/preferenceshelper.h"
 
 Server::Server(QStandardItem *inMenuItem, Session *parent) : QObject(parent)
 {
@@ -266,8 +267,7 @@ void Server::connected()
         QStandardItem *channelMenuItem = getMenuItem()->child(c);
         QVariant channelData = channelMenuItem->data(Qt::UserRole);
         Channel *channel = channelData.value<Channel*>();
-        ChannelSettings *settings = new ChannelSettings(channel->getName(), this->getHost());
-        if (settings->shouldJoinOnConnect())
+        if (PreferencesHelper::sharedInstance()->getShouldJoinOnConnect(channel->getName(), this->getHost()))
         {
             channel->join();
         }

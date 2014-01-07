@@ -21,7 +21,6 @@ Channel::Channel(QString inName, ChannelType type, QStandardItem *inMenuItem, Se
     } else {
         this->setIsJoined(true);
     }
-    channelSettings = new ChannelSettings(inName, this->getServer()->getHost());
 }
 
 Channel::~Channel()
@@ -116,7 +115,7 @@ void Channel::appendText(QString sender, QString inText, MessageType type) {
 
 QString Channel::getStyledUserString(QString user)
 {
-    bool useColorUserNames = this->channelSettings->shouldColorUserNames();
+    bool useColorUserNames = PreferencesHelper::sharedInstance()->getShouldUseColorUsernames(this->getName(), this->getServer()->getHost());
 
     User *channelUser = this->getUser(user);
     if (useColorUserNames && channelUser != NULL)
@@ -214,8 +213,8 @@ void Channel::removeUser(QString inUser, QString reason) {
         int row = menuItem->row();
         users->removeRow(row);
         user->deleteLater();
-        ChannelSettings *settings = new ChannelSettings(this->name, this->getServer()->getHost());
-        if (!settings->shouldHideJoinNotifications())
+        bool hideNotifications = PreferencesHelper::sharedInstance()->getShouldUseColorUsernames(this->getName(), this->getServer()->getHost());
+        if (!hideNotifications)
         {
             QString partMessage = QString("%1 has left %2").arg(inUser, name);
             if (!reason.trimmed().isEmpty())
@@ -224,7 +223,6 @@ void Channel::removeUser(QString inUser, QString reason) {
             }
             appendText(partMessage);
         }
-        delete settings;
     }
 }
 

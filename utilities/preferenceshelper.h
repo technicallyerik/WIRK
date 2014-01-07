@@ -12,15 +12,25 @@ class PreferencesHelper : public QObject
 
 public:
     static const QString displayPreferencesGroupKey;
+    static const QString suppressJoinNotificationsKey;
+    static const QString joinOnConnectKey;
+    static const QString colorUsernamesKey;
 
     static PreferencesHelper* sharedInstance();
     static void dropSharedInstance();
 
     QSettings* getSettings();
     QStringList getUserColors();
-    bool getShouldUseColorUsernames();
-    bool getShouldJoinOnConnect();
-    bool getShouldHideJoinNotifications();
+    bool getShouldUseColorUsernames(QString channel, QString server);
+    bool getShouldJoinOnConnect(QString channel, QString server);
+    bool getShouldHideJoinNotifications(QString channel, QString server);
+
+    QString getChannelGroupKey(QString channel, QString server);
+
+    enum DropdownOptions { Default_Option = -1, No_Option = 0, Yes_Option = 1 };
+
+    bool getPropertyDefault(QString propertyKey, bool defaultValue);
+    int getPropertyForChannel(QString propertyKey, QString channel, QString server);
 
 private:
     PreferencesHelper();  // Hide constructor
@@ -31,8 +41,6 @@ private:
 
     QSettings *settings;
     QStringList defaultUserColors;
-    
-    bool getBooleanProperty(QString propertyKey, bool defaultValue);
 };
 
 #endif // PREFERENCESHELPER_H
