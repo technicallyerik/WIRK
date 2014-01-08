@@ -213,7 +213,7 @@ void Channel::removeUser(QString inUser, QString reason) {
         int row = menuItem->row();
         users->removeRow(row);
         user->deleteLater();
-        bool hideNotifications = PreferencesHelper::sharedInstance()->getShouldUseColorUsernames(this->getName(), this->getServer()->getHost());
+        bool hideNotifications = PreferencesHelper::sharedInstance()->getShouldHideJoinNotifications(this->getName(), this->getServer()->getHost());
         if (!hideNotifications)
         {
             QString partMessage = QString("%1 has left %2").arg(inUser, name);
