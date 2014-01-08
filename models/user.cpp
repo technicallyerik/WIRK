@@ -50,8 +50,12 @@ QSet<QChar> User::getModes()
 
 void User::refreshUserDisplay()
 {
-    QString mode = this->getModeDisplayString();
-    menuItem->setText(mode + name);
+    QChar mode = this->getModeDisplayString();
+    QString displayName = name;
+    if(mode != NULL) {
+        displayName.prepend(mode);
+    }
+    menuItem->setText(displayName);
     Channel *channel = this->getChannel();
 
     bool shouldUseColorUsernames = PreferencesHelper::sharedInstance()->getShouldUseColorUsernames(channel->getName(), channel->getServer()->getHost());
@@ -70,7 +74,7 @@ void User::refreshUserDisplay()
 
 QChar User::getModeDisplayString()
 {
-    QChar mode = char();
+    QChar mode = NULL;
     if (modes.contains('q'))
         mode = USER_MODE_OWNER;
     else if (modes.contains('a'))
