@@ -31,7 +31,7 @@ public:
     void addMode(QChar mode);
     void removeMode(QChar mode);
     void refreshUserDisplay();
-    QChar getModeDisplayString();
+    char getModeDisplayString();
 
     QBrush getUserColor();
 

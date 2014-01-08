@@ -707,6 +707,9 @@ QString MessageParser::styleString(QString fullMessage) {
     // Sanitize input
     fullMessage = fullMessage.toHtmlEscaped();
 
+    // Remove STX control character causing issues in QT 5.2+
+    fullMessage = fullMessage.replace("\x02", "");
+
     // Surround links with anchor tags
     QRegExp urlRegex("((?:[a-z][\\w-]+:(?:/{1,3}|[a-z0-9%])|www\\d{0,3}[.]|[a-z0-9.\\-]+[.][a-z]{2,4}/)(?:[^\\s()<>]+|\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\))+(?:\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\)|[^\\s`!()\\[\\]{};:'\".,<>?«»“”‘’]))");
     fullMessage.replace(urlRegex, "<a href=\"\\1\">\\1</a>");
