@@ -50,7 +50,7 @@ QSet<QChar> User::getModes()
 
 void User::refreshUserDisplay()
 {
-    QChar mode = this->getModeDisplayString();
+    char mode = this->getModeDisplayString();
     QString displayName = name;
     if(mode != NULL) {
         displayName.prepend(mode);
@@ -72,9 +72,9 @@ void User::refreshUserDisplay()
     channel->sortUsers();
 }
 
-QChar User::getModeDisplayString()
+char User::getModeDisplayString()
 {
-    QChar mode = NULL;
+    char mode = NULL;
     if (modes.contains('q'))
         mode = USER_MODE_OWNER;
     else if (modes.contains('a'))
