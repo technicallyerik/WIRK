@@ -42,6 +42,8 @@ public:
     };
 
 private:
+    static const QString mainCssFileName;
+
     Ui::MainWindow *ui;
     Session *session;
     QNetworkAccessManager *networkAccessManager;
@@ -56,6 +58,7 @@ private:
     void saveWindowSettings();
     void readWindowSettings();
     void checkForUpdates();
+    QString readFile(QString fileName);
 
     Server* getCurrentServer();
 

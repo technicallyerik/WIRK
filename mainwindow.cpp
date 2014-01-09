@@ -36,6 +36,10 @@
 #include "irccommand.h"
 #include "preferenceshelper.h"
 #include "channelsettings.h"
+#include <QFile>
+#include <QTextStream>
+
+const QString MainWindow::mainCssFileName = "main.css";
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -73,7 +77,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     // Setup the main text area
     document = new QTextDocument(ui->mainText);
     // TODO: create a function to return this as a string from the actual CSS file instead of putting in a minified string
-    document->setDefaultStyleSheet("table{font-family:\"Lucida Console\",Monaco,monospace;font-size:11px;line-height:1.25;margin:0}th,td{padding:2px 5px;vertical-align:top;color:#fff}h1,h2,h3,h4,h5,h6{margin:0}p{margin:0}a{color:#ddd;text-decoration:underline}.user{color:#aaa;font-size:11px;font-weight:bold}.metainfo{color:#999;font-size:8px}.col-name{text-align:right}.col-meta{padding-top:4px}.msg-mentioned{background:#736500}.msg-mentioned .user{color:#ddd}.msg-mentioned .message{color:#ffe100}.msg-mentioned a{color:#d6bd00}.msg-info .message{font-style:italic;color:#999}.msg-topic{background:#555}.msg-topic .user{color:#fff}.msg-topic .message{font-style:italic}.msg-emote{background:#73005e}.msg-emote .message{font-style:italic;color:#ff00d1}.msg-emote a{color:#cc00a7}");
+    document->setDefaultStyleSheet(this->readFile(this->mainCssFileName));
+    qDebug() << "Stylesheet: " << document->defaultStyleSheet();
     ui->mainText->setDocument(document);
     connect(ui->mainText, SIGNAL(anchorClicked(QUrl)), this, SLOT(anchorClicked(QUrl)));
 
@@ -764,4 +769,14 @@ void MainWindow::versionFileDownloaded(QNetworkReply *networkReply)
 
     // and clean up
     delete networkReply;
+}
+
+QString MainWindow::readFile(QString fileName)
+{
+    QString path = QString("%1/%2").arg(QCoreApplication::applicationDirPath(),fileName);
+    QFile file(path);
+    file.open(QIODevice::ReadOnly);
+
+    QTextStream stream(&file);
+    return stream.readAll().simplified();
 }

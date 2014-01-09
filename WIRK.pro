@@ -128,7 +128,8 @@ OTHER_FILES += \
     ext_lib/uchardet/Big5Freq.tab \
     assets/icon.icns \
     assets/icon.ico \
-    assets/icon.rc
+    assets/icon.rc \
+    main.css
 
 INCLUDEPATH += ext_lib/communi \
                 ext_lib/mozilla \
@@ -145,6 +146,19 @@ ICON = assets/icon.icns
 
 RESOURCES += \
     wirk.qrc
+
+CONFIG(debug, debug|release) {
+        DDIR = $$OUT_PWD/debug
+}
+CONFIG(release, debug|release) {
+    DDIR = $$OUT_PWD/release
+}
+
+stylesheets.path = $$DDIR
+stylesheets.files += main.css
+stylesheets.commands = @echo "Copying main.css in $$DDIR"
+
+INSTALLS += stylesheets
 
 RC_FILE = assets/icon.rc
 

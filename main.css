@@ -1,0 +1,86 @@
+table {
+    font-family:"Lucida Console",Monaco,monospace;
+    font-size:11px;
+    line-height:1.25;
+    margin:0;
+}
+
+th,td {
+    vertical-align:top;
+    color:#fff;
+    padding:2px 5px;
+}
+
+a {
+    color:#ddd;
+    text-decoration:underline;
+}
+
+.user {
+    color:#aaa;
+    font-size:11px;
+    font-weight:700;
+}
+
+.metainfo {
+    color:#999;
+    font-size:8px;
+}
+
+.col-name {
+    text-align:right;
+}
+
+.col-meta {
+    padding-top:4px;
+}
+
+.msg-mentioned {
+    background:#736500;
+}
+
+.msg-mentioned .user {
+    color:#ddd;
+}
+
+.msg-mentioned .message {
+    color:#ffe100;
+}
+
+.msg-mentioned a {
+    color:#d6bd00;
+}
+
+.msg-info .message {
+    font-style:italic;
+    color:#999;
+}
+
+.msg-topic {
+    background:#555;
+}
+
+.msg-topic .user {
+    color:#fff;
+}
+
+.msg-topic .message {
+    font-style:italic;
+}
+
+.msg-emote {
+    background:#73005e;
+}
+
+.msg-emote .message {
+    font-style:italic;
+    color:#ff00d1;
+}
+
+.msg-emote a {
+    color:#cc00a7;
+}
+
+h1,h2,h3,h4,h5,h6,p {
+    margin:0;
+}
