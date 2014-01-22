@@ -156,7 +156,6 @@ CONFIG(release, debug|release) {
 
 stylesheets.path = $$DDIR
 stylesheets.files += main.css
-stylesheets.commands = @echo "Copying main.css in $$DDIR"
 
 INSTALLS += stylesheets
 

@@ -78,7 +78,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     document = new QTextDocument(ui->mainText);
     // TODO: create a function to return this as a string from the actual CSS file instead of putting in a minified string
     document->setDefaultStyleSheet(this->readFile(this->mainCssFileName));
-    qDebug() << "Stylesheet: " << document->defaultStyleSheet();
     ui->mainText->setDocument(document);
     connect(ui->mainText, SIGNAL(anchorClicked(QUrl)), this, SLOT(anchorClicked(QUrl)));
 
