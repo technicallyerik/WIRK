@@ -155,10 +155,11 @@ CONFIG(release, debug|release) {
     DDIR = $$OUT_PWD/release
 }
 
-stylesheets.path = $$DDIR
-stylesheets.files += main.css
-
-INSTALLS += stylesheets
+win32 {
+    stylesheets.path = $$DDIR
+    stylesheets.files += main.css
+    INSTALLS += stylesheets
+}
 
 mac {
     StyleSheets.files = main.css
