@@ -148,8 +148,9 @@ RESOURCES += \
     wirk.qrc
 
 CONFIG(debug, debug|release) {
-        DDIR = $$OUT_PWD/debug
+    DDIR = $$OUT_PWD/debug
 }
+
 CONFIG(release, debug|release) {
     DDIR = $$OUT_PWD/release
 }
@@ -158,6 +159,12 @@ stylesheets.path = $$DDIR
 stylesheets.files += main.css
 
 INSTALLS += stylesheets
+
+mac {
+    StyleSheets.files = main.css
+    StyleSheets.path = Contents/MacOS
+    QMAKE_BUNDLE_DATA += StyleSheets
+}
 
 RC_FILE = assets/icon.rc
 
