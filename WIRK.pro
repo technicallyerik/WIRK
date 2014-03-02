@@ -169,6 +169,6 @@ mac {
 
 RC_FILE = assets/icon.rc
 
-VERSION = 0.3.5
+VERSION = 0.3.6
 
 DEFINES += VER=\\\"$${VERSION}.$$system(git rev-parse --short HEAD)\\\"
