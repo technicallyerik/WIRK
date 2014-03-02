@@ -156,9 +156,9 @@ CONFIG(release, debug|release) {
 }
 
 win32 {
-    stylesheets.path = $$DDIR
-    stylesheets.files += main.css
-    INSTALLS += stylesheets
+    StyleSheets.path    = $$DDIR
+    StyleSheets.files   += main.css
+    INSTALLS            += StyleSheets
 }
 
 mac {
