@@ -587,28 +587,25 @@ void MainWindow::movieChanged(QPixmap pixels, QUrl url)
 {
     document->addResource(QTextDocument::ImageResource, url, pixels);
 
-    if(QApplication::activeWindow() != 0) {
-        // Find the location of the URL in the text
-        QTextCursor cursor = document->find(url.toString());
-        int cursorPosition = cursor.position();
-        if(cursorPosition > -1) {
-            // Find the location and size of the block containing the url
-            QTextBlock block = document->findBlock(cursorPosition);
-            int blockStart = block.position();
-            int blockLength = block.length();
-            int blockEnd = blockStart + blockLength;
-            if(blockStart > -1 && blockLength > 0) {
-                // Make sure the image is scrolled into view
-                QRect viewport = ui->mainText->viewport()->visibleRegion().boundingRect();
-                QPoint scrollStartPoint = viewport.topLeft();
-                QPoint scrollEndPoint = viewport.bottomRight();
-                int scrollStartCursorPosition = ui->mainText->cursorForPosition(scrollStartPoint).position();
-                int scrollEndCursorPosition = ui->mainText->cursorForPosition(scrollEndPoint).position();
-                if((blockEnd > scrollStartCursorPosition) &&
-                   (blockStart < scrollEndCursorPosition)) {
-                    document->markContentsDirty(blockStart, blockLength);
-                    qDebug() << QTime::currentTime().toString() << " " << url.toString();
-                }
+    // Find the location of the URL in the text
+    QTextCursor cursor = document->find(url.toString());
+    int cursorPosition = cursor.position();
+    if(cursorPosition > -1) {
+        // Find the location and size of the block containing the url
+        QTextBlock block = document->findBlock(cursorPosition);
+        int blockStart = block.position();
+        int blockLength = block.length();
+        int blockEnd = blockStart + blockLength;
+        if(blockStart > -1 && blockLength > 0) {
+            // Make sure the image is scrolled into view
+            QRect viewport = ui->mainText->viewport()->visibleRegion().boundingRect();
+            QPoint scrollStartPoint = viewport.topLeft();
+            QPoint scrollEndPoint = viewport.bottomRight();
+            int scrollStartCursorPosition = ui->mainText->cursorForPosition(scrollStartPoint).position();
+            int scrollEndCursorPosition = ui->mainText->cursorForPosition(scrollEndPoint).position();
+            if((blockEnd > scrollStartCursorPosition) &&
+               (blockStart < scrollEndCursorPosition)) {
+                document->markContentsDirty(blockStart, blockLength);
             }
         }
     }
