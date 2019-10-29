@@ -4,7 +4,7 @@
 #include <QMainWindow>
 #include <QUrl>
 #include <QPixmap>
-#include <QtWebKitWidgets/QWebView>
+#include <QWebEngineView>
 #include "channel.h"
 #include <QSettings>
 
@@ -48,7 +48,7 @@ private:
     Session *session;
     QNetworkAccessManager *networkAccessManager;
     QNetworkAccessManager *updateCheckerNetworkAccessManager;
-    QWebView *webView;
+    QWebEngineView *webView;
     QTextDocument *document;
     QList<AnimationViewModel *> animations;
     QTimer *timer;

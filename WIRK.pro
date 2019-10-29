@@ -139,8 +139,8 @@ INCLUDEPATH += ext_lib/communi \
                 viewmodels
 
 QT += network \
-        webkit \
-        webkitwidgets
+      webengine \
+      webenginewidgets
 
 ICON = assets/icon.icns
 
