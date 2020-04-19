@@ -127,7 +127,9 @@
     <script>
       function trackOutboundLink(link, category, action) { 
         try { 
-          gtag('event', category, {'url': action });
+          gtag('event', action, {
+            'event_category': category
+          });
         } catch(err) { }
        
         setTimeout(function() {
